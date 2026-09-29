@@ -2,68 +2,46 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
-<div style="height:100%;background:#fff;border:1px solid #ece8df;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 18px 40px -32px rgba(32,37,69,.35)">
-  <button onClick="{{ onView }}" aria-label="{{ title }}" style="background:{{ headBg }};color:{{ headFg }};border:none;padding:0;cursor:pointer;text-align:left;display:flex;flex-direction:column;min-height:148px;position:relative;flex:none">
-    <div style="padding:22px 22px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;width:100%;box-sizing:border-box">
-      <sc-if value="{{ hasDate }}" hint-placeholder-val="{{ true }}">
-        <div style="display:flex;flex-direction:column;gap:2px;min-width:64px">
-          <span style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:{{ dateBig }};line-height:1;color:{{ headFg }}">{{ dateTop }}</span>
-          <span style="font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:{{ headSub }}">{{ dateBottom }}</span>
-        </div>
-      </sc-if>
-      <span style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:{{ headSub }};padding-top:4px">{{ typeLabel }}</span>
+<div style="background:#fff;border:1px solid #ece8df;border-radius:24px;display:flex;flex-direction:column;height:100%;box-sizing:border-box;font-family:'Manrope',sans-serif;color:#343434;overflow:hidden;transition:box-shadow .25s ease,transform .25s ease" style-hover="box-shadow:0 28px 56px -30px rgba(32,37,69,.4);transform:translateY(-3px)">
+  <div style="background:{{ p.headBg }};color:{{ p.headFg }};padding:22px 22px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;min-height:132px">
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;min-width:0">
+      <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:{{ p.headSub }}">{{ p.typeLabel }}</span>
+      <span style="font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;background:{{ p.statusBg }};color:{{ p.statusColor }};white-space:nowrap">{{ p.statusLabel }}</span>
     </div>
-    <div style="margin-top:auto;padding:0 22px 18px;display:flex">
-      <span style="font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;background:{{ statusBg }};color:{{ statusColor }}">{{ statusLabel }}</span>
-    </div>
-  </button>
-
-  <div style="padding:22px 22px 24px;display:flex;flex-direction:column;gap:14px;flex:1">
-    <button onClick="{{ onView }}" style="background:none;border:none;padding:0;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:10px">
-      <span style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;line-height:1.1;color:#202545;text-wrap:balance">{{ title }}</span>
-      <span style="font-size:15px;line-height:1.6;color:#5a5a5a;text-wrap:pretty">{{ description }}</span>
-    </button>
-
-    <sc-if value="{{ hasSpeaker }}" hint-placeholder-val="{{ false }}">
-      <div style="display:flex;align-items:center;gap:12px;padding-top:2px">
-        <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
-          <img src="{{ speakerPhoto }}" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;display:block;flex:none">
-        </sc-if>
-        <sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ false }}">
-          <div style="width:40px;height:40px;border-radius:50%;background:#F2ECB6;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:#202545;flex:none">{{ initials }}</div>
-        </sc-if>
-        <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
-          <span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#85704A">{{ speakerRole }}</span>
-          <span style="font-size:14px;font-weight:700;color:#202545;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ speaker }}</span>
-        </div>
+    <sc-if value="{{ p.hasDate }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#fff;color:#202545;border-radius:16px;width:76px;height:84px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 10px 24px -14px rgba(0,0,0,.35)">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:{{ p.dateBig }};font-weight:700;line-height:1">{{ p.dateTop }}</span>
+        <span style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#85704A">{{ p.dateBottom }}</span>
       </div>
     </sc-if>
-
-    <sc-if value="{{ hasMeta }}" hint-placeholder-val="{{ true }}">
-      <span style="font-size:13px;color:#7a7466;font-weight:600">{{ meta }}</span>
+  </div>
+  <div style="padding:24px 22px 22px;display:flex;flex-direction:column;gap:14px;flex:1">
+    <h3 style="margin:0"><button onClick="{{ p.onView }}" style="background:none;border:none;padding:0;text-align:left;cursor:pointer;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;line-height:1.05;color:#202545;text-wrap:pretty" style-hover="color:#85704A">{{ p.title }}</button></h3>
+    <p style="margin:0;font-size:15px;line-height:1.6;color:#4a4a4a;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">{{ p.description }}</p>
+    <sc-if value="{{ p.hasSpeaker }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <sc-if value="{{ p.hasPhoto }}" hint-placeholder-val="{{ false }}">
+          <img src="{{ p.speakerPhoto }}" alt="{{ p.speaker }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;display:block;flex:none">
+        </sc-if>
+        <sc-if value="{{ p.noPhoto }}" hint-placeholder-val="{{ false }}">
+          <div style="width:40px;height:40px;border-radius:50%;flex:none;background:#F2ECB6;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#202545">{{ p.initials }}</div>
+        </sc-if>
+        <span style="font-size:14px;color:#4a4a4a;min-width:0"><strong style="color:#202545">{{ p.speaker }}</strong> · {{ p.speakerRole }}</span>
+      </div>
     </sc-if>
-
-    <div style="margin-top:auto;padding-top:8px;display:flex;gap:10px;flex-wrap:wrap">
-      <button onClick="{{ onCta }}" style="background:{{ ctaBg }};color:{{ ctaColor }};border:none;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="filter:brightness(1.06)">{{ cta }}</button>
-      <button onClick="{{ onView }}" style="background:none;border:1px solid #e4dfd3;color:#202545;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="border-color:#B29B72">Details</button>
+    <span style="font-size:13px;font-weight:600;color:#7a7466">{{ p.meta }}</span>
+    <div style="margin-top:auto;padding-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button onClick="{{ p.onCta }}" style="flex:1;min-width:0;background:{{ p.ctaBg }};color:{{ p.ctaColor }};border:none;padding:14px 18px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;min-height:50px;white-space:nowrap" style-hover="filter:brightness(1.08)">{{ p.cta }}</button>
+      <button onClick="{{ p.onView }}" style="background:none;border:1px solid #e4dfd3;color:#202545;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="border-color:#B29B72">Details</button>
     </div>
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  renderVals() {
-    const p = this.props.p || {};
-    return {
-      ...p,
-      hasMeta: !!(p.meta && String(p.meta).trim())
-    };
-  }
-}
-</script>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:380,&quot;height&quot;:480},&quot;p&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}"></script>
 </body>
 </html>
