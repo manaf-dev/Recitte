@@ -11,34 +11,86 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/recitte-mark.png">
-<title>Recitte — Reconnecting with the Qur'an</title>
+<title>Recitte | Reconnecting with the Qur'an</title>
 <meta name="description" content="Recitte helps Muslims build a consistent, meaningful daily connection with the Qur'an through community, learning and practical tools.">
 <style>
-body{margin:0;background:#FAF8F3;color:#343434;font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased}
+:root{--ground:#F2F1EE;--ink:#202545;--gold:#B29B72;--soft:#F2ECB6;--stone:#E5E3DE;--text:#262838;--mute:#55546a;--r:28px}
+body{margin:0;background:var(--ground);color:var(--text);font-family:'Manrope',sans-serif;font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
-a{color:#202545;text-decoration:underline;text-underline-offset:3px}
+a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 a:hover{color:#85704A}
 input,select,textarea,button{font-family:inherit}
+img{max-width:100%;height:auto}
+.wrap{max-width:1240px;margin:0 auto;padding-left:24px;padding-right:24px}
+.sec{padding-top:120px;padding-bottom:120px}
+.h1,.h2,.h3{margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--ink);text-wrap:balance}
+.h1{font-size:clamp(32px,2.2vw + 24px,56px);line-height:1.02}
+.h2{font-size:clamp(30px,2vw + 22px,52px);line-height:1.04}
+.h3{font-size:clamp(28px,1.6vw + 18px,40px);line-height:1.05}
+.statement{margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(24px,1.6vw + 14px,36px);line-height:1.2;color:var(--ink);text-wrap:pretty}
+.on-ink,.on-ink .h1,.on-ink .h2,.on-ink .h3{color:#fff}
+.lead{margin:0;font-size:20px;line-height:1.6;text-wrap:pretty}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:14px 24px;min-height:50px;font-size:17px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s ease,color .2s ease,transform .15s ease}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible,.link:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.btn-ink{background:var(--ink);color:#fff}.btn-ink:hover{background:#2d3360}
+.btn-gold{background:var(--gold);color:var(--ink)}.btn-gold:hover{background:#c4ae86}
+.btn-soft{background:var(--soft);color:var(--ink)}.btn-soft:hover{background:#ebe3a0}
+.btn-stone{background:var(--stone);color:var(--ink)}.btn-stone:hover{background:#D8D6D0}
+.btn-tint{background:rgba(32,37,69,.1);color:var(--ink)}.btn-tint:hover{background:rgba(32,37,69,.17)}
+.btn-ghost{background:rgba(255,255,255,.12);color:var(--soft)}.btn-ghost:hover{background:rgba(255,255,255,.2)}
+.link{background:none;border:none;padding:0;font-size:17px;font-weight:700;color:var(--ink);cursor:pointer}
+.link:hover{color:#85704A}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none;display:inline-block}
+.row{display:flex;gap:14px;align-items:center}
+.nav-link{background:none;border:none;border-radius:999px;white-space:nowrap;padding:9px 16px;cursor:pointer;font-size:14px;color:#4a4a58;transition:background .2s ease,color .2s ease}
+.nav-link:hover{color:var(--ink)}
+.band{background:var(--gold);color:var(--ink);transition:background .15s ease,color .15s ease}
+.band:hover,.band:focus-within{background:var(--ink);color:var(--gold)}
+.band-hit{position:absolute;inset:0;width:100%;height:100%;background:none;border:none;cursor:pointer}
+.band-word{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(120px,36vw,540px);line-height:.8;letter-spacing:-.04em;padding:0 24px .3em;white-space:nowrap;overflow:visible}
+.hero-ring{transition:stroke-dashoffset 1s linear}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.credits{margin:0;font-size:14px;line-height:1.7;color:#dcdbe6}
+.credits a{color:#fff}
+@media (min-width:1100px){.hero-art{margin-right:-96px}}
+.marquee{overflow:hidden}
+.marquee-track{display:flex;width:max-content;animation:rcSlide 70s linear infinite}
+.marquee:hover .marquee-track,.marquee:focus-within .marquee-track{animation-play-state:paused}
+.marquee-set{display:flex;gap:20px;padding-right:20px;align-items:stretch}
+@keyframes rcSlide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee{overflow-x:auto}.marquee-track{animation:none}.marquee-set[aria-hidden]{display:none}}
+.rm{position:relative;display:flex;flex-direction:column;gap:56px;max-width:980px;margin:0 auto;width:100%}
+.rm::before{content:"";position:absolute;left:50%;top:38px;bottom:38px;width:6px;margin-left:-3px;background:var(--gold);border-radius:3px}
+.rm-row{display:grid;grid-template-columns:1fr 76px 1fr;column-gap:32px;align-items:center;position:relative}
+.rm-node{width:76px;height:76px;border-radius:50%;background:var(--ground);display:flex;align-items:center;justify-content:center;position:relative}
+.rm-text{max-width:400px}
+.rm-text[style*="right"]{justify-self:end}
+@media (max-width:760px){.rm::before{left:38px}.rm-row{grid-template-columns:76px 1fr;column-gap:20px}.rm-node{grid-column:1!important}.rm-text{grid-column:2!important;text-align:left!important;justify-self:start!important;max-width:none}}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hero-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,12,18,.94) 0%,rgba(12,12,18,.78) 42%,rgba(12,12,18,.38) 100%)}
+@media (max-width:760px){.hero-scrim{background:rgba(12,12,18,.74)}}
 @keyframes rcFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hero-ring,.btn,.band{transition:none}}
 </style>
 </helmet>
 
 <sc-if value="{{ isSite }}" hint-placeholder-val="{{ true }}">
-<div style="min-height:100vh;display:flex;flex-direction:column">
+<div style="min-height:100svh;display:flex;flex-direction:column">
 
-  <header style="position:sticky;top:0;z-index:30;background:rgba(250,248,243,.82);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid rgba(32,37,69,.07)">
-    <div style="max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+  <header style="position:sticky;top:0;z-index:30;background:var(--ground)">
+    <div class="wrap" style="padding-top:12px;padding-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:24px">
       <button onClick="{{ goHome }}" aria-label="Recitte home" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:12px">
         <img src="assets/recitte-mark.png" alt="" style="height:48px;width:auto;display:block">
         <img src="assets/recitte-wordmark.png" alt="Recitte" style="height:28px;width:auto;display:block">
       </button>
       <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
-        <nav style="display:flex;gap:4px;align-items:center;background:#fff;border:1px solid #ece8df;border-radius:999px;padding:5px">
+        <nav style="display:flex;gap:4px;align-items:center">
           <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
-            <button onClick="{{ n.onClick }}" style="background:{{ n.bg }};border:none;border-radius:999px;white-space:nowrap;padding:9px 15px;cursor:pointer;font-size:14px;font-weight:{{ n.weight }};color:{{ n.color }};transition:background .2s ease" style-hover="color:#202545">{{ n.label }}</button>
+            <button class="nav-link" onClick="{{ n.onClick }}" style="background:{{ n.bg }};font-weight:{{ n.weight }};color:{{ n.color }}">{{ n.label }}</button>
           </sc-for>
         </nav>
-        <button onClick="{{ goContact }}" style="background:#202545;color:#fff;border:none;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:#2d3360">Contact us</button>
+        <button class="btn btn-ink" onClick="{{ goContact }}" style="min-height:44px;padding:10px 20px">Contact us</button>
       </sc-if>
       <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ toggleMenu }}" aria-label="{{ menuLabel }}" aria-expanded="{{ menuExpanded }}" style="background:none;border:none;width:44px;height:44px;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
@@ -49,11 +101,11 @@ input,select,textarea,button{font-family:inherit}
       </sc-if>
     </div>
     <sc-if value="{{ showMobileMenu }}" hint-placeholder-val="{{ false }}">
-      <div style="border-top:1px solid #e3ddcf;padding:8px 24px 20px;display:flex;flex-direction:column;background:#FAF8F3">
+      <div class="wrap" style="padding-top:8px;padding-bottom:20px;display:flex;flex-direction:column;gap:4px;background:var(--ground)">
         <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
-          <button onClick="{{ n.onClick }}" style="text-align:left;background:none;border:none;border-bottom:1px solid #e9e4d8;padding:14px 0;font-size:17px;font-weight:{{ n.weight }};color:{{ n.color }};cursor:pointer">{{ n.label }}</button>
+          <button onClick="{{ n.onClick }}" style="text-align:left;background:{{ n.bg }};border:none;border-radius:16px;padding:14px 16px;font-size:17px;font-weight:{{ n.weight }};color:{{ n.color }};cursor:pointer">{{ n.label }}</button>
         </sc-for>
-        <button onClick="{{ goContact }}" style="margin-top:16px;background:#202545;color:#fff;border:none;padding:15px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Contact us</button>
+        <button class="btn btn-ink" onClick="{{ goContact }}" style="margin-top:12px">Contact us</button>
       </div>
     </sc-if>
   </header>
@@ -62,117 +114,130 @@ input,select,textarea,button{font-family:inherit}
 
   <!-- HOME -->
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
-    <section style="background:#202545;color:#fff;overflow:hidden">
-      <sc-if value="{{ heroSplit }}" hint-placeholder-val="{{ true }}">
-        <div style="max-width:1240px;margin:0 auto;padding:56px 24px 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px;align-items:center">
-          <div style="display:flex;flex-direction:column;gap:26px">
-            <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">Qur'an · Sunnah · Consistency</span>
-            <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(46px,6vw,80px);line-height:.98;color:#fff;text-wrap:balance">{{ settings.heroTitle }}</h1>
-            <p style="margin:0;font-size:18px;line-height:1.65;color:#dcdbe6;max-width:520px;text-wrap:pretty">{{ settings.heroSub }}</p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:6px">
-              <button onClick="{{ goApply }}" style="background:#B29B72;color:#202545;border:none;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:#c4ae86">Apply to Recitte Academy</button>
-              <button onClick="{{ joinCommunity }}" style="background:transparent;color:#F2ECB6;border:1px solid #F2ECB6;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:rgba(242,236,182,.08)">Join Recitte Community</button>
+    <section class="on-ink" style="position:relative;overflow:hidden;background:var(--ink);color:#fff">
+      <img class="hero-img" src="assets/hero-mushaf.jpg?v=2" alt="A hand following the text of a Mushaf resting on a wooden Qur'an stand" width="1600" height="900" style="object-position:75% 60%">
+      <div class="hero-scrim"></div>
+      <div class="wrap" style="position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:56px;min-height:clamp(560px,84svh,780px);padding-top:72px;padding-bottom:88px">
+        <div style="flex:0 1 620px;display:flex;flex-direction:column;gap:28px">
+          <h1 class="h1">{{ settings.heroTitle }}</h1>
+          <p class="lead" style="color:#e6e5ee;max-width:520px">{{ settings.heroSub }}</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:4px">
+            <button class="btn btn-gold" onClick="{{ goApply }}">Apply to Recitte Academy</button>
+            <button class="btn btn-ghost" onClick="{{ joinCommunity }}">Join Recitte Community</button>
+          </div>
+        </div>
+        <div style="flex:0 1 340px;width:min(100%,340px);margin-bottom:24px">
+          <div style="position:relative;width:100%;aspect-ratio:1;container-type:inline-size">
+            <svg viewBox="0 0 100 100" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)">
+              <circle cx="50" cy="50" r="48.5" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2"></circle>
+              <circle class="hero-ring" cx="50" cy="50" r="48.5" fill="none" stroke="#B29B72" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="304.7" stroke-dashoffset="{{ timerOffset }}"></circle>
+            </svg>
+            <div style="position:absolute;inset:6%;border-radius:50%;background:var(--soft);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10%;gap:3%">
+              <span style="font-family:'Amiri',serif;font-size:max(20px,9cqw);line-height:1.6;direction:rtl">وَرَتِّلِ ٱلْقُرْءَانَ تَرْتِيلًا</span>
+              <span style="font-size:14px;font-weight:700">Al-Muzzammil 73:4</span>
             </div>
+            <button class="btn btn-gold" onClick="{{ toggleTimer }}" style="position:absolute;left:50%;bottom:-24px;transform:translateX(-50%)">{{ timerLabel }}</button>
+            <span class="sr" aria-live="polite">{{ timerStatus }}</span>
           </div>
-          <div style="position:relative;min-height:460px">
-            <img src="assets/hero-mushaf.jpg?v=2" alt="A hand following the text of a Mushaf resting on a wooden Qur'an stand" style="position:absolute;inset:0 0 60px 40px;width:calc(100% - 40px);height:calc(100% - 60px);object-fit:cover;object-position:55% 60%;display:block;border-radius:24px">
-            <div style="position:absolute;left:0;bottom:0;width:min(100%,380px);background:#F2ECB6;color:#202545;padding:28px 30px;display:flex;flex-direction:column;gap:12px;border-radius:20px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45)">
-              <span style="font-family:'Amiri',serif;font-size:34px;line-height:1.5;direction:rtl;text-align:right">وَرَتِّلِ ٱلْقُرْءَانَ تَرْتِيلًا</span>
-              <span style="font-family:'Cormorant Garamond',serif;font-size:21px;font-style:italic;line-height:1.3">“And recite the Qur'an with measured recitation.”</span>
-              <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#6b5a3a">Al-Muzzammil 73:4</span>
-            </div>
-          </div>
-        </div>
-      </sc-if>
-      <sc-if value="{{ heroCentered }}" hint-placeholder-val="{{ false }}">
-        <div style="max-width:920px;margin:0 auto;padding:72px 24px 80px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:26px">
-          <span style="font-family:'Amiri',serif;font-size:40px;color:#F2ECB6;line-height:1.4">وَرَتِّلِ ٱلْقُرْءَانَ تَرْتِيلًا</span>
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">Qur'an · Sunnah · Consistency</span>
-          <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(46px,6.4vw,86px);line-height:.98;color:#fff;text-wrap:balance">{{ settings.heroTitle }}</h1>
-          <p style="margin:0;font-size:18px;line-height:1.65;color:#dcdbe6;max-width:600px;text-wrap:pretty">{{ settings.heroSub }}</p>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-            <button onClick="{{ goApply }}" style="background:#B29B72;color:#202545;border:none;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Apply to Recitte Academy</button>
-            <button onClick="{{ joinCommunity }}" style="background:transparent;color:#F2ECB6;border:1px solid #F2ECB6;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Join Recitte Community</button>
-          </div>
-        </div>
-      </sc-if>
-    </section>
-
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px 72px;align-items:start">
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">About Recitte</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(38px,4.4vw,56px);line-height:1.02;color:#202545;text-wrap:balance">Small, consistent actions. Real transformation.</h2>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:18px;font-size:17px;line-height:1.7">
-          <p style="margin:0;text-wrap:pretty">Recitte is a purpose-driven initiative reconnecting Muslims with the Qur'an in a consistent and meaningful way. We imagine a world where a reasonable number of Muslims give just a few minutes each day to the Book of Allah.</p>
-          <p style="margin:0;text-wrap:pretty">Guided by the Qur'an and the Sunnah of the Prophet ﷺ, we build practical tools — reminders, recitation aids, learning resources and reflective prompts — that make even the smallest moments of connection possible.</p>
-          <div><button onClick="{{ goAbout }}" style="background:none;border:none;border-bottom:1px solid #202545;padding:0 0 3px;color:#202545;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap">Read our story →</button></div>
         </div>
       </div>
+    </section>
 
+    <section style="background:var(--ground)">
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:36px">
+        <p class="statement" style="max-width:1020px">Recitte reconnects Muslims with the Qur'an a few minutes at a time, through community, learning and small daily actions.</p>
+        <div><button class="link" onClick="{{ goAbout }}">Read our story →</button></div>
+      </div>
     </section>
 
     <section style="background:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:44px">
-        <div style="display:flex;flex-direction:column;gap:14px;max-width:640px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">The Recitte ecosystem</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(38px,4.4vw,56px);line-height:1.02;color:#202545">Two paths, one purpose.</h2>
-        </div>
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:56px">
+        <h2 class="h2">Two paths, one purpose.</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px">
-          <div style="background:#F2ECB6;padding:44px;border-radius:24px;display:flex;flex-direction:column;gap:20px;min-height:420px">
-            <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#6b5a3a">Community</span>
-            <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:48px;line-height:1;color:#202545">Recitte Connect</h3>
-            <p style="margin:0;font-size:16px;line-height:1.65;color:#202545;max-width:440px">A community built around the Qur'an and Sunnah — daily reminders, monthly seminars and companions who keep you consistent.</p>
-            <div style="display:flex;flex-direction:column;gap:8px;font-size:15px;color:#202545">
-              <span>✓ Monthly seminars with scholars</span><span>✓ WhatsApp reminders &amp; reflections</span><span>✓ Community Qur'an challenges</span>
+          <div style="background:var(--soft);padding:clamp(28px,4vw,48px);border-radius:var(--r);display:flex;flex-direction:column;gap:22px;min-height:460px">
+            <h3 class="h3">Recitte Connect</h3>
+            <p class="lead" style="color:var(--ink);max-width:460px">A community built around the Qur'an and Sunnah, with daily reminders, challenges and companions who keep you consistent.</p>
+            <div style="display:flex;flex-direction:column;gap:10px;color:var(--ink)">
+              <span class="row"><span class="dot"></span>WhatsApp reminders &amp; reflections</span><span class="row"><span class="dot"></span>Community Qur'an challenges</span><span class="row"><span class="dot"></span>Companions who keep you consistent</span>
             </div>
-            <div style="margin-top:auto;display:flex;gap:12px;flex-wrap:wrap">
-              <button onClick="{{ goConnect }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Explore Connect</button>
-              <button onClick="{{ joinCommunity }}" style="background:transparent;color:#202545;border:1px solid #202545;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Join the community</button>
+            <div style="margin-top:auto;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <button class="btn btn-ink" onClick="{{ goConnect }}">Explore Connect</button>
+                <button class="btn btn-tint" onClick="{{ joinCommunity }}">Join the community</button>
+              </div>
+              <p style="margin:0;font-weight:700;color:var(--ink)">Connect is for daily inspiration.</p>
             </div>
           </div>
-          <div style="background:#202545;color:#fff;padding:44px;display:flex;flex-direction:column;gap:20px;min-height:420px;border-radius:24px">
-            <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">Learning</span>
-            <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:48px;line-height:1;color:#fff">Recitte Academy</h3>
-            <p style="margin:0;font-size:16px;line-height:1.65;color:#dcdbe6;max-width:440px">Structured learning in Qur'an recitation and Tajweed — from the Arabic letters to fluent, measured recitation.</p>
-            <div style="display:flex;flex-direction:column;gap:8px;font-size:15px;color:#F2ECB6">
-              <span>✓ Huruf Workshop for foundations</span><span>✓ Level-based Tajweed courses</span><span>✓ Live classes with qualified teachers</span>
+          <div class="on-ink" style="background:var(--ink);color:#fff;padding:clamp(28px,4vw,48px);border-radius:var(--r);display:flex;flex-direction:column;gap:22px;min-height:460px">
+            <h3 class="h3">Recitte Academy</h3>
+            <p class="lead" style="color:#dcdbe6;max-width:460px">Seminars, workshops and courses in Qur'an recitation and Tajweed, from the Arabic letters to fluent, measured recitation.</p>
+            <div style="display:flex;flex-direction:column;gap:10px;color:var(--soft)">
+              <span class="row"><span class="dot"></span>Monthly seminars with scholars</span><span class="row"><span class="dot"></span>Workshops like the Huruf Workshop</span><span class="row"><span class="dot"></span>Level-based Tajweed courses</span>
             </div>
-            <div style="margin-top:auto;display:flex;gap:12px;flex-wrap:wrap">
-              <button onClick="{{ goAcademy }}" style="background:#B29B72;color:#202545;border:none;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Explore Academy</button>
-              <button onClick="{{ goApply }}" style="background:transparent;color:#F2ECB6;border:1px solid #F2ECB6;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Apply now</button>
+            <div style="margin-top:auto;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <button class="btn btn-gold" onClick="{{ goAcademy }}">Explore Academy</button>
+                <button class="btn btn-ghost" onClick="{{ goApply }}">Apply now</button>
+              </div>
+              <p style="margin:0;font-weight:700;color:var(--soft)">Academy is for structured learning.</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:40px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap">
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Featured programs</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(38px,4.4vw,56px);line-height:1.02;color:#202545">What's happening now</h2>
+    <section style="background:var(--ground)">
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:48px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap">
+          <h2 class="h2">What's happening now</h2>
         </div>
-        <button onClick="{{ goPrograms }}" style="background:none;border:none;border-bottom:1px solid #202545;padding:0 0 3px;color:#202545;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap">All programs →</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px">
-        <sc-for list="{{ featured }}" as="item" hint-placeholder-count="3">
-          <dc-import name="ProgramCardV2" p="{{ item }}" hint-size="100%,460px"></dc-import>
-        </sc-for>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px">
+          <sc-for list="{{ featured }}" as="item" hint-placeholder-count="3">
+            <dc-import name="ProgramCardV2" p="{{ item }}" hint-size="100%,460px"></dc-import>
+          </sc-for>
+        </div>
       </div>
     </section>
 
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px">
-      <div style="background:#202545;color:#fff;padding:clamp(32px,5vw,64px);border-radius:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:40px;align-items:center">
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">Recitte Academy · Intake open</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(38px,4.4vw,56px);line-height:1.02;color:#fff">Recite with confidence and correctness.</h2>
-          <p style="margin:0;font-size:17px;line-height:1.65;color:#dcdbe6;max-width:520px">Tell us where you are in your recitation. We'll place you on the right level and program.</p>
+    <sc-if value="{{ hasTestimonials }}" hint-placeholder-val="{{ true }}">
+      <section style="background:#fff;overflow:hidden">
+        <div class="wrap" style="padding-top:120px;padding-bottom:48px">
+          <h2 class="h2">What people say about our sessions</h2>
         </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <button onClick="{{ goApply }}" style="background:#B29B72;color:#202545;border:none;padding:18px 28px;font-size:16px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Apply to Recitte Academy</button>
-          <button onClick="{{ goAcademy }}" style="background:transparent;color:#F2ECB6;border:1px solid #F2ECB6;padding:18px 28px;font-size:16px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">See learning path</button>
+        <div class="marquee" style="padding-bottom:120px">
+          <div class="marquee-track">
+            <div class="marquee-set">
+              <sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="3">
+                <figure style="margin:0;flex:none;width:min(80vw,440px);background:var(--ground);border-radius:var(--r);padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;justify-content:space-between;gap:24px">
+                  <blockquote style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(22px,1.2vw + 14px,28px);line-height:1.25;color:var(--ink);text-wrap:pretty">“{{ t.quote }}”</blockquote>
+                  <figcaption style="color:var(--ink);font-weight:700">{{ t.name }}</figcaption>
+                </figure>
+              </sc-for>
+            </div>
+            <div class="marquee-set" aria-hidden="true">
+              <sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="3">
+                <figure style="margin:0;flex:none;width:min(80vw,440px);background:var(--ground);border-radius:var(--r);padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;justify-content:space-between;gap:24px">
+                  <blockquote style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(22px,1.2vw + 14px,28px);line-height:1.25;color:var(--ink);text-wrap:pretty">“{{ t.quote }}”</blockquote>
+                  <figcaption style="color:var(--ink);font-weight:700">{{ t.name }}</figcaption>
+                </figure>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <section style="background:var(--ground)">
+      <div class="wrap" style="padding-top:120px;padding-bottom:120px">
+        <div class="on-ink" style="background:var(--ink);color:#fff;padding:clamp(32px,5vw,64px);border-radius:var(--r);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:40px;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <h2 class="h2">Recite with confidence and correctness.</h2>
+            <p class="lead" style="color:#dcdbe6;max-width:520px">Tell us where you are in your recitation. We'll place you on the right level and program.</p>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-gold" onClick="{{ goApply }}">Apply to Recitte Academy</button>
+            <button class="btn btn-ghost" onClick="{{ goAcademy }}">See learning path</button>
+          </div>
         </div>
       </div>
     </section>
@@ -181,129 +246,122 @@ input,select,textarea,button{font-family:inherit}
 
   <!-- ABOUT -->
   <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
-    <section style="background:#202545;color:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px 56px;display:flex;flex-direction:column;gap:20px;max-width:1240px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">About us · Who we are</span>
-        <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(46px,6vw,78px);line-height:1;max-width:900px;text-wrap:balance">A brand committed to a lifelong relationship with the Qur'an.</h1>
-        <p style="margin:0;font-size:18px;line-height:1.7;color:#dcdbe6;max-width:720px;text-wrap:pretty">Recitte is rooted in a simple idea: reconnecting Muslims with the Qur'an in a consistent and meaningful way. Not only recitation — but understanding, reflection, implementation, and ultimately, seeking the pleasure of Allah.</p>
+    <section class="on-ink" style="position:relative;overflow:hidden;background:var(--ink);color:#fff">
+      <img class="hero-img" src="assets/quran-manuscript-1697.jpg" alt="An open illuminated Qur'an manuscript on a stand, lit against a dark ground" width="1600" height="900" style="object-position:center 40%">
+      <div class="hero-scrim"></div>
+      <div class="wrap" style="position:relative;z-index:1;display:flex;align-items:center;min-height:clamp(440px,64svh,620px);padding-top:72px;padding-bottom:72px">
+        <div style="max-width:640px;display:flex;flex-direction:column;gap:24px">
+          <h1 class="h1">A lifelong relationship with the Qur'an.</h1>
+          <p class="lead" style="color:#e6e5ee;max-width:560px">Recitte is rooted in a simple idea: reconnecting Muslims with the Qur'an in a consistent and meaningful way. Not only recitation, but understanding, reflection, implementation, and ultimately, seeking the pleasure of Allah.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:4px"><button class="btn btn-gold" onClick="{{ joinCommunity }}">Join Recitte Community</button><button class="btn btn-ghost" onClick="{{ goApply }}">Apply to Recitte Academy</button></div>
+        </div>
       </div>
     </section>
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px">
-      <div style="background:#fff;border:1px solid #ece8df;border-radius:20px;overflow:hidden;padding:44px;display:flex;flex-direction:column;gap:16px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Vision</span>
-        <p style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;line-height:1.2;color:#202545;font-weight:600;text-wrap:pretty">A world where a reasonable number of Muslims dedicate a few minutes each day to engaging with the Qur'an.</p>
-      </div>
-      <div style="background:#F2ECB6;padding:44px;border-radius:24px;display:flex;flex-direction:column;gap:16px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#6b5a3a">Mission</span>
-        <p style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;line-height:1.2;color:#202545;font-weight:600;text-wrap:pretty">To provide practical, accessible tools that help Muslims build the Qur'an into their daily routines.</p>
+    <section style="background:var(--ground)">
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:48px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px">
+          <div style="background:#fff;border-radius:var(--r);padding:clamp(28px,4vw,48px);display:flex;flex-direction:column;gap:20px">
+            <h2 class="h3">Our vision</h2>
+            <p class="statement" style="font-size:clamp(22px,1vw + 14px,28px)">A world where a reasonable number of Muslims dedicate a few minutes each day to engaging with the Qur'an.</p>
+          </div>
+          <div style="background:var(--soft);border-radius:var(--r);padding:clamp(28px,4vw,48px);display:flex;flex-direction:column;gap:20px">
+            <h2 class="h3">Our mission</h2>
+            <p class="statement" style="font-size:clamp(22px,1vw + 14px,28px)">To provide practical, accessible tools that help Muslims build the Qur'an into their daily routines.</p>
+          </div>
+        </div>
       </div>
     </section>
     <section style="background:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:40px">
-        <div style="display:flex;flex-direction:column;gap:14px;max-width:640px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">What we do</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,4vw,52px);line-height:1.02;color:#202545">We remove the barriers between you and the Mushaf.</h2>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px">
-          <sc-for list="{{ whatWeDo }}" as="w" hint-placeholder-count="4">
-            <div style="background:#FAF8F3;padding:32px;display:flex;flex-direction:column;gap:12px;border-radius:20px">
-              <span style="width:10px;height:10px;background:#B29B72;transform:rotate(45deg);display:block"></span>
-              <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#202545">{{ w.title }}</span>
-              <span style="font-size:15px;line-height:1.6">{{ w.text }}</span>
-            </div>
-          </sc-for>
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:48px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px 72px;align-items:start">
+          <h2 class="h2">We remove the barriers to the Mushaf.</h2>
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <sc-for list="{{ whatWeDo }}" as="w" hint-placeholder-count="4">
+              <div style="display:flex;gap:18px;align-items:flex-start">
+                <span class="dot" style="margin-top:12px"></span>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink)">{{ w.title }}</h3>
+                  <p style="margin:0">{{ w.text }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
         </div>
       </div>
     </section>
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px">
-      <div style="display:flex;flex-direction:column;gap:24px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Our values</span>
-        <sc-for list="{{ values }}" as="v" hint-placeholder-count="5">
-          <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:20px;border-bottom:1px solid #e3ddcf">
-            <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#202545">{{ v.title }}</span>
-            <span style="font-size:15px;line-height:1.6">{{ v.text }}</span>
+    <section style="background:var(--ground)">
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:48px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px 72px">
+          <div style="display:flex;flex-direction:column;gap:32px">
+            <h2 class="h3">Our values</h2>
+            <sc-for list="{{ values }}" as="v" hint-placeholder-count="5">
+              <div style="display:flex;gap:18px;align-items:flex-start">
+                <span class="dot" style="margin-top:12px"></span>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink)">{{ v.title }}</h3>
+                  <p style="margin:0">{{ v.text }}</p>
+                </div>
+              </div>
+            </sc-for>
           </div>
-        </sc-for>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:24px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Our approach</span>
-        <sc-for list="{{ approach }}" as="a" hint-placeholder-count="4">
-          <div style="display:grid;grid-template-columns:56px 1fr;gap:16px;align-items:start">
-            <span style="width:48px;height:48px;border:1px solid #B29B72;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:22px;color:#202545;font-weight:600">{{ a.num }}</span>
-            <div style="display:flex;flex-direction:column;gap:4px">
-              <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#202545">{{ a.title }}</span>
-              <span style="font-size:15px;line-height:1.6">{{ a.text }}</span>
-            </div>
+          <div style="display:flex;flex-direction:column;gap:32px">
+            <h2 class="h3">Our approach</h2>
+            <sc-for list="{{ approach }}" as="a" hint-placeholder-count="4">
+              <div style="display:flex;gap:18px;align-items:flex-start">
+                <span class="dot" style="margin-top:12px"></span>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink)">{{ a.title }}</h3>
+                  <p style="margin:0">{{ a.text }}</p>
+                </div>
+              </div>
+            </sc-for>
+            <p class="statement" style="padding-top:8px">...and ultimately, seeking the pleasure of Allah.</p>
           </div>
-        </sc-for>
-        <p style="margin:8px 0 0;font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:#202545;line-height:1.35">…and ultimately, seeking the pleasure of Allah.</p>
+        </div>
       </div>
     </section>
   </sc-if>
 
   <!-- CONNECT -->
   <sc-if value="{{ isConnect }}" hint-placeholder-val="{{ false }}">
-    <section style="background:#F2ECB6">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px 56px;display:flex;flex-direction:column;gap:20px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#6b5a3a">Recitte Connect</span>
-        <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(46px,6vw,78px);line-height:1;color:#202545;max-width:880px;text-wrap:balance">A community that keeps you close to the Qur'an.</h1>
-        <p style="margin:0;font-size:18px;line-height:1.7;color:#202545;max-width:680px">Rooted in the Qur'an and Sunnah, Recitte Connect brings Muslims together for reminders, learning and mutual encouragement.</p>
-        <div><button onClick="{{ joinCommunity }}" style="background:#202545;color:#fff;border:none;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Join Recitte Community</button></div>
-      </div>
-    </section>
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px;align-items:center">
-      <img src="assets/connect-mosque.jpg" alt="A boy reading the Qur'an on a wooden stand in a mosque" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-radius:24px">
-      <div style="display:flex;flex-direction:column;gap:18px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">What is Recitte Connect?</span>
-        <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,4vw,50px);line-height:1.04;color:#202545">Companionship for the journey.</h2>
-        <p style="margin:0;font-size:17px;line-height:1.7">Habits are built in company. Recitte Connect is where members share progress, attend seminars and receive the gentle nudges that turn good intentions into daily practice.</p>
+    <section class="on-ink" style="position:relative;overflow:hidden;background:var(--ink);color:#fff">
+      <img class="hero-img" src="assets/connect-mosque.jpg" alt="A boy reading the Qur'an on a wooden stand in a mosque" width="1600" height="900" style="object-position:65% 60%">
+      <div class="hero-scrim"></div>
+      <div class="wrap" style="position:relative;z-index:1;display:flex;align-items:center;min-height:clamp(440px,64svh,620px);padding-top:72px;padding-bottom:72px">
+        <div style="max-width:640px;display:flex;flex-direction:column;gap:24px">
+          <h1 class="h1">A community that keeps you close to the Qur'an.</h1>
+          <p class="lead" style="color:#e6e5ee;max-width:560px">Rooted in the Qur'an and Sunnah, Recitte Connect brings Muslims together for daily reminders, challenges and mutual encouragement.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:4px"><button class="btn btn-gold" onClick="{{ joinCommunity }}">Join Recitte Community</button></div>
+        </div>
       </div>
     </section>
     <section style="background:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px">
-        <div style="display:flex;flex-direction:column;gap:22px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">What the community offers</span>
-          <sc-for list="{{ offers }}" as="o" hint-placeholder-count="4">
-            <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:18px;border-bottom:1px solid #eee8db">
-              <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#202545">{{ o.title }}</span>
-              <span style="font-size:15px;line-height:1.6">{{ o.text }}</span>
-            </div>
-          </sc-for>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:22px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Community activities</span>
-          <sc-for list="{{ activities }}" as="a" hint-placeholder-count="4">
-            <div style="display:grid;grid-template-columns:110px 1fr;gap:16px;padding-bottom:18px;border-bottom:1px solid #eee8db">
-              <span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#202545;padding-top:6px">{{ a.when }}</span>
-              <div style="display:flex;flex-direction:column;gap:4px">
-                <span style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:#202545">{{ a.title }}</span>
-                <span style="font-size:15px;line-height:1.6">{{ a.text }}</span>
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:48px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px 72px">
+          <div style="display:flex;flex-direction:column;gap:32px">
+            <h2 class="h3">What the community offers</h2>
+            <sc-for list="{{ offers }}" as="o" hint-placeholder-count="4">
+              <div style="display:flex;gap:18px;align-items:flex-start">
+                <span class="dot" style="margin-top:12px"></span>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink)">{{ o.title }}</h3>
+                  <p style="margin:0">{{ o.text }}</p>
+                </div>
               </div>
-            </div>
-          </sc-for>
-        </div>
-      </div>
-    </section>
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:36px">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Monthly seminars</span>
-        <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,4vw,50px);line-height:1.04;color:#202545">One evening a month, for the heart.</h2>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:24px">
-        <sc-for list="{{ seminarCards }}" as="item" hint-placeholder-count="1">
-          <dc-import name="ProgramCardV2" p="{{ item }}" hint-size="100%,460px"></dc-import>
-        </sc-for>
-      </div>
-    </section>
-    <section style="max-width:1240px;margin:0 auto;padding:0 24px 64px">
-      <div style="background:#202545;color:#fff;padding:clamp(32px,5vw,64px);border-radius:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:40px;align-items:center">
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">WhatsApp community</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,4vw,50px);line-height:1.04">One reminder a day, right where you are.</h2>
-          <p style="margin:0;font-size:16px;line-height:1.65;color:#dcdbe6">An ayah, a short reflection and a nudge to open the Mushaf. Plus first notice of seminars and workshops.</p>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:14px;align-items:flex-start">
-          <button onClick="{{ joinCommunity }}" style="background:#B29B72;color:#202545;border:none;padding:18px 28px;font-size:16px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Join Recitte Community</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:32px">
+            <h2 class="h3">Community activities</h2>
+            <sc-for list="{{ activities }}" as="a" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:start">
+                <span style="font-size:14px;font-weight:700;color:#5d4e32;padding-top:6px">{{ a.when }}</span>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink)">{{ a.title }}</h3>
+                  <p style="margin:0">{{ a.text }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
         </div>
       </div>
     </section>
@@ -311,59 +369,39 @@ input,select,textarea,button{font-family:inherit}
 
   <!-- ACADEMY -->
   <sc-if value="{{ isAcademy }}" hint-placeholder-val="{{ false }}">
-    <section style="background:#202545;color:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px 56px;display:flex;flex-direction:column;gap:20px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">Recitte Academy</span>
-        <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(46px,6vw,78px);line-height:1;max-width:880px;text-wrap:balance">Learn to recite the Qur'an as it was revealed.</h1>
-        <p style="margin:0;font-size:18px;line-height:1.7;color:#dcdbe6;max-width:680px">Structured, level-based learning in Qur'an recitation and Tajweed with qualified teachers — online, with flexible schedules.</p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap"><button onClick="{{ goApply }}" style="background:#B29B72;color:#202545;border:none;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Apply now</button></div>
+    <section class="on-ink" style="position:relative;overflow:hidden;background:var(--ink);color:#fff">
+      <img class="hero-img" src="assets/kufic-manuscript.jpg" alt="Close-up of gold Kufic script on a Qur'an manuscript page" width="1600" height="900" style="object-position:center">
+      <div class="hero-scrim"></div>
+      <div class="wrap" style="position:relative;z-index:1;display:flex;align-items:center;min-height:clamp(440px,64svh,620px);padding-top:72px;padding-bottom:72px">
+        <div style="max-width:640px;display:flex;flex-direction:column;gap:24px">
+          <h1 class="h1">Learn to recite the Qur'an as it was revealed.</h1>
+          <p class="lead" style="color:#e6e5ee;max-width:560px">Seminars, workshops and level-based courses in Qur'an recitation and Tajweed with qualified teachers, online, with flexible schedules.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:4px"><button class="btn btn-gold" onClick="{{ goApply }}">Apply now</button></div>
+        </div>
       </div>
     </section>
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:40px">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px 72px;align-items:end">
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Learning path</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,4vw,50px);line-height:1.04;color:#202545">Four levels, from letters to fluency.</h2>
+    <section style="background:var(--ground)">
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:48px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px 72px;align-items:end">
+          <h2 class="h2">Four levels, from letters to fluency.</h2>
+          <p class="lead">Every student begins with a short placement. You'll join the level that matches your current recitation, so no one starts too far ahead or too far behind.</p>
         </div>
-        <p style="margin:0;font-size:16px;line-height:1.7">Every student begins with a short placement. You'll join the level that matches your current recitation — no one starts too far ahead or too far behind.</p>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px">
-        <sc-for list="{{ levels }}" as="l" hint-placeholder-count="4">
-          <div style="background:{{ l.bg }};color:{{ l.fg }};padding:30px;display:flex;flex-direction:column;gap:12px;min-height:240px;border-radius:20px;border:1px solid rgba(32,37,69,.06)">
-            <span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:{{ l.eyebrow }}">Level {{ l.num }}</span>
-            <span style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;line-height:1.05">{{ l.title }}</span>
-            <span style="font-size:15px;line-height:1.6">{{ l.text }}</span>
-          </div>
-        </sc-for>
+        <div class="rm" style="padding-top:24px">
+          <sc-for list="{{ levels }}" as="l" hint-placeholder-count="4">
+            <div class="rm-row">
+              <div class="rm-node" style="grid-column:2;grid-row:1"><span style="width:64px;height:64px;border-radius:50%;background:{{ l.bg }};display:block"></span></div>
+              <div class="rm-text" style="grid-column:{{ l.col }};grid-row:1;text-align:{{ l.align }};display:flex;flex-direction:column;gap:6px">
+                <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;line-height:1.05;color:var(--ink)">{{ l.title }}</h3>
+                <p style="margin:0">{{ l.text }}</p>
+              </div>
+            </div>
+          </sc-for>
+        </div>
       </div>
     </section>
     <section style="background:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:36px">
-        <sc-if value="{{ hasFeaturedWorkshop }}" hint-placeholder-val="{{ true }}">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));border:1px solid #ece8df;border-radius:24px;overflow:hidden;background:#FAF8F3">
-            <div style="min-height:380px;position:relative;background:#202545 url('assets/workshop-mushaf.jpg') center/cover no-repeat;display:flex;align-items:flex-start;justify-content:flex-end;padding:24px" role="img" aria-label="An open Qur'an">
-              <span style="font-family:'Amiri',serif;font-size:40px;color:#202545;background:#F2ECB6;direction:rtl;line-height:1.2;padding:8px 18px 14px;border-radius:12px">ا ب ت ث</span>
-            </div>
-            <div style="padding:44px;display:flex;flex-direction:column;gap:18px">
-              <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Featured workshop</span>
-              <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,4vw,50px);line-height:1.04;color:#202545">{{ fw.title }}</h2>
-              <p style="margin:0;font-size:16px;line-height:1.7">{{ fw.description }}</p>
-              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px">
-                <sc-for list="{{ fw.details }}" as="d" hint-placeholder-count="4">
-                  <div style="display:flex;flex-direction:column;gap:3px">
-                    <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7a7466;font-weight:600">{{ d.label }}</span>
-                    <span style="font-size:15px;font-weight:600;color:#202545">{{ d.value }}</span>
-                  </div>
-                </sc-for>
-              </div>
-              <div><button onClick="{{ fw.onCta }}" style="background:#202545;color:#fff;border:none;padding:15px 24px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">{{ fw.cta }}</button></div>
-            </div>
-          </div>
-        </sc-if>
-        <div style="display:flex;flex-direction:column;gap:14px;padding-top:24px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">Available programs</span>
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(34px,3.6vw,46px);line-height:1.04;color:#202545">Courses &amp; workshops</h2>
-        </div>
+      <div class="wrap sec" style="display:flex;flex-direction:column;gap:56px">
+        <h2 class="h2">Seminars, workshops and courses</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px">
           <sc-for list="{{ academyCards }}" as="item" hint-placeholder-count="2">
             <dc-import name="ProgramCardV2" p="{{ item }}" hint-size="100%,460px"></dc-import>
@@ -371,131 +409,102 @@ input,select,textarea,button{font-family:inherit}
         </div>
       </div>
     </section>
-    <section style="max-width:1240px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:36px">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#85704A">How to apply</span>
-        <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,4vw,50px);line-height:1.04;color:#202545">Four steps to your first class.</h2>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:0;border-top:2px solid #202545">
-        <sc-for list="{{ applySteps }}" as="st" hint-placeholder-count="4">
-          <div style="padding:24px 24px 0 0;display:flex;flex-direction:column;gap:8px">
-            <span style="font-family:'Cormorant Garamond',serif;font-size:40px;color:#B29B72;font-weight:600;line-height:1">{{ st.num }}</span>
-            <span style="font-size:17px;font-weight:700;color:#202545">{{ st.title }}</span>
-            <span style="font-size:15px;line-height:1.6">{{ st.text }}</span>
+    <section style="background:var(--ground)">
+      <div class="wrap" style="padding-bottom:120px">
+        <div class="on-ink" style="background:var(--ink);color:#fff;border-radius:var(--r);padding:clamp(28px,4vw,48px);display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <h2 class="h2" style="font-size:clamp(28px,1.4vw + 20px,40px)">Ready to begin?</h2>
+            <p style="margin:0;color:#dcdbe6">Takes about a minute. We reply within 3 working days.</p>
           </div>
-        </sc-for>
-      </div>
-    </section>
-    <section style="max-width:1240px;margin:0 auto;padding:0 24px 64px">
-      <div style="background:#202545;color:#fff;border-radius:20px;padding:36px 44px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap">
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:36px;line-height:1.05">Ready to begin?</h2>
-          <p style="margin:0;font-size:15px;color:#dcdbe6">Takes about a minute. We reply within 3 working days.</p>
+          <button class="btn btn-gold" onClick="{{ goApply }}">Apply to Recitte Academy</button>
         </div>
-        <button onClick="{{ goApply }}" style="background:#B29B72;color:#202545;border:none;padding:16px 26px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Apply to Recitte Academy</button>
-      </div>
-    </section>
-  </sc-if>
-
-  <!-- PROGRAMS -->
-  <sc-if value="{{ isPrograms }}" hint-placeholder-val="{{ false }}">
-    <section style="background:#202545;color:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 24px 48px;display:flex;flex-direction:column;gap:20px">
-        <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">Programs</span>
-        <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(46px,6vw,78px);line-height:1;max-width:880px">Find your way in.</h1>
-        <p style="margin:0;font-size:18px;line-height:1.7;color:#dcdbe6;max-width:680px">Workshops, seminars, courses and community initiatives. New programs are added here as they launch.</p>
-      </div>
-    </section>
-    <section style="max-width:1240px;margin:0 auto;padding:32px 24px 64px;display:flex;flex-direction:column;gap:32px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
-        <div style="display:flex;gap:4px;background:#fff;border:1px solid #ece8df;border-radius:999px;padding:5px">
-          <sc-for list="{{ availFilters }}" as="f" hint-placeholder-count="3">
-            <button onClick="{{ f.onClick }}" style="background:{{ f.bg }};color:{{ f.color }};border:none;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap;min-height:44px">{{ f.label }} <span style="opacity:.55;font-weight:600">{{ f.count }}</span></button>
-          </sc-for>
-        </div>
-        <div style="display:none">
-        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="0">
-          <button onClick="{{ f.onClick }}" style="background:{{ f.bg }};color:{{ f.color }};border:1px solid {{ f.border }};padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;border-radius:99px;min-height:44px">{{ f.label }}</button>
-        </sc-for>
-        </div>
-      </div>
-      <sc-if value="{{ noFiltered }}" hint-placeholder-val="{{ false }}">
-        <div style="background:#fff;border:1px solid #ece8df;border-radius:20px;padding:40px;text-align:center;font-size:15px;color:#6a6a6a">No programs match these filters yet. Check back soon, or join the community to hear first.</div>
-      </sc-if>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px">
-        <sc-for list="{{ filteredCards }}" as="item" hint-placeholder-count="3">
-          <dc-import name="ProgramCardV2" p="{{ item }}" hint-size="100%,460px"></dc-import>
-        </sc-for>
       </div>
     </section>
   </sc-if>
 
   <!-- PROGRAM DETAIL -->
   <sc-if value="{{ isProgram }}" hint-placeholder-val="{{ false }}">
-    <section style="background:#202545;color:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:32px 24px 56px;display:flex;flex-direction:column;gap:22px">
-        <div><button onClick="{{ goPrograms }}" style="background:rgba(255,255,255,.08);border:none;color:#F2ECB6;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:rgba(255,255,255,.14)">← All programs</button></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <span style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#fff;background:rgba(255,255,255,.08);padding:7px 14px;border-radius:999px"><span style="width:8px;height:8px;border-radius:50%;background:{{ prog.accent }}"></span>{{ prog.typeLabel }}</span>
-          <span style="font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px;background:{{ prog.statusBg }};color:{{ prog.statusColor }}">{{ prog.statusLabel }}</span>
+    <section class="on-ink" style="position:relative;overflow:hidden;background:var(--ink);color:#fff">
+      <img class="hero-img" src="{{ prog.pic }}" alt="{{ prog.picAlt }}" width="1600" height="900">
+      <div class="hero-scrim"></div>
+      <div class="wrap" style="position:relative;z-index:1;padding-top:32px;padding-bottom:88px;min-height:clamp(480px,66svh,640px);display:flex;flex-direction:column;gap:48px">
+        <div><button class="btn btn-ghost" onClick="{{ prog.backGo }}" style="min-height:44px;padding:10px 18px">{{ prog.backLabel }}</button></div>
+        <div style="max-width:640px;display:flex;flex-direction:column;gap:24px;margin-top:auto">
+          <h1 class="h1">{{ prog.title }}</h1>
+          <p class="lead" style="color:#e6e5ee;max-width:600px">{{ prog.description }}</p>
+          <span class="row" style="font-weight:700;color:var(--soft)"><span class="dot" style="background:{{ prog.accent }}"></span>{{ prog.typeLabel }} · {{ prog.statusLabel }}</span>
+          <div><button class="btn btn-gold" onClick="{{ prog.onCta }}">{{ prog.cta }}</button></div>
         </div>
-        <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(44px,6vw,76px);line-height:1;max-width:900px;text-wrap:balance">{{ prog.title }}</h1>
-        <p style="margin:0;font-size:18px;line-height:1.7;color:#dcdbe6;max-width:720px;text-wrap:pretty">{{ prog.description }}</p>
       </div>
     </section>
-    <section style="max-width:1240px;margin:0 auto;padding:48px 24px 64px;display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
-      <div style="display:flex;flex-direction:column;gap:40px;flex:1 1 560px;min-width:0">
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:36px;color:#202545">About this program</h2>
-          <p style="margin:0;font-size:17px;line-height:1.75;text-wrap:pretty">{{ prog.aboutText }}</p>
+    <section style="background:var(--ground)">
+      <div class="wrap" style="padding-top:96px;padding-bottom:120px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+        <div style="display:flex;flex-direction:column;gap:56px;flex:1 1 560px;min-width:0">
+          <div style="display:flex;flex-wrap:wrap;gap:32px 40px;align-items:center">
+            <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:16px">
+              <h2 class="h2" style="font-size:clamp(28px,1.4vw + 20px,40px)">About this program</h2>
+              <p style="margin:0;line-height:1.75;text-wrap:pretty">{{ prog.aboutText }}</p>
+            </div>
+            <img src="{{ prog.pic2 }}" alt="{{ prog.pic2Alt }}" width="400" height="400" loading="lazy" style="flex:none;width:min(100%,240px);aspect-ratio:1;object-fit:cover;border-radius:50%;display:block">
+          </div>
+          <sc-if value="{{ prog.hasHighlights }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <h2 class="h2" style="font-size:clamp(28px,1.4vw + 20px,40px)">{{ prog.highlightsTitle }}</h2>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ prog.highlightList }}" as="hl" hint-placeholder-count="4">
+                  <span class="row" style="color:var(--ink);font-weight:600;align-items:flex-start"><span class="dot" style="margin-top:9px"></span>{{ hl.text }}</span>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ prog.hasSpeaker }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--soft);border-radius:var(--r);padding:clamp(24px,3vw,36px);display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+              <sc-if value="{{ prog.hasPhoto }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ prog.speakerPhoto }}" alt="{{ prog.speaker }}" width="112" height="112" style="width:112px;height:112px;border-radius:50%;object-fit:cover;display:block;flex:none">
+              </sc-if>
+              <sc-if value="{{ prog.noPhoto }}" hint-placeholder-val="{{ false }}">
+                <div style="width:112px;height:112px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--ink);flex:none">{{ prog.initials }}</div>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;gap:8px;flex:1 1 260px;min-width:0">
+                <h2 class="h3" style="font-size:32px">{{ prog.speaker }}</h2>
+                <span style="font-size:14px;font-weight:700;color:#5d4e32">{{ prog.speakerRole }}</span>
+                <p style="margin:0;color:var(--ink);text-wrap:pretty">{{ prog.bioText }}</p>
+              </div>
+            </div>
+          </sc-if>
         </div>
-        <sc-if value="{{ prog.hasHighlights }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;flex-direction:column;gap:16px">
-            <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:36px;color:#202545">{{ prog.highlightsTitle }}</h2>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px">
-              <sc-for list="{{ prog.highlightList }}" as="hl" hint-placeholder-count="4">
-                <div style="background:#fff;border:1px solid #ece8df;border-radius:16px;padding:18px 20px;display:flex;gap:12px;align-items:flex-start">
-                  <span style="width:26px;height:26px;border-radius:50%;background:#F2ECB6;color:#202545;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none">✓</span>
-                  <span style="font-size:15px;line-height:1.55;color:#202545;font-weight:600">{{ hl.text }}</span>
-                </div>
-              </sc-for>
-            </div>
+        <aside style="flex:1 1 320px;max-width:420px;position:sticky;top:96px;background:#fff;border-radius:var(--r);padding:32px;display:flex;flex-direction:column;gap:22px">
+          <h2 class="h3" style="font-size:32px">Program details</h2>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ prog.details }}" as="d" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:space-between;gap:16px">
+                <span style="color:#5d584b;font-weight:600">{{ d.label }}</span>
+                <span style="color:var(--ink);font-weight:700;text-align:right">{{ d.value }}</span>
+              </div>
+            </sc-for>
           </div>
-        </sc-if>
-        <sc-if value="{{ prog.hasSpeaker }}" hint-placeholder-val="{{ false }}">
-          <div style="background:#F2ECB6;border-radius:24px;padding:32px;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
-            <sc-if value="{{ prog.hasPhoto }}" hint-placeholder-val="{{ false }}">
-              <img src="{{ prog.speakerPhoto }}" alt="{{ prog.speaker }}" style="width:112px;height:112px;border-radius:50%;object-fit:cover;display:block;flex:none">
-            </sc-if>
-            <sc-if value="{{ prog.noPhoto }}" hint-placeholder-val="{{ false }}">
-              <div style="width:112px;height:112px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#202545;flex:none">{{ prog.initials }}</div>
-            </sc-if>
-            <div style="display:flex;flex-direction:column;gap:8px;flex:1 1 260px;min-width:0">
-              <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#6b5a3a">{{ prog.speakerRole }}</span>
-              <span style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:#202545;line-height:1.05">{{ prog.speaker }}</span>
-              <p style="margin:0;font-size:15px;line-height:1.7;color:#202545;text-wrap:pretty">{{ prog.bioText }}</p>
-            </div>
-          </div>
-        </sc-if>
+          <button class="btn" onClick="{{ prog.onCta }}" style="width:100%;background:{{ prog.ctaBg }};color:{{ prog.ctaColor }}">{{ prog.cta }}</button>
+          <button class="btn btn-stone" onClick="{{ shareProgram }}" style="width:100%">Share this program</button>
+        </aside>
       </div>
-      <aside style="flex:1 1 320px;max-width:420px;position:sticky;top:96px;background:#fff;border:1px solid #ece8df;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:20px;box-shadow:0 24px 60px -36px rgba(32,37,69,.35)">
-        <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#202545">Program details</span>
-        <div style="display:flex;flex-direction:column">
-          <sc-for list="{{ prog.details }}" as="d" hint-placeholder-count="4">
-            <div style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #f0ece3;font-size:14px">
-              <span style="color:#7a7466;font-weight:600">{{ d.label }}</span>
-              <span style="color:#202545;font-weight:700;text-align:right">{{ d.value }}</span>
-            </div>
-          </sc-for>
+    </section>
+    <section style="background:#fff">
+      <div class="wrap" style="padding-top:96px;padding-bottom:96px;display:flex;flex-wrap:wrap;align-items:center;gap:40px 56px">
+        <div style="flex:none;display:flex;padding-right:56px">
+          <img src="{{ prog.partPicA }}" alt="{{ prog.partPicAAlt }}" width="400" height="400" loading="lazy" style="width:200px;height:200px;border-radius:50%;object-fit:cover;display:block">
+          <img src="{{ prog.partPicB }}" alt="{{ prog.partPicBAlt }}" width="400" height="400" loading="lazy" style="width:200px;height:200px;border-radius:50%;object-fit:cover;display:block;margin-left:-56px;margin-right:-56px">
         </div>
-        <button onClick="{{ prog.onCta }}" style="width:100%;background:{{ prog.ctaBg }};color:{{ prog.ctaColor }};border:none;padding:16px 18px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;min-height:52px" style-hover="filter:brightness(1.08)">{{ prog.cta }}</button>
-        <button onClick="{{ shareProgram }}" style="width:100%;background:none;border:1px solid #e4dfd3;color:#202545;padding:13px 18px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px">Share this program</button>
-      </aside>
+        <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+          <h2 class="h2" style="font-size:clamp(28px,1.4vw + 20px,40px)">{{ prog.partTitle }}</h2>
+          <p style="margin:0;max-width:520px">{{ prog.partText }}</p>
+          <button class="btn btn-ink" onClick="{{ prog.partGo }}">{{ prog.partCta }}</button>
+        </div>
+      </div>
     </section>
     <sc-if value="{{ hasRelated }}" hint-placeholder-val="{{ false }}">
-      <section style="background:#fff">
-        <div style="max-width:1240px;margin:0 auto;padding:56px 24px 64px;display:flex;flex-direction:column;gap:32px">
-          <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(34px,3.6vw,46px);color:#202545">You might also like</h2>
+      <section style="background:var(--ground)">
+        <div class="wrap" style="padding-top:96px;padding-bottom:120px;display:flex;flex-direction:column;gap:40px">
+          <h2 class="h2">You might also like</h2>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px">
             <sc-for list="{{ related }}" as="item" hint-placeholder-count="2">
               <dc-import name="ProgramCardV2" p="{{ item }}" hint-size="100%,460px"></dc-import>
@@ -508,114 +517,100 @@ input,select,textarea,button{font-family:inherit}
 
   <!-- CONTACT -->
   <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
-    <section style="background:#202545;color:#fff">
-      <div style="max-width:1240px;margin:0 auto;padding:56px 24px 0;display:flex;flex-wrap:wrap;gap:48px 64px;align-items:flex-start">
+    <section class="on-ink" style="position:relative;overflow:hidden;background:#202545;color:#fff"><img class="hero-img" src="assets/community-circle.jpg" alt="Six people sitting in a circle on a rug, each reading from a Qur'an on a wooden stand" width="1600" height="900" style="object-position:center 40%"><div class="hero-scrim"></div>
+      <div style="position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:56px 24px 0;display:flex;flex-wrap:wrap;gap:48px 64px;align-items:flex-start">
         <div style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:22px;padding-bottom:56px">
-          <span style="font-family:'Amiri',serif;font-size:30px;color:#F2ECB6;line-height:1.3">السَّلَامُ عَلَيْكُمْ</span>
-          <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(48px,6.4vw,84px);line-height:.95;text-wrap:balance">Let's talk.</h1>
-          <p style="margin:0;font-size:17px;line-height:1.7;color:#dcdbe6;max-width:460px;text-wrap:pretty">Whether it's about the Academy, the community or working together, we read every message.</p>
-          <div style="display:flex;flex-direction:column;margin-top:12px;border-top:1px solid rgba(255,255,255,.14)">
+          <h1 class="h1" style="font-size:clamp(36px,3.6vw + 16px,72px)">Talk to the Recitte team.</h1>
+          <p class="lead" style="color:#e6e5ee;max-width:460px">Assalamu alaikum. Whether it's about the Academy, the community or working together, we read every message.</p>
+          <div><button class="btn btn-gold" onClick="{{ contactWa }}">Message us on WhatsApp</button></div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
             <sc-for list="{{ contactInfo }}" as="c" hint-placeholder-count="3">
-              <button onClick="{{ c.onClick }}" style="display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:16px;align-items:center;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.14);padding:20px 0;cursor:pointer;text-align:left;color:#fff" style-hover="color:#F2ECB6">
-                <span style="font-size:13px;font-weight:600;color:#B29B72">{{ c.label }}</span>
-                <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:18px;font-weight:700;overflow-wrap:anywhere">{{ c.value }}</span><span style="font-size:13px;color:#b9b8c8">{{ c.note }}</span></span>
+              <button onClick="{{ c.onClick }}" style="display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:16px;align-items:center;background:none;border:none;border-radius:16px;background:rgba(255,255,255,.07);padding:20px;cursor:pointer;text-align:left;color:#fff" style-hover="color:#F2ECB6">
+                <span style="font-size:14px;font-weight:600;color:#B29B72">{{ c.label }}</span>
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:17px;font-weight:700;overflow-wrap:anywhere">{{ c.value }}</span><span style="font-size:14px;color:#b9b8c8">{{ c.note }}</span></span>
                 <span style="font-size:20px">↗</span>
               </button>
             </sc-for>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:6px">
             <sc-for list="{{ socials }}" as="s" hint-placeholder-count="4">
-              <button onClick="{{ s.onClick }}" aria-label="{{ s.label }}" title="{{ s.label }}" style="width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:rgba(255,255,255,.18)"><img src="{{ s.icon }}" alt="" style="width:20px;height:20px;display:block"></button>
+              <button onClick="{{ s.onClick }}" aria-label="{{ s.label }}" title="{{ s.label }}" style="width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.08);border:none;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:rgba(255,255,255,.18)"><img src="{{ s.icon }}" alt="" style="width:20px;height:20px;display:block"></button>
             </sc-for>
           </div>
         </div>
-        <div style="flex:1 1 440px;min-width:0;background:#fff;color:#343434;border-radius:28px 28px 0 0;padding:clamp(24px,4vw,44px);box-shadow:0 -20px 60px -30px rgba(0,0,0,.4);align-self:flex-end">
+        <div style="flex:1 1 440px;min-width:0;background:#fff;color:#343434;border-radius:28px 28px 0 0;padding:clamp(24px,4vw,44px);align-self:flex-end">
           <sc-if value="{{ contactDone }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start;padding:40px 0;animation:rcFade .35s ease">
-              <span style="width:56px;height:56px;border-radius:50%;background:#F2ECB6;color:#202545;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700">✓</span>
+              <span style="width:56px;height:56px;border-radius:50%;background:#F2ECB6;color:#202545;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
               <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;color:#202545">JazakAllahu khayran.</h2>
-              <p style="margin:0;font-size:16px;line-height:1.7">Your message is with the Recitte team. We'll reply within 2 working days, in shā' Allāh.</p>
-              <button onClick="{{ resetContact }}" style="background:none;border:1.5px solid #202545;color:#202545;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px">Send another message</button>
+              <p style="margin:0;font-size:17px;line-height:1.7">Your message is with the Recitte team. We'll reply within 2 working days, in shā' Allāh.</p>
+              <button onClick="{{ resetContact }}" style="background:none;border:none;background:#E7E3D9;color:#202545;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px">Send another message</button>
             </div>
           </sc-if>
           <sc-if value="{{ contactOpen }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;flex-direction:column;gap:22px">
               <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:#202545;line-height:1.05">Send a message</h2>
               <div style="display:flex;flex-direction:column;gap:10px">
-                <span style="font-size:13px;font-weight:700;color:#202545">I'm getting in touch about</span>
+                <span style="font-size:14px;font-weight:700;color:#202545">I'm getting in touch about</span>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
                   <sc-for list="{{ topics }}" as="t" hint-placeholder-count="4">
-                    <button onClick="{{ t.onClick }}" aria-pressed="{{ t.pressed }}" style="background:{{ t.bg }};color:{{ t.color }};border:1.5px solid {{ t.border }};padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;border-radius:999px;min-height:44px;white-space:nowrap">{{ t.label }}</button>
+                    <button onClick="{{ t.onClick }}" aria-pressed="{{ t.pressed }}" style="background:{{ t.bg }};color:{{ t.color }};border:none;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;border-radius:999px;min-height:44px;white-space:nowrap">{{ t.label }}</button>
                   </sc-for>
                 </div>
               </div>
               <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px">
-                <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:700;color:#202545">Full name *</span><input name="name" autocomplete="name" placeholder="e.g. Aisha Mohammed" value="{{ contact.name }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:15px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"><span style="font-size:13px;color:#a33a2a">{{ contactErr.name }}</span></label>
-                <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:700;color:#202545">Email *</span><input name="email" type="email" autocomplete="email" placeholder="you@example.com" value="{{ contact.email }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:15px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"><span style="font-size:13px;color:#a33a2a">{{ contactErr.email }}</span></label>
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:14px;font-weight:700;color:#202545">Full name *</span><input name="name" autocomplete="name" placeholder="e.g. Aisha Mohammed" value="{{ contact.name }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:17px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"><span style="font-size:14px;color:#a33a2a">{{ contactErr.name }}</span></label>
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:14px;font-weight:700;color:#202545">Email *</span><input name="email" type="email" autocomplete="email" placeholder="you@example.com" value="{{ contact.email }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:17px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"><span style="font-size:14px;color:#a33a2a">{{ contactErr.email }}</span></label>
               </div>
-              <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:700;color:#202545">Phone / WhatsApp <span style="font-weight:500;color:#7a7466">(optional)</span></span><input name="phone" type="tel" autocomplete="tel" placeholder="+233 20 123 4567" value="{{ contact.phone }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:15px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"></label>
+              <label style="display:flex;flex-direction:column;gap:8px"><span style="font-size:14px;font-weight:700;color:#202545">Phone / WhatsApp <span style="font-weight:500;color:#5d584b">(optional)</span></span><input name="phone" type="tel" autocomplete="tel" placeholder="+233 20 123 4567" value="{{ contact.phone }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:17px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"></label>
               <label style="display:flex;flex-direction:column;gap:8px">
-                <span style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:13px;font-weight:700;color:#202545">Message *</span><span style="font-size:12px;color:#7a7466;font-weight:600">{{ msgCount }}</span></span>
-                <textarea name="message" rows="5" maxlength="1000" placeholder="{{ msgPlaceholder }}" value="{{ contact.message }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:15px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease;resize:vertical;line-height:1.6;min-height:140px" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"></textarea>
-                <span style="font-size:13px;color:#a33a2a">{{ contactErr.message }}</span>
+                <span style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:14px;font-weight:700;color:#202545">Message *</span><span style="font-size:14px;color:#5d584b;font-weight:600">{{ msgCount }}</span></span>
+                <textarea name="message" rows="5" maxlength="1000" placeholder="{{ msgPlaceholder }}" value="{{ contact.message }}" onChange="{{ onContact }}" style="width:100%;padding:14px 16px;border:1.5px solid #e7e2d6;background:#fff;font-size:17px;color:#202545;border-radius:12px;outline:none;min-height:52px;transition:border-color .15s ease,box-shadow .15s ease;resize:vertical;line-height:1.6;min-height:140px" style-focus="border-color:#202545;box-shadow:0 0 0 4px rgba(178,155,114,.2)"></textarea>
+                <span style="font-size:14px;color:#a33a2a">{{ contactErr.message }}</span>
               </label>
               <div style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding-bottom:8px">
-                <span style="font-size:13px;color:#7a7466;line-height:1.5;flex:1 1 200px">Replies within 2 working days.</span>
-                <button onClick="{{ submitContact }}" style="background:#202545;color:#fff;border:none;padding:16px 30px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;min-height:52px;white-space:nowrap" style-hover="background:#2d3360">Send message →</button>
+                <span style="font-size:14px;color:#5d584b;line-height:1.5;flex:1 1 200px">Replies within 2 working days.</span>
+                <button onClick="{{ submitContact }}" style="background:#202545;color:#fff;border:none;padding:16px 30px;font-size:17px;font-weight:700;cursor:pointer;border-radius:999px;min-height:52px;white-space:nowrap" style-hover="background:#2d3360">Send message →</button>
               </div>
             </div>
           </sc-if>
         </div>
       </div>
     </section>
-    <section style="max-width:1240px;margin:0 auto;padding:48px 24px 64px;display:flex;flex-direction:column;gap:24px">
-      <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(30px,3.4vw,40px);color:#202545">Looking for something specific?</h2>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px">
-        <button onClick="{{ goApply }}" style="background:#fff;border:1px solid #ece8df;border-radius:22px;padding:28px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px" style-hover="border-color:#B29B72">
-          <span style="display:flex;flex-direction:column;gap:4px"><span style="font-size:17px;font-weight:700;color:#202545">Apply to Recitte Academy</span><span style="font-size:14px;color:#6a6a6a">Tajweed and recitation classes</span></span><span style="font-size:20px;color:#202545">→</span>
-        </button>
-        <button onClick="{{ joinCommunity }}" style="background:#F2ECB6;border:none;border-radius:22px;padding:28px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px" style-hover="filter:brightness(.98)">
-          <span style="display:flex;flex-direction:column;gap:4px"><span style="font-size:17px;font-weight:700;color:#202545">Join Recitte Community</span><span style="font-size:14px;color:#5e5037">Daily reminders on WhatsApp</span></span><span style="font-size:20px;color:#202545">→</span>
-        </button>
-        <button onClick="{{ goPrograms }}" style="background:#fff;border:1px solid #ece8df;border-radius:22px;padding:28px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px" style-hover="border-color:#B29B72">
-          <span style="display:flex;flex-direction:column;gap:4px"><span style="font-size:17px;font-weight:700;color:#202545">Browse programs</span><span style="font-size:14px;color:#6a6a6a">Workshops, seminars and courses</span></span><span style="font-size:20px;color:#202545">→</span>
-        </button>
-      </div>
-    </section>
+    
   </sc-if>
   </main>
 
-  <footer style="background:#202545;color:#dcdbe6">
-    <div style="max-width:1240px;margin:0 auto;padding:56px 24px 28px;display:flex;flex-direction:column;gap:48px">
+  <footer class="on-ink" style="background:var(--ink);color:#dcdbe6">
+    <div class="wrap" style="padding-top:64px;padding-bottom:40px;display:flex;flex-direction:column;gap:48px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:40px">
-        <div style="display:flex;flex-direction:column;gap:14px;grid-column:span 1">
-          <img src="assets/logo-full-navy.png" alt="Recitte" style="width:120px;height:auto;display:block;margin-left:-8px">
-          <p style="margin:0;font-size:14px;line-height:1.7">Reconnecting Muslims with the Qur'an — a few minutes, every day.</p>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <img src="assets/logo-full-navy.png" alt="Recitte" width="120" height="141" style="width:120px;height:auto;display:block;margin-left:-8px">
+          <p style="margin:0;max-width:280px">Reconnecting Muslims with the Qur'an, a few minutes, every day.</p>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#B29B72">Explore</span>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-weight:700;color:var(--gold)">Explore</span>
           <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
-            <button onClick="{{ n.onClick }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:14px;cursor:pointer" style-hover="color:#fff">{{ n.label }}</button>
+            <button onClick="{{ n.onClick }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:17px;cursor:pointer" style-hover="color:#fff">{{ n.label }}</button>
           </sc-for>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#B29B72">Get involved</span>
-          <button onClick="{{ joinCommunity }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:14px;cursor:pointer">Join Recitte Community</button>
-          <button onClick="{{ goApply }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:14px;cursor:pointer">Apply to Recitte Academy</button>
-          <button onClick="{{ goContact }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:14px;cursor:pointer">Contact us</button>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-weight:700;color:var(--gold)">Get involved</span>
+          <button onClick="{{ joinCommunity }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:17px;cursor:pointer" style-hover="color:#fff">Join Recitte Community</button>
+          <button onClick="{{ goApply }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:17px;cursor:pointer" style-hover="color:#fff">Apply to Recitte Academy</button>
+          <button onClick="{{ goContact }}" style="background:none;border:none;padding:0;text-align:left;color:#dcdbe6;font-size:17px;cursor:pointer" style-hover="color:#fff">Contact us</button>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#B29B72">Follow</span>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-weight:700;color:var(--gold)">Follow</span>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
           <sc-for list="{{ socials }}" as="s" hint-placeholder-count="4">
-            <button onClick="{{ s.onClick }}" aria-label="{{ s.label }}" title="{{ s.label }}" style="width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s" style-hover="background:rgba(255,255,255,.18)"><img src="{{ s.icon }}" alt="" style="width:18px;height:18px;display:block"></button>
+            <button onClick="{{ s.onClick }}" aria-label="{{ s.label }}" title="{{ s.label }}" style="width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.1);border:none;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s" style-hover="background:rgba(255,255,255,.2)"><img src="{{ s.icon }}" alt="" style="width:20px;height:20px;display:block"></button>
           </sc-for>
           </div>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:24px;border-top:1px solid rgba(255,255,255,.12);font-size:13px">
-        <span>© 2026 Recitte. All rights reserved.</span>
-        <span>Guided by the Qur'an and the Sunnah.</span>
+      <div style="display:flex;flex-direction:column;gap:16px;font-size:14px">
+        <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><span>© 2026 Recitte. All rights reserved.</span><span>Guided by the Qur'an and the Sunnah.</span></div>
       </div>
     </div>
   </footer>
@@ -624,7 +619,7 @@ input,select,textarea,button{font-family:inherit}
 
 <!-- ADMIN -->
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
-<div style="min-height:100vh;background:#FAF8F3">
+<div style="min-height:100vh;background:#F2F1EE">
   <div style="background:#202545;color:#fff">
     <div style="max-width:1240px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:12px"><img src="assets/logo-word-navy.png" alt="Recitte" style="height:26px;width:auto;display:block"><span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#B29B72;font-weight:700">Admin</span></div>
@@ -714,6 +709,32 @@ input,select,textarea,button{font-family:inherit}
       </div>
     </sc-if>
 
+    <sc-if value="{{ tabTestimonials }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+        <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:600;color:#202545">Testimonials</h1>
+        <span style="font-size:14px;color:#6a6a6a">Shown on the homepage. Remove the sample entries once real feedback is in.</span>
+      </div>
+      <div style="background:#fff;border:1px solid #ece8df;border-radius:20px;overflow:hidden">
+        <sc-for list="{{ adminTestimonials }}" as="t" hint-placeholder-count="3">
+          <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:16px 20px;border-bottom:1px solid #eee8db">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:15px;line-height:1.5;color:#202545">“{{ t.quote }}”</span><span style="font-size:13px;color:#6a6a6a">{{ t.name }}</span></div>
+            <button onClick="{{ t.onDelete }}" style="background:none;border:none;padding:4px 0;font-size:13px;font-weight:600;cursor:pointer;color:#a33a2a;white-space:nowrap">Remove</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #ece8df;border-radius:20px;overflow:hidden;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:#202545">Add a testimonial</span>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><span style="font-size:13px;font-weight:700;color:#202545">What they said *</span><textarea name="quote" rows="3" value="{{ nt.quote }}" onChange="{{ onNewT }}" style="padding:12px;border:1px solid #e4dfd3;background:#fff;font-size:14px;border-radius:10px;font-family:inherit"></textarea></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Name *</span><input name="name" placeholder="First name, or Seminar attendee" value="{{ nt.name }}" onChange="{{ onNewT }}" style="padding:12px;border:1px solid #e4dfd3;background:#fff;font-size:14px;border-radius:10px;min-height:44px"></label>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <button onClick="{{ addTestimonial }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Publish testimonial</button>
+          <span style="font-size:13px;color:#a33a2a;font-weight:600">{{ ntErr }}</span>
+        </div>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ tabSettings }}" hint-placeholder-val="{{ false }}">
       <h1 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:600;color:#202545">Site content &amp; links</h1>
       <div style="background:#fff;border:1px solid #ece8df;border-radius:20px;overflow:hidden;padding:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
@@ -743,74 +764,80 @@ input,select,textarea,button{font-family:inherit}
 
 <!-- REGISTRATION MODAL -->
 <sc-if value="{{ regOpen }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeReg }}" style="position:fixed;inset:0;background:rgba(32,37,69,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div onClick="{{ closeReg }}" style="position:fixed;inset:0;background:rgba(32,37,69,.45);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px">
     <div onClick="{{ stop }}" style="background:#fff;width:100%;max-width:480px;border-radius:24px;box-shadow:0 40px 100px -30px rgba(32,37,69,.5);padding:36px;display:flex;flex-direction:column;gap:16px;animation:rcFade .25s ease;max-height:90vh;overflow:auto">
       <sc-if value="{{ regForm }}" hint-placeholder-val="{{ true }}">
-        <span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#85704A">Registration</span>
+        <span style="font-size:14px;font-weight:700;color:#85704A">Registration</span>
         <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:#202545;line-height:1.05">{{ reg.title }}</h3>
-        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Full name *</span><input name="name" value="{{ reg.name }}" onChange="{{ onReg }}" style="padding:13px;border:1px solid #e4dfd3;background:#fff;font-size:15px;min-height:46px;border-radius:12px;outline-color:#B29B72"><span style="font-size:13px;color:#a33a2a">{{ regErr.name }}</span></label>
-        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Email *</span><input name="email" type="email" value="{{ reg.email }}" onChange="{{ onReg }}" style="padding:13px;border:1px solid #e4dfd3;background:#fff;font-size:15px;min-height:46px;border-radius:12px;outline-color:#B29B72"><span style="font-size:13px;color:#a33a2a">{{ regErr.email }}</span></label>
-        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Phone / WhatsApp</span><input name="phone" type="tel" value="{{ reg.phone }}" onChange="{{ onReg }}" style="padding:13px;border:1px solid #e4dfd3;background:#fff;font-size:15px;min-height:46px;border-radius:12px;outline-color:#B29B72"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Full name *</span><input name="name" value="{{ reg.name }}" onChange="{{ onReg }}" style="padding:13px;border:1px solid #e4dfd3;background:#fff;font-size:17px;min-height:46px;border-radius:12px;outline-color:#B29B72"><span style="font-size:14px;color:#a33a2a">{{ regErr.name }}</span></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Email *</span><input name="email" type="email" value="{{ reg.email }}" onChange="{{ onReg }}" style="padding:13px;border:1px solid #e4dfd3;background:#fff;font-size:17px;min-height:46px;border-radius:12px;outline-color:#B29B72"><span style="font-size:14px;color:#a33a2a">{{ regErr.email }}</span></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Phone / WhatsApp</span><input name="phone" type="tel" value="{{ reg.phone }}" onChange="{{ onReg }}" style="padding:13px;border:1px solid #e4dfd3;background:#fff;font-size:17px;min-height:46px;border-radius:12px;outline-color:#B29B72"></label>
         <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:4px">
-          <button onClick="{{ submitReg }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Confirm registration</button>
-          <button onClick="{{ closeReg }}" style="background:none;border:1px solid #d9d2c2;color:#343434;padding:14px 18px;font-size:15px;cursor:pointer;border-radius:999px;white-space:nowrap">Cancel</button>
+          <button onClick="{{ submitReg }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:17px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Confirm registration</button>
+          <button onClick="{{ closeReg }}" style="background:none;border:none;background:#E7E3D9;color:#202545;padding:14px 18px;font-size:17px;cursor:pointer;border-radius:999px;white-space:nowrap">Cancel</button>
         </div>
       </sc-if>
       <sc-if value="{{ regDone }}" hint-placeholder-val="{{ false }}">
-        <span style="width:52px;height:52px;border-radius:50%;background:#F2ECB6;color:#202545;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700">✓</span>
+        <span style="width:52px;height:52px;border-radius:50%;background:#F2ECB6;color:#202545;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
         <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:#202545">You're registered.</h3>
-        <p style="margin:0;font-size:15px;line-height:1.7">We've saved your place for <strong>{{ reg.title }}</strong>. Joining details will be sent to {{ reg.email }}.</p>
-        <div><button onClick="{{ closeReg }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Done</button></div>
+        <p style="margin:0;font-size:17px;line-height:1.7">We've saved your place for <strong>{{ reg.title }}</strong>. Joining details will be sent to {{ reg.email }}.</p>
+        <div><button onClick="{{ closeReg }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:17px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Done</button></div>
       </sc-if>
     </div>
   </div>
 </sc-if>
 
 <sc-if value="{{ applyOpen }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeApply }}" style="position:fixed;inset:0;background:rgba(32,37,69,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px">
-      <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="Apply to Recitte Academy" style="position:relative;background:#fff;width:100%;max-width:1080px;max-height:calc(100vh - 48px);overflow:auto;border-radius:24px;box-shadow:0 40px 100px -30px rgba(32,37,69,.5);display:flex;flex-wrap:wrap;animation:rcFade .3s ease">
-        <button onClick="{{ closeApply }}" aria-label="Close" style="position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:999px;border:1px solid #ece8df;background:#fff;color:#202545;font-size:20px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center" style-hover="background:#FAF8F3">×</button>
+  <div onClick="{{ closeApply }}" style="position:fixed;inset:0;background:rgba(32,37,69,.45);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="Apply to Recitte Academy" style="position:relative;background:#fff;width:100%;max-width:1080px;max-height:calc(100svh - 48px);overflow:auto;border-radius:24px;box-shadow:0 40px 100px -30px rgba(32,37,69,.5);display:flex;flex-wrap:wrap;animation:rcFade .3s ease">
+        <button onClick="{{ closeApply }}" aria-label="Close" style="position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:999px;background:#fff;color:#202545;font-size:20px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center" style-hover="background:#F2F1EE">×</button>
         <div style="background:#202545;color:#fff;padding:44px;display:flex;flex-direction:column;gap:16px;flex:1 1 300px">
-          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#B29B72">Application form</span>
+          <span style="font-size:14px;font-weight:700;color:#B29B72">Application form</span>
           <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:44px;line-height:1.04">Apply to Recitte Academy</h2>
-          <p style="margin:0;font-size:15px;line-height:1.7;color:#dcdbe6">Takes about a minute. Our team reviews every application and replies within 3 working days.</p>
+          <p style="margin:0;font-size:17px;line-height:1.7;color:#dcdbe6">Takes about a minute. Our team reviews every application and replies within 3 working days.</p>
+          <div style="display:flex;flex-direction:column;gap:14px;padding-top:16px">
+            <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:#fff">Four steps to your first class.</h3>
+            <sc-for list="{{ applySteps }}" as="st" hint-placeholder-count="4">
+              <div style="display:flex;gap:14px;align-items:flex-start"><span class="dot" style="margin-top:8px"></span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:700;color:#fff">{{ st.title }}</span><span style="font-size:14px;color:#dcdbe6">{{ st.text }}</span></div></div>
+            </sc-for>
+          </div>
           <p style="margin:auto 0 0;font-size:14px;color:#F2ECB6">Questions? {{ settings.email }}</p>
         </div>
         <div style="padding:44px;flex:2 1 480px;min-width:0">
           <sc-if value="{{ appDone }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start;padding:24px 0;animation:rcFade .35s ease">
-              <span style="width:52px;height:52px;border-radius:50%;background:#F2ECB6;color:#202545;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700">✓</span>
+              <span style="width:52px;height:52px;border-radius:50%;background:#F2ECB6;color:#202545;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
               <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;color:#202545">JazakAllahu khayran, {{ appFirstName }}.</h3>
-              <p style="margin:0;font-size:16px;line-height:1.7;max-width:520px">Your application for <strong>{{ lastAppProgram }}</strong> has been received and the Recitte team has been notified. We'll be in touch at {{ lastAppEmail }}.</p>
-              <button onClick="{{ resetApp }}" style="background:none;border:1px solid #202545;color:#202545;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Submit another application</button>
+              <p style="margin:0;font-size:17px;line-height:1.7;max-width:520px">Your application for <strong>{{ lastAppProgram }}</strong> has been received and the Recitte team has been notified. We'll be in touch at {{ lastAppEmail }}.</p>
+              <button onClick="{{ resetApp }}" style="background:none;border:none;color:#202545;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap">Submit another application</button>
             </div>
           </sc-if>
           <sc-if value="{{ appOpen }}" hint-placeholder-val="{{ true }}">
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:20px">
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Full name *</span><input name="name" value="{{ app.name }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:13px;color:#a33a2a">{{ appErr.name }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Email *</span><input name="email" type="email" value="{{ app.email }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:13px;color:#a33a2a">{{ appErr.email }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Phone / WhatsApp *</span><input name="phone" type="tel" placeholder="+233 …" value="{{ app.phone }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:13px;color:#a33a2a">{{ appErr.phone }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Country *</span><input name="country" value="{{ app.country }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:13px;color:#a33a2a">{{ appErr.country }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Age <span style="font-weight:500;color:#7a7466">(optional)</span></span><input name="age" type="number" value="{{ app.age }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:13px;color:#a33a2a">{{ appErr.age }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Program interested in *</span>
-                <select name="program" value="{{ app.program }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px">
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Full name *</span><input name="name" value="{{ app.name }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:14px;color:#a33a2a">{{ appErr.name }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Email *</span><input name="email" type="email" value="{{ app.email }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:14px;color:#a33a2a">{{ appErr.email }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Phone / WhatsApp *</span><input name="phone" type="tel" placeholder="+233 …" value="{{ app.phone }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:14px;color:#a33a2a">{{ appErr.phone }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Country *</span><input name="country" value="{{ app.country }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:14px;color:#a33a2a">{{ appErr.country }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Age <span style="font-weight:500;color:#5d584b">(optional)</span></span><input name="age" type="number" value="{{ app.age }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px"><span style="font-size:14px;color:#a33a2a">{{ appErr.age }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Program interested in *</span>
+                <select name="program" value="{{ app.program }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px">
                   <option value="">Select a program</option>
                   <sc-for list="{{ programOptions }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for>
-                </select><span style="font-size:13px;color:#a33a2a">{{ appErr.program }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Current Qur'an recitation level *</span>
-                <select name="level" value="{{ app.level }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px">
+                </select><span style="font-size:14px;color:#a33a2a">{{ appErr.program }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Current Qur'an recitation level *</span>
+                <select name="level" value="{{ app.level }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px">
                   <option value="">Select your level</option>
                   <sc-for list="{{ levelOptions }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for>
-                </select><span style="font-size:13px;color:#a33a2a">{{ appErr.level }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:#202545">Previous Tajweed experience <span style="font-weight:500;color:#7a7466">(optional)</span></span>
-                <select name="tajweed" value="{{ app.tajweed }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px">
+                </select><span style="font-size:14px;color:#a33a2a">{{ appErr.level }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700;color:#202545">Previous Tajweed experience <span style="font-weight:500;color:#5d584b">(optional)</span></span>
+                <select name="tajweed" value="{{ app.tajweed }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;min-height:46px">
                   <option value="">Select one</option>
                   <sc-for list="{{ tajweedOptions }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for>
-                </select><span style="font-size:13px;color:#a33a2a">{{ appErr.tajweed }}</span></label>
-              <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><span style="font-size:13px;font-weight:700;color:#202545">Additional information</span><textarea name="info" rows="4" placeholder="Availability, goals, anything we should know" value="{{ app.info }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:15px;color:#343434;border-radius:12px;outline-color:#B29B72;resize:vertical"></textarea></label>
+                </select><span style="font-size:14px;color:#a33a2a">{{ appErr.tajweed }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><span style="font-size:14px;font-weight:700;color:#202545">Additional information</span><textarea name="info" rows="4" placeholder="Availability, goals, anything we should know" value="{{ app.info }}" onChange="{{ onApp }}" style="padding:13px 14px;border:1px solid #e4dfd3;background:#fff;font-size:17px;color:#343434;border-radius:12px;outline-color:#B29B72;resize:vertical"></textarea></label>
               <div style="grid-column:1/-1;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-                <button onClick="{{ submitApp }}" style="background:#202545;color:#fff;border:none;padding:16px 28px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:#2d3360">Submit application</button>
-                <span style="font-size:13px;color:#a33a2a;font-weight:600">{{ appErrSummary }}</span>
+                <button onClick="{{ submitApp }}" style="background:#202545;color:#fff;border:none;padding:16px 28px;font-size:17px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:#2d3360">Submit application</button>
+                <span style="font-size:14px;color:#a33a2a;font-weight:600">{{ appErrSummary }}</span>
               </div>
             </div>
           </sc-if>
@@ -820,31 +847,31 @@ input,select,textarea,button{font-family:inherit}
 </sc-if>
 
 <sc-if value="{{ joinOpen }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeJoin }}" style="position:fixed;inset:0;background:rgba(32,37,69,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div onClick="{{ closeJoin }}" style="position:fixed;inset:0;background:rgba(32,37,69,.45);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px">
     <div onClick="{{ stop }}" style="background:#fff;width:100%;max-width:480px;border-radius:24px;box-shadow:0 40px 100px -30px rgba(32,37,69,.5);display:flex;flex-direction:column;animation:rcFade .25s ease;max-height:90vh;overflow:auto">
       <div style="background:#F2ECB6;padding:28px 36px;display:flex;flex-direction:column;gap:8px">
-        <span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#6b5a3a">Recitte Connect</span>
-        <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;color:#202545;line-height:1.05">Join the Recitte Community</h3>
+        <span style="font-size:14px;font-weight:700;color:#6b5a3a">Recitte Connect</span>
+        <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:#202545;line-height:1.05">Join the Recitte Community</h3>
       </div>
       <div style="padding:28px 36px 36px;display:flex;flex-direction:column;gap:18px">
-        <p style="margin:0;font-size:15px;line-height:1.7">You're about to leave the Recitte website and open our community on WhatsApp.</p>
+        <p style="margin:0;font-size:17px;line-height:1.7">You're about to leave the Recitte website and open our community on WhatsApp.</p>
         <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;gap:18px;align-items:center;background:#FAF8F3;border-radius:16px;padding:16px">
+          <div style="display:flex;gap:18px;align-items:center;background:#F2F1EE;border-radius:16px;padding:16px">
             <img src="{{ qrUrl }}" alt="QR code to join the Recitte WhatsApp community" style="width:112px;height:112px;display:block;border-radius:10px;background:#fff;padding:6px;flex:none">
             <div style="display:flex;flex-direction:column;gap:4px">
-              <span style="font-size:15px;font-weight:700;color:#202545">On your phone?</span>
+              <span style="font-size:17px;font-weight:700;color:#202545">On your phone?</span>
               <span style="font-size:14px;line-height:1.55;color:#4a4a4a">Scan with your camera to join straight from WhatsApp.</span>
             </div>
           </div>
         </sc-if>
         <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#202545">
-          <span>✓ One reminder a day — ayah, reflection, action</span>
-          <span>✓ First notice of seminars and workshops</span>
-          <span>✓ Free, and you can leave anytime</span>
+          <span>One reminder a day, ayah, reflection, action</span>
+          <span>First notice of seminars and workshops</span>
+          <span>Free, and you can leave anytime</span>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:4px">
-          <button onClick="{{ confirmJoin }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:#2d3360">Continue to WhatsApp</button>
-          <button onClick="{{ closeJoin }}" style="background:none;border:1px solid #d9d2c2;color:#343434;padding:14px 18px;font-size:15px;cursor:pointer;border-radius:999px;white-space:nowrap">Not now</button>
+          <button onClick="{{ confirmJoin }}" style="background:#202545;color:#fff;border:none;padding:14px 22px;font-size:17px;font-weight:700;cursor:pointer;border-radius:999px;white-space:nowrap" style-hover="background:#2d3360">Continue to WhatsApp</button>
+          <button onClick="{{ closeJoin }}" style="background:none;border:none;background:#E7E3D9;color:#202545;padding:14px 18px;font-size:17px;cursor:pointer;border-radius:999px;white-space:nowrap">Not now</button>
         </div>
       </div>
     </div>
@@ -857,19 +884,22 @@ input,select,textarea,button{font-family:inherit}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;heroVariant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;split&quot;,&quot;centered&quot;],&quot;default&quot;:&quot;split&quot;,&quot;tsType&quot;:&quot;'split'|'centered'&quot;,&quot;section&quot;:&quot;Home&quot;}}">
 const KEY = 'recitte-proto-v1';
-const PAGES = ['home','about','connect','academy','programs','program','contact','admin'];
+const PAGES = ['home','about','connect','academy','program','contact','admin'];
 const TYPES = [{key:'workshop',label:'Workshop'},{key:'seminar',label:'Monthly seminar'},{key:'course',label:'Academy course'},{key:'community',label:'Community'},{key:'challenge',label:"Qur'an challenge"},{key:'event',label:'Event'}];
 const TL = Object.fromEntries(TYPES.map(t => [t.key, t.label]));
 const ACCENT = {workshop:'#B29B72',seminar:'#202545',course:'#B29B72',community:'#F2ECB6',challenge:'#343434',event:'#202545'};
 const STATUS = {open:{label:'Registration open',bg:'#F2ECB6',color:'#202545'},soon:{label:'Coming soon',bg:'#ece8df',color:'#5e5037'},closed:{label:'Closed',bg:'#e6e6e6',color:'#555'}};
-const ACTION = {workshop:'apply',course:'apply',seminar:'register',event:'register',challenge:'register',community:'whatsapp'};
-const CTA = {apply:'Apply now',register:'Register to attend',whatsapp:'Join on WhatsApp'};
+const ACTION = {workshop:'interest',course:'apply',seminar:'interest',event:'register',challenge:'register',community:'whatsapp'};
+const ALT_FILE = {'assets/workshop-mushaf.jpg':'A closed blue Qur\'an with gold ornament beside purple flowers','assets/ghana-national-mosque.jpg':'The domes and minaret of the Ghana National Mosque in Accra against a blue sky','assets/community-circle.jpg':'Six people sitting in a circle on a rug, each reading from a Qur\'an on a wooden stand','assets/kufic-manuscript.jpg':'Close-up of gold Kufic script on a Qur\'an manuscript page','assets/hero-mushaf.jpg':'A hand following the text of a Mushaf resting on a wooden Qur\'an stand','assets/connect-mosque.jpg':'A boy reading the Qur\'an on a wooden stand in a mosque','assets/quran-manuscript-1697.jpg':'An open illuminated Qur\'an manuscript on a stand, lit against a dark ground'};
+const PICS = {workshop:'assets/workshop-mushaf.jpg',seminar:'assets/ghana-national-mosque.jpg',community:'assets/community-circle.jpg',course:'assets/kufic-manuscript.jpg',challenge:'assets/hero-mushaf.jpg',event:'assets/connect-mosque.jpg'};
+const PIC2 = {workshop:'assets/kufic-manuscript.jpg',seminar:'assets/connect-mosque.jpg',community:'assets/hero-mushaf.jpg',course:'assets/quran-manuscript-1697.jpg',challenge:'assets/community-circle.jpg',event:'assets/ghana-national-mosque.jpg'};
+const CTA = {apply:'Apply now',interest:"I'm interested",register:'Register to attend',whatsapp:'Join on WhatsApp'};
 const DEFAULT_PROGRAMS = [
-  {id:'huruf',about:'Correct recitation starts with the letters. Over four weeks you will learn where each letter is articulated, how it should sound, and how to tell apart letters that are easily confused — with live correction from a qualified teacher in small groups.',highlights:['Makharij for all 28 Arabic letters','Sifat — the qualities that give each letter its sound','Distinguishing similar letters (ح / ه, ص / س, ض / د)','Live correction in small groups'],type:'workshop',title:'Recitte Huruf Workshop',description:'A focused workshop on the Arabic letters — their makharij (points of articulation) and sifat (characteristics) — the foundation of correct, beautiful recitation.',details:[{label:'Date',value:'Sat 17 Oct 2026'},{label:'Duration',value:'4 weeks · 2×/week'},{label:'Format',value:'Live online'},{label:'Registration',value:'Closes 10 Oct'}],status:'open',featured:true},
-  {id:'seminar-oct',about:'A monthly evening for the heart. This session looks at practical ways to anchor a small daily portion of the Qur\'an around the five prayers, so that the habit survives busy weeks. Includes a short Q&A.',highlights:['Choosing a daily portion you can keep','Linking recitation to the prayer times','Reflection over quantity','Open Q&A with the speaker'],speakerBio:'Ustadh Yusuf Adam teaches Qur\'an and Tajweed in Accra and has guided community study circles for over a decade. His focus is helping busy Muslims build small, lasting habits with the Book of Allah.',type:'seminar',title:'Recitte Monthly Seminar',description:"Topic: Living with the Qur'an between the five prayers — building a daily portion that lasts.",speaker:'Ustadh Yusuf Adam',speakerPhoto:'assets/speaker-yusuf.jpg',details:[{label:'Date',value:'Sun 25 Oct 2026'},{label:'Time',value:'7:00 PM GMT'},{label:'Format',value:'Hybrid · Accra & online'},{label:'Entry',value:'Free · RSVP'}],status:'open',featured:true},
-  {id:'whatsapp',about:'The Recitte WhatsApp channel sends one short message a day: an ayah, a brief reflection and a small action to carry into your day. It is free, low-noise and the easiest way to stay consistent.',highlights:['One message a day — never spam','An ayah, a reflection and an action','First notice of seminars and workshops','Leave anytime'],type:'community',title:'Recitte WhatsApp',description:'A daily ayah, a short reflection and a gentle nudge to open the Mushaf — delivered where you already are.',details:[{label:'Purpose',value:'Daily consistency'},{label:'Frequency',value:'Once a day'},{label:'Format',value:'WhatsApp channel'},{label:'Cost',value:'Free'}],status:'open',featured:true},
-  {id:'tajweed-1',about:'Tajweed Essentials is the second level of the Recitte learning path. It covers the core rules of recitation and applies them to the short surahs you recite in salah.',highlights:['Rules of noon sakinah and tanween','Rules of meem sakinah','Madd — the prolongation rules','Qalqalah and guided practice'],type:'course',title:'Tajweed Essentials',description:'Level 2 course covering the core rules — noon sakinah, meem sakinah, madd and qalqalah — with guided practice.',details:[{label:'Starts',value:'Jan 2027'},{label:'Duration',value:'10 weeks'},{label:'Format',value:'Live online'},{label:'Level',value:'Level 2'}],status:'soon',featured:false},
-  {id:'challenge-30',about:'Five minutes a day for thirty days. Each evening the community checks in together on WhatsApp — a simple way to turn intention into a habit.',highlights:['Just five minutes a day','Evening community check-ins','Daily reflection prompt','Celebrate completion together'],type:'challenge',title:"30-Day Qur'an Challenge",description:'Five minutes a day for thirty days, with a community check-in each evening.',details:[{label:'Starts',value:'1 Nov 2026'},{label:'Duration',value:'30 days'},{label:'Format',value:'WhatsApp group'},{label:'Cost',value:'Free'}],status:'soon',featured:false}
+  {id:'huruf',about:'Correct recitation starts with the letters. Over four weeks you will learn where each letter is articulated, how it should sound, and how to tell apart letters that are easily confused, with live correction from a qualified teacher in small groups.',highlights:['Makharij for all 28 Arabic letters','Sifat, the qualities that give each letter its sound','Distinguishing similar letters (ح / ه, ص / س, ض / د)','Live correction in small groups'],type:'workshop',title:'Recitte Huruf Workshop',description:'A focused workshop on the Arabic letters, their makharij (points of articulation) and sifat (characteristics), the foundation of correct, beautiful recitation.',details:[{label:'Date',value:'Sat 17 Oct 2026'},{label:'Duration',value:'4 weeks · 2×/week'},{label:'Format',value:'Live online'},{label:'Registration',value:'Closes 10 Oct'}],status:'open',featured:true},
+  {id:'seminar-oct',about:'A monthly evening for the heart. This session looks at practical ways to anchor a small daily portion of the Qur\'an around the five prayers, so that the habit survives busy weeks. Includes a short Q&A.',highlights:['Choosing a daily portion you can keep','Linking recitation to the prayer times','Reflection over quantity','Open Q&A with the speaker'],speakerBio:'Ustadh Yusuf Adam teaches Qur\'an and Tajweed in Accra and has guided community study circles for over a decade. His focus is helping busy Muslims build small, lasting habits with the Book of Allah.',type:'seminar',title:'Recitte Monthly Seminar',description:"Topic: Living with the Qur'an between the five prayers, building a daily portion that lasts.",speaker:'Ustadh Yusuf Adam',speakerPhoto:'assets/speaker-yusuf.jpg',details:[{label:'Date',value:'Sun 25 Oct 2026'},{label:'Time',value:'7:00 PM GMT'},{label:'Format',value:'Hybrid · Accra & online'},{label:'Entry',value:'Free · RSVP'}],status:'open',featured:true},
+  {id:'whatsapp',about:'The Recitte WhatsApp channel sends one short message a day: an ayah, a brief reflection and a small action to carry into your day. It is free, low-noise and the easiest way to stay consistent.',highlights:['One message a day, never spam','An ayah, a reflection and an action','First notice of seminars and workshops','Leave anytime'],type:'community',title:'Recitte WhatsApp',description:'A daily ayah, a short reflection and a gentle nudge to open the Mushaf, delivered where you already are.',details:[{label:'Purpose',value:'Daily consistency'},{label:'Frequency',value:'Once a day'},{label:'Format',value:'WhatsApp channel'},{label:'Cost',value:'Free'}],status:'open',featured:true},
+  {id:'tajweed-1',about:'Tajweed Essentials is the second level of the Recitte learning path. It covers the core rules of recitation and applies them to the short surahs you recite in salah.',highlights:['Rules of noon sakinah and tanween','Rules of meem sakinah','Madd, the prolongation rules','Qalqalah and guided practice'],type:'course',title:'Tajweed Essentials',description:'Level 2 course covering the core rules, noon sakinah, meem sakinah, madd and qalqalah, with guided practice.',details:[{label:'Starts',value:'Jan 2027'},{label:'Duration',value:'10 weeks'},{label:'Format',value:'Live online'},{label:'Level',value:'Level 2'}],status:'soon',featured:false},
+  {id:'challenge-30',about:'Five minutes a day for thirty days. Each evening the community checks in together on WhatsApp, a simple way to turn intention into a habit.',highlights:['Just five minutes a day','Evening community check-ins','Daily reflection prompt','Celebrate completion together'],type:'challenge',title:"30-Day Qur'an Challenge",description:'Five minutes a day for thirty days, with a community check-in each evening.',details:[{label:'Starts',value:'1 Nov 2026'},{label:'Duration',value:'30 days'},{label:'Format',value:'WhatsApp group'},{label:'Cost',value:'Free'}],status:'soon',featured:false}
 ];
 const SOCIALS = [
   {key:'whatsapp',label:'WhatsApp',handle:'Recitte Community',url:'https://chat.whatsapp.com/recitte',active:true},
@@ -880,9 +910,16 @@ const SOCIALS = [
   {key:'x',label:'X',handle:'@recitte',url:'https://x.com/recitte',active:false},
   {key:'telegram',label:'Telegram',handle:'t.me/recitte',url:'https://t.me/recitte',active:false}
 ];
-const DEFAULT_SETTINGS = {heroTitle:"A few minutes a day with the Qur'an.",heroSub:'Recitte helps Muslims build a consistent, meaningful connection with the Book of Allah — through community, structured learning and small daily actions.',email:'salaam@recitte.org',phone:'+233 20 000 0000',whatsapp:'+233 20 000 0000',communityLink:'https://chat.whatsapp.com/recitte',socials:SOCIALS};
+const OLD_HERO_TITLE = "A few minutes a day with the Qur'an.";
+const DEFAULT_SETTINGS = {heroTitle:"Spend at least 5 minutes with the Qur'an today.",heroSub:'Recitte helps Muslims build a consistent, meaningful connection with the Book of Allah, through community, structured learning and small daily actions.',email:'salaam@recitte.org',phone:'+233 20 000 0000',whatsapp:'+233 20 000 0000',communityLink:'https://chat.whatsapp.com/recitte',socials:SOCIALS};
 const EMPTY_APP = {name:'',email:'',phone:'',country:'',age:'',level:'',tajweed:'',program:'',info:''};
 const EMPTY_CONTACT = {name:'',email:'',phone:'',subject:'',message:''};
+const DEFAULT_TESTIMONIALS = [
+  {id:'t1',quote:'I left with a small daily portion I can actually keep.',name:'Seminar attendee',session:'Recitte Monthly Seminar',sample:true},
+  {id:'t2',quote:'For the first time I could hear the difference between the letters.',name:'Workshop participant',session:'Recitte Huruf Workshop',sample:true},
+  {id:'t3',quote:'Short enough to read on a busy day, and it keeps me coming back to the Mushaf.',name:'Community member',session:'Recitte WhatsApp',sample:true}
+];
+const EMPTY_TESTIMONIAL = {quote:'',name:'',session:''};
 const EMPTY_NEW = {type:'workshop',title:'',description:'',date:'',time:'',format:'',speaker:'',status:'open'};
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const migrate = list => list.map(p => {
@@ -906,14 +943,14 @@ function initState() {
   let s = {};
   try { s = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
   let page = 'home', progId = null;
-  try { const h = (location.hash || '').replace('#/', '').split('/'); if (PAGES.includes(h[0])) page = h[0]; if (h[0] === 'program') progId = h[1]; } catch (e) {}
+  try { const h = (location.hash || '').replace('#/', '').split('/'); if (h[0] === 'programs') page = 'academy'; else if (PAGES.includes(h[0])) page = h[0]; if (h[0] === 'program') progId = h[1]; } catch (e) {}
   return {
     page, progId, avail: 'all', w: typeof window !== 'undefined' ? window.innerWidth : 1200, menu: false, filter: 'all',
-    programs: migrate(s.programs || DEFAULT_PROGRAMS).map(p => { const d = DEFAULT_PROGRAMS.find(x => x.id === p.id); return d ? { about: d.about, highlights: d.highlights, speakerBio: d.speakerBio, ...p } : p; }).map(p => p.id === 'seminar-oct' && (!p.speakerPhoto || p.speakerPhoto.includes('unsplash.com')) ? { ...p, speakerPhoto: DEFAULT_PROGRAMS[1].speakerPhoto } : p), settings: s.settings || DEFAULT_SETTINGS,
+    programs: migrate(s.programs || DEFAULT_PROGRAMS).map(p => { const d = DEFAULT_PROGRAMS.find(x => x.id === p.id); return d ? { about: d.about, highlights: d.highlights, speakerBio: d.speakerBio, ...p } : p; }).map(p => p.id === 'seminar-oct' && (!p.speakerPhoto || p.speakerPhoto.includes('unsplash.com')) ? { ...p, speakerPhoto: DEFAULT_PROGRAMS[1].speakerPhoto } : p), settings: s.settings ? (s.settings.heroTitle === OLD_HERO_TITLE ? { ...s.settings, heroTitle: DEFAULT_SETTINGS.heroTitle } : s.settings) : DEFAULT_SETTINGS, testimonials: s.testimonials || DEFAULT_TESTIMONIALS, nt: {...EMPTY_TESTIMONIAL}, ntErr: '',
     applications: s.applications || [], contacts: s.contacts || [], registrations: s.registrations || [],
     app: {...EMPTY_APP}, appErr: {}, appDone: false,
     contact: {...EMPTY_CONTACT}, contactErr: {}, contactDone: false,
-    reg: null, regErr: {}, toast: '', adminTab: 'overview', np: {...EMPTY_NEW}, newErr: ''
+    timer: { left: 300, running: false, done: false }, reg: null, regErr: {}, toast: '', adminTab: 'overview', np: {...EMPTY_NEW}, newErr: ''
   };
 }
 
@@ -927,6 +964,7 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     window.removeEventListener('resize', this._rs);
+    clearInterval(this._tm);
     if (this._io) this._io.disconnect();
     if (this._mo) this._mo.disconnect();
   }
@@ -940,7 +978,7 @@ class Component extends DCLogic {
     }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     const scan = () => {
       const main = document.querySelector('main'); if (!main) return;
-      const set = new Set([...main.querySelectorAll('section > div > *'), ...main.querySelectorAll('section [style*="grid-template-columns"] > *')]);
+      const set = new Set([...main.querySelectorAll('section > div > *'), ...main.querySelectorAll('section > div > div > *'), ...main.querySelectorAll('section [style*="grid-template-columns"] > *')]);
       set.forEach(el => {
         if (el.dataset.rv || el.tagName === 'SC-FOR' || el.tagName === 'SC-IF' || el.tagName === 'STYLE') return;
         el.dataset.rv = '1';
@@ -963,8 +1001,8 @@ class Component extends DCLogic {
 
   persist(patch) {
     this.setState(patch, () => {
-      const { programs, settings, applications, contacts, registrations } = this.state;
-      try { localStorage.setItem(KEY, JSON.stringify({ programs, settings, applications, contacts, registrations })); } catch (e) {}
+      const { programs, settings, applications, contacts, registrations, testimonials } = this.state;
+      try { localStorage.setItem(KEY, JSON.stringify({ programs, settings, applications, contacts, registrations, testimonials })); } catch (e) {}
     });
   }
   go(page, progId) {
@@ -980,6 +1018,11 @@ class Component extends DCLogic {
   openLink(url, label) {
     this.flash('Opening ' + label + '…');
     try { window.open(url, '_blank', 'noopener'); } catch (e) {}
+  }
+  expressInterest(p) {
+    const when = ((p.details || []).find(d => /date|starts/i.test(d.label)) || {}).value;
+    const text = 'Assalamu alaikum, I am interested in the ' + p.title + (when ? ' (' + when + ')' : '') + '. ' + (p.status === 'soon' ? 'Please notify me when registration opens.' : 'Please share how I can attend.');
+    this.openLink('https://wa.me/' + this.state.settings.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent(text), 'WhatsApp');
   }
   goApply(programTitle) {
     this.setState(s => ({ app: programTitle ? { ...s.app, program: programTitle } : s.app, appDone: false }));
@@ -1002,7 +1045,7 @@ class Component extends DCLogic {
       initials: (p.speaker || '').replace(/^(Ustadh|Ustadha|Shaykh|Sheikh|Dr\.?)\s+/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase(), accent: ACCENT[p.type] || '#B29B72',
       statusLabel: st.label, statusBg: st.bg, statusColor: st.color,
       cta: p.status === 'closed' ? 'Registration closed' : p.status === 'soon' ? 'Notify me' : CTA[action],
-      ctaBg: closed ? '#ece8df' : (action === 'whatsapp' ? '#B29B72' : '#202545'),
+      ctaBg: closed ? '#E5E3DE' : (action === 'whatsapp' ? '#B29B72' : '#202545'),
       ctaColor: closed ? '#202545' : (action === 'whatsapp' ? '#202545' : '#fff'),
       onView: () => this.go('program', p.id),
       ...(() => {
@@ -1012,13 +1055,14 @@ class Component extends DCLogic {
         const dark = p.type === 'seminar' || p.type === 'event' || p.type === 'challenge';
         return {
           hasDate: !!dd, dateTop: hasDay ? parts[0] : (parts[0] || ''), dateBottom: hasDay ? (parts[1] || '') : (parts[1] || ''), dateBig: hasDay ? '34px' : '22px',
-          headBg: dark ? '#202545' : p.type === 'community' ? '#F2ECB6' : '#EFE6D2',
+          headBg: dark ? '#202545' : p.type === 'community' ? '#F2ECB6' : '#E5E3DE',
           headFg: dark ? '#fff' : '#202545', headSub: dark ? '#B29B72' : '#6b5a3a',
           meta: (p.details || []).filter(d => d !== dd).slice(0, 2).map(d => d.value).join('  ·  ')
         };
       })(),
       onCta: () => {
         if (p.status === 'closed') return this.flash('Registration for ' + p.title + ' is closed.');
+        if (action === 'interest') return this.expressInterest(p);
         if (p.status === 'soon') return this.setState({ reg: { id: p.id, title: p.title, name: '', email: '', phone: '', done: false, notify: true }, regErr: {} });
         if (action === 'whatsapp') return this.setState({ joinOpen: true });
         if (action === 'apply') return this.goApply(p.title);
@@ -1056,6 +1100,24 @@ class Component extends DCLogic {
     if (Object.keys(e).length) return this.setState({ regErr: e });
     this.persist({ registrations: [{ program: r.title, name: r.name, email: r.email, phone: r.phone, kind: r.notify ? 'Notify' : 'Register', id: Date.now(), date: today() }, ...this.state.registrations], reg: { ...r, done: true } });
   };
+  toggleTimer = () => {
+    const t = this.state.timer;
+    if (t.done) return this.setState({ timer: { left: 300, running: false, done: false } });
+    if (t.running) { clearInterval(this._tm); return this.setState({ timer: { ...t, running: false } }); }
+    clearInterval(this._tm);
+    this._tm = setInterval(() => this.setState(st => {
+      const left = st.timer.left - 1;
+      if (left <= 0) { clearInterval(this._tm); return { timer: { left: 0, running: false, done: true } }; }
+      return { timer: { ...st.timer, left } };
+    }), 1000);
+    this.setState({ timer: { ...t, running: true } });
+  };
+  addTestimonial = () => {
+    const n = this.state.nt;
+    if (n.quote.trim().length < 10 || !n.name.trim()) return this.setState({ ntErr: 'Add the quote (at least 10 characters) and who said it.' });
+    this.persist({ testimonials: [...this.state.testimonials, { id: 't' + Date.now(), quote: n.quote.trim(), name: n.name.trim(), session: n.session.trim() || 'Recitte session' }], nt: { ...EMPTY_TESTIMONIAL }, ntErr: '' });
+    this.flash('Testimonial published');
+  };
   addProgram = () => {
     const n = this.state.np;
     if (!n.title.trim() || !n.description.trim()) return this.setState({ newErr: 'Title and description are required.' });
@@ -1073,9 +1135,9 @@ class Component extends DCLogic {
     const s = this.state, P = this.props;
     const mobile = s.w < 940;
     const go = pg => () => this.go(pg);
-    const navDefs = [['home','Home'],['about','About'],['connect','Connect'],['academy','Academy'],['programs','Programs']];
-    const isOn = k => s.page === k || (k === 'programs' && s.page === 'program');
-    const nav = navDefs.map(([k, l]) => ({ label: l, onClick: go(k), color: isOn(k) ? '#202545' : '#4a4a4a', bg: isOn(k) ? '#F2ECB6' : 'transparent', weight: isOn(k) ? 700 : 500 }));
+    const navDefs = [['home','Home'],['about','About'],['connect','Connect'],['academy','Academy']];
+    const isOn = k => s.page === k;
+    const nav = navDefs.map(([k, l]) => ({ label: l, onClick: go(k), color: isOn(k) ? '#202545' : '#4a4a4a', bg: isOn(k) ? '#E5E3DE' : 'transparent', weight: isOn(k) ? 700 : 500 }));
     const cards = s.programs.map(p => this.card(p));
     const socials = s.settings.socials.filter(x => x.active).map(x => ({ ...x, icon: 'https://cdn.simpleicons.org/' + x.key + '/F2ECB6', onClick: () => this.openLink(x.url, x.label) }));
     const presentTypes = TYPES.filter(t => s.programs.some(p => p.type === t.key));
@@ -1085,20 +1147,30 @@ class Component extends DCLogic {
     const filteredCards = cards.filter(c => s.avail === 'all' || c.status === s.avail);
     const progCard = cards.find(c => c.id === s.progId);
     const prog = progCard ? { ...progCard, aboutText: progCard.about || progCard.description, highlightList: (progCard.highlights || []).map(t => ({ text: t })), hasHighlights: !!(progCard.highlights && progCard.highlights.length), highlightsTitle: progCard.type === 'course' || progCard.type === 'workshop' ? "What you'll learn" : 'What to expect', bioText: progCard.speakerBio || ('More about ' + progCard.speaker + ' coming soon.') } : null;
+    if (prog) {
+      const t = prog.type, conn = (t === 'community' || t === 'challenge');
+      prog.pic = PICS[t] || PICS.event; prog.picAlt = ALT_FILE[prog.pic];
+      prog.pic2 = PIC2[t] || PIC2.event; prog.pic2Alt = ALT_FILE[prog.pic2];
+      prog.partTitle = conn ? 'Part of Recitte Connect' : 'Part of Recitte Academy';
+      prog.partText = conn ? "A community built around the Qur'an and Sunnah, with daily reminders, challenges and companions who keep you consistent." : "Seminars, workshops and courses in Qur'an recitation and Tajweed, from the Arabic letters to fluent, measured recitation.";
+      prog.backGo = go(conn ? 'connect' : 'academy'); prog.backLabel = conn ? '← Back to Connect' : '← Back to Academy'; prog.partCta = conn ? 'Explore Connect' : 'Explore Academy'; prog.partGo = go(conn ? 'connect' : 'academy');
+      prog.partPicA = conn ? 'assets/community-circle.jpg' : 'assets/kufic-manuscript.jpg'; prog.partPicAAlt = ALT_FILE[prog.partPicA];
+      prog.partPicB = conn ? 'assets/connect-mosque.jpg' : 'assets/quran-manuscript-1697.jpg'; prog.partPicBAlt = ALT_FILE[prog.partPicB];
+    }
     const related = progCard ? cards.filter(c => c.id !== progCard.id && c.status !== 'closed').sort((a, b) => (b.type === progCard.type) - (a.type === progCard.type)).slice(0, 3) : [];
-    const academyCards = cards.filter(c => c.type === 'workshop' || c.type === 'course');
+    const academyCards = cards.filter(c => c.type === 'workshop' || c.type === 'course' || c.type === 'seminar' || c.type === 'event');
     const fw = academyCards.find(c => c.type === 'workshop');
     const lastApp = s.lastApp || {};
     const regOpen = !!s.reg;
     const cycle = { open: 'soon', soon: 'closed', closed: 'open' };
     const updProg = (id, patch) => this.persist({ programs: s.programs.map(p => p.id === id ? { ...p, ...patch } : p) });
     const listMap = {
-      applications: { title: 'Academy applications', rows: s.applications.map(a => ({ title: a.name + ' — ' + a.program, date: a.date, fields: [{k:'Email',v:a.email},{k:'Phone',v:a.phone},{k:'Country',v:a.country},{k:'Age',v:a.age},{k:'Level',v:a.level},{k:'Tajweed',v:a.tajweed},{k:'Notes',v:a.info || '—'}] })) },
-      contacts: { title: 'Contact submissions', rows: s.contacts.map(c => ({ title: c.name + (c.subject ? ' — ' + c.subject : ''), date: c.date, fields: [{k:'Email',v:c.email},{k:'Phone',v:c.phone || '—'},{k:'Message',v:c.message}] })) },
-      registrations: { title: 'Program registrations', rows: s.registrations.map(r => ({ title: r.name + ' — ' + r.program, date: r.date, fields: [{k:'Type',v:r.kind},{k:'Email',v:r.email},{k:'Phone',v:r.phone || '—'}] })) }
+      applications: { title: 'Academy applications', rows: s.applications.map(a => ({ title: a.name + ', ' + a.program, date: a.date, fields: [{k:'Email',v:a.email},{k:'Phone',v:a.phone},{k:'Country',v:a.country},{k:'Age',v:a.age},{k:'Level',v:a.level},{k:'Tajweed',v:a.tajweed},{k:'Notes',v:a.info || '—'}] })) },
+      contacts: { title: 'Contact submissions', rows: s.contacts.map(c => ({ title: c.name + (c.subject ? ', ' + c.subject : ''), date: c.date, fields: [{k:'Email',v:c.email},{k:'Phone',v:c.phone || '—'},{k:'Message',v:c.message}] })) },
+      registrations: { title: 'Program registrations', rows: s.registrations.map(r => ({ title: r.name + ', ' + r.program, date: r.date, fields: [{k:'Type',v:r.kind},{k:'Email',v:r.email},{k:'Phone',v:r.phone || '—'}] })) }
     };
     const list = listMap[s.adminTab];
-    const tabDefs = [['overview','Overview',''],['programs','Programs',s.programs.length],['applications','Applications',s.applications.length],['registrations','Registrations',s.registrations.length],['contacts','Messages',s.contacts.length],['settings','Content & links','']];
+    const tabDefs = [['overview','Overview',''],['programs','Programs',s.programs.length],['applications','Applications',s.applications.length],['registrations','Registrations',s.registrations.length],['contacts','Messages',s.contacts.length],['testimonials','Testimonials',s.testimonials.length],['settings','Content & links','']];
     const recent = [
       ...s.applications.map(a => ({ kind: 'Application', text: a.name + ' · ' + a.program, date: a.date, id: a.id })),
       ...s.contacts.map(c => ({ kind: 'Message', text: c.name + ' · ' + (c.subject || c.message.slice(0, 40)), date: c.date, id: c.id })),
@@ -1107,8 +1179,12 @@ class Component extends DCLogic {
     const variant = P.heroVariant ?? 'split';
 
     return {
+      contactWa: () => this.openLink('https://wa.me/' + s.settings.whatsapp.replace(/\D/g, ''), 'WhatsApp'),
+      timerOffset: s.timer.done ? 0 : (304.7 * s.timer.left / 300).toFixed(1), toggleTimer: this.toggleTimer,
+      timerLabel: s.timer.done ? 'Done, barakallahu feek' : (() => { const c = Math.floor(s.timer.left / 60) + ':' + String(s.timer.left % 60).padStart(2, '0'); return s.timer.running ? c + ' · Pause' : s.timer.left < 300 ? 'Resume · ' + c : 'Start 5 minutes'; })(),
+      timerStatus: s.timer.done ? 'Five minutes complete.' : s.timer.running ? 'Timer running.' : '',
       isSite: s.page !== 'admin', isAdmin: s.page === 'admin',
-      isHome: s.page === 'home', isAbout: s.page === 'about', isConnect: s.page === 'connect', isAcademy: s.page === 'academy', isPrograms: s.page === 'programs' || (s.page === 'program' && !prog), isProgram: s.page === 'program' && !!prog, prog: prog || { details: [] }, related, hasRelated: related.length > 0,
+      isHome: s.page === 'home', isAbout: s.page === 'about', isConnect: s.page === 'connect', isAcademy: s.page === 'academy' || (s.page === 'program' && !prog), isPrograms: false, isProgram: s.page === 'program' && !!prog, prog: prog || { details: [] }, related, hasRelated: related.length > 0,
       shareProgram: () => { try { navigator.clipboard.writeText(location.href); } catch (e) {} this.flash('Link copied to clipboard'); },
       availFilters, noFiltered: filteredCards.length === 0, qrUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=202545&data=' + encodeURIComponent(s.settings.communityLink), isContact: s.page === 'contact',
       showTopBar: P.showTopBar ?? true, heroSplit: variant === 'split', heroCentered: variant === 'centered',
@@ -1116,20 +1192,20 @@ class Component extends DCLogic {
       bar1: s.menu ? 'translateY(8px) rotate(45deg)' : 'none', bar2: s.menu ? 0 : 1, bar3: s.menu ? 'translateY(-8px) rotate(-45deg)' : 'none',
       toggleMenu: () => this.setState({ menu: !s.menu }),
       nav, socials, settings: s.settings,
-      goHome: go('home'), goAbout: go('about'), goConnect: go('connect'), goAcademy: go('academy'), goPrograms: go('programs'), goContact: go('contact'), goAdmin: go('admin'),
+      goHome: go('home'), goAbout: go('about'), goConnect: go('connect'), goAcademy: go('academy'), goContact: go('contact'), goAdmin: go('admin'),
       goApply: () => this.goApply(), joinCommunity: () => this.setState({ joinOpen: true, menu: false }),
       applyOpen: !!s.applyOpen, closeApply: () => this.setState({ applyOpen: false }),
       joinOpen: !!s.joinOpen, closeJoin: () => this.setState({ joinOpen: false }),
       confirmJoin: () => { this.setState({ joinOpen: false }); this.openLink(s.settings.communityLink, 'Recitte Community on WhatsApp'); },
       featured: cards.filter(c => c.featured).slice(0, 3),
-      seminarCards: cards.filter(c => c.type === 'seminar' || c.type === 'event'),
+      connectCards: cards.filter(c => c.type === 'community' || c.type === 'challenge'),
       academyCards, hasFeaturedWorkshop: !!fw, fw: fw || { details: [] },
       filters, filteredCards,
       approach: [
-        { num: '01', title: 'Recite', text: 'A few minutes daily, with correct pronunciation and presence.' },
-        { num: '02', title: 'Understand', text: 'Learn what the words mean, one passage at a time.' },
-        { num: '03', title: 'Reflect', text: 'Pause with prompts that bring the ayah into your life.' },
-        { num: '04', title: 'Implement', text: 'Turn guidance into small, consistent action.' }
+        { title: 'Recite', text: 'A few minutes daily, with correct pronunciation and presence.' },
+        { title: 'Understand', text: 'Learn what the words mean, one passage at a time.' },
+        { title: 'Reflect', text: 'Pause with prompts that bring the ayah into your life.' },
+        { title: 'Implement', text: 'Turn guidance into small, consistent action.' }
       ],
       whatWeDo: [
         { title: 'Reminders', text: 'Timely nudges that make the daily portion a habit, not an afterthought.' },
@@ -1146,39 +1222,37 @@ class Component extends DCLogic {
       ],
       offers: [
         { title: 'Daily reminders', text: 'A short ayah and reflection each day to keep the connection alive.' },
-        { title: 'Knowledge', text: 'Monthly seminars with scholars and teachers on living with the Qur\'an.' },
         { title: 'Accountability', text: 'Challenges and check-ins that help you keep your commitment.' },
         { title: 'Brotherhood & sisterhood', text: 'A space to ask, share and encourage one another.' }
       ],
       activities: [
         { when: 'Daily', title: 'Reminder & reflection', text: 'One ayah, one thought, one action.' },
         { when: 'Weekly', title: 'Recitation circles', text: 'Small online groups reading together with feedback.' },
-        { when: 'Monthly', title: 'Recitte Seminar', text: 'A themed evening with a guest speaker, in person and online.' },
         { when: 'Seasonal', title: 'Qur\'an challenges', text: 'Ramadan and 30-day challenges with the whole community.' },
         { when: 'Seasonal', title: 'Reminders', text: 'Daily Ramadan reminders and reminders through the first ten days of Dhul-Hijjah.' }
       ],
       levels: [
-        { num: 1, title: 'Huruf — Foundations', text: 'Arabic letters, makharij and sifat. For those beginning to read.', bg: '#F2ECB6', fg: '#202545', eyebrow: '#6b5a3a' },
+        { num: 1, title: 'Huruf, Foundations', text: 'Arabic letters, makharij and sifat. For those beginning to read.', bg: '#F2ECB6', fg: '#202545', eyebrow: '#6b5a3a' },
         { num: 2, title: 'Tajweed Essentials', text: 'Core rules of recitation applied to short surahs.', bg: '#fff', fg: '#202545', eyebrow: '#85704A' },
-        { num: 3, title: 'Fluent Recitation', text: 'Reading longer passages with rhythm, accuracy and ease.', bg: '#e8e2d3', fg: '#202545', eyebrow: '#6b5a3a' },
+        { num: 3, title: 'Fluent Recitation', text: 'Reading longer passages with rhythm, accuracy and ease.', bg: '#E5E3DE', fg: '#202545', eyebrow: '#6b5a3a' },
         { num: 4, title: 'Mastery Track', text: 'Advanced Tajweed and preparation toward ijazah.', bg: '#202545', fg: '#fff', eyebrow: '#B29B72' }
-      ],
+      ].map((l, i) => ({ ...l, col: i % 2 ? '3' : '1', align: i % 2 ? 'left' : 'right' })),
       applySteps: [
-        { num: '1', title: 'Submit the form', text: 'Tell us about your recitation and goals.' },
-        { num: '2', title: 'Placement call', text: 'A short recitation with a teacher to find your level.' },
-        { num: '3', title: 'Confirm your class', text: 'Choose a schedule that fits your week.' },
-        { num: '4', title: 'Begin', text: 'Join your first live session, bi idhnillah.' }
+        { title: 'Submit the form', text: 'Tell us about your recitation and goals.' },
+        { title: 'Placement call', text: 'A short recitation with a teacher to find your level.' },
+        { title: 'Confirm your class', text: 'Choose a schedule that fits your week.' },
+        { title: 'Begin', text: 'Join your first live session, bi idhnillah.' }
       ],
-      programOptions: s.programs.filter(p => (p.type === 'workshop' || p.type === 'course') && p.status !== 'closed').map(p => p.title).concat(['Not sure — please advise']),
-      levelOptions: ['Beginner — cannot yet read Arabic', 'Can read slowly with mistakes', 'Read fluently, learning Tajweed', 'Advanced — seeking ijazah'],
+      programOptions: s.programs.filter(p => (p.type === 'workshop' || p.type === 'course') && p.status !== 'closed').map(p => p.title).concat(['Not sure, please advise']),
+      levelOptions: ['Beginner, cannot yet read Arabic', 'Can read slowly with mistakes', 'Read fluently, learning Tajweed', 'Advanced, seeking ijazah'],
       tajweedOptions: ['None', 'Some informal learning', 'Formal Tajweed study'],
       app: s.app, appErr: s.appErr, onApp: this.field('app', 'appErr'), submitApp: this.submitApp,
       appErrSummary: Object.values(s.appErr).some(Boolean) ? 'Please fix the highlighted fields.' : '',
       appDone: s.appDone, appOpen: !s.appDone, appFirstName: (lastApp.name || '').split(' ')[0], lastAppProgram: lastApp.program, lastAppEmail: lastApp.email,
       resetApp: () => this.setState({ appDone: false }),
-      topics: ['General', 'Recitte Academy', 'Community', 'Partnership'].map(t => { const on = s.contact.subject === t; return { label: t, pressed: on ? 'true' : 'false', bg: on ? '#202545' : '#fff', color: on ? '#fff' : '#202545', border: on ? '#202545' : '#e4dfd3', ring: on ? '#F2ECB6' : '#cfc8b8', dot: on ? '#F2ECB6' : 'transparent', onClick: () => this.setState(st => ({ contact: { ...st.contact, subject: on ? '' : t } })) }; }),
+      topics: ['General', 'Recitte Academy', 'Community', 'Partnership'].map(t => { const on = s.contact.subject === t; return { label: t, pressed: on ? 'true' : 'false', bg: on ? '#202545' : '#E5E3DE', color: on ? '#fff' : '#202545', border: on ? '#202545' : '#e4dfd3', ring: on ? '#F2ECB6' : '#cfc8b8', dot: on ? '#F2ECB6' : 'transparent', onClick: () => this.setState(st => ({ contact: { ...st.contact, subject: on ? '' : t } })) }; }),
       msgCount: (s.contact.message || '').length + ' / 1000',
-      msgPlaceholder: ({ 'Recitte Academy': 'Tell us which program you are interested in and any questions about schedules or levels…', Community: 'Ask about the WhatsApp community, seminars or challenges…', Partnership: 'Tell us about your organisation and how you would like to work together…' })[s.contact.subject] || 'How can we help? Share as much detail as you like…',
+      msgPlaceholder: ({ 'Recitte Academy': 'Tell us which seminar, workshop or course you are interested in and any questions about schedules or levels…', Community: 'Ask about the WhatsApp community or the Qur\'an challenges…', Partnership: 'Tell us about your organisation and how you would like to work together…' })[s.contact.subject] || 'How can we help? Share as much detail as you like…',
       contact: s.contact, contactErr: s.contactErr, onContact: this.field('contact', 'contactErr'), submitContact: this.submitContact,
       contactDone: s.contactDone, contactOpen: !s.contactDone, resetContact: () => this.setState({ contactDone: false }),
       contactInfo: [
@@ -1190,6 +1264,7 @@ class Component extends DCLogic {
       onReg: this.field('reg', 'regErr'), submitReg: this.submitReg, closeReg: () => this.setState({ reg: null }), stop: e => e.stopPropagation(),
       hasToast: !!s.toast, toast: s.toast,
       adminTabs: tabDefs.map(([k, l, c]) => ({ label: l, count: c, bg: s.adminTab === k ? '#f6f6f6' : 'transparent', color: s.adminTab === k ? '#202545' : '#dcdbe6', onClick: () => this.setState({ adminTab: k }) })),
+      hasTestimonials: s.testimonials.length > 0, testimonials: s.testimonials, adminTestimonials: s.testimonials.map(t => ({ ...t, onDelete: () => this.persist({ testimonials: s.testimonials.filter(x => x.id !== t.id) }) })), nt: s.nt, ntErr: s.ntErr, onNewT: this.field('nt'), addTestimonial: this.addTestimonial, tabTestimonials: s.adminTab === 'testimonials',
       tabOverview: s.adminTab === 'overview', tabPrograms: s.adminTab === 'programs', tabSettings: s.adminTab === 'settings', tabList: !!list,
       overview: [
         { value: s.applications.length, label: 'Academy applications', onClick: () => this.setState({ adminTab: 'applications' }) },
@@ -1209,7 +1284,7 @@ class Component extends DCLogic {
         onPhoto: e => { const f = e.target.files && e.target.files[0]; if (f) resizeImage(f, url => { this.persist({ programs: this.state.programs.map(p => p.id === c.id ? { ...p, speakerPhoto: url } : p) }); this.flash('Speaker photo updated'); }); }
       })),
       typeOptions: TYPES, np: s.np, onNew: this.field('np'),
-      npPhotoLabel: s.np.photo ? '✓ Photo added — change' : 'Upload speaker photo',
+      npPhotoLabel: s.np.photo ? '✓ Photo added, change' : 'Upload speaker photo',
       onNewPhoto: e => { const f = e.target.files && e.target.files[0]; if (f) resizeImage(f, url => this.setState(st => ({ np: { ...st.np, photo: url } }))); }, addProgram: this.addProgram, newErr: s.newErr,
       onSetting: e => { const { name, value } = e.target; this.persist({ settings: { ...s.settings, [name]: value } }); },
       adminSocials: s.settings.socials.map((x, i) => ({
@@ -1217,7 +1292,7 @@ class Component extends DCLogic {
         onToggle: () => this.persist({ settings: { ...s.settings, socials: s.settings.socials.map((y, j) => j === i ? { ...y, active: !y.active } : y) } }),
         onUrl: e => { const v = e.target.value; this.persist({ settings: { ...s.settings, socials: s.settings.socials.map((y, j) => j === i ? { ...y, url: v } : y) } }); }
       })),
-      resetAll: () => { this.persist({ programs: DEFAULT_PROGRAMS, settings: DEFAULT_SETTINGS, applications: [], contacts: [], registrations: [] }); this.flash('Prototype data reset'); }
+      resetAll: () => { this.persist({ testimonials: DEFAULT_TESTIMONIALS, programs: DEFAULT_PROGRAMS, settings: DEFAULT_SETTINGS, applications: [], contacts: [], registrations: [] }); this.flash('Prototype data reset'); }
     };
   }
 }
