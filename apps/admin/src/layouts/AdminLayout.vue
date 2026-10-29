@@ -69,7 +69,7 @@ async function leave() {
         </div>
       </div>
       <nav class="mx-auto max-w-[1240px] px-6" aria-label="Admin sections">
-        <ul class="m-0 flex list-none gap-1 overflow-x-auto p-0">
+        <ul class="m-0 flex list-none flex-wrap gap-x-1 p-0">
           <li v-for="item in nav" :key="item.to" class="shrink-0">
             <RouterLink
               :to="item.to"
