@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "vitest run",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt prepare > /dev/null && vue-tsc --noEmit -p .nuxt/tsconfig.app.json"
   },
   "dependencies": {
     "@recitte/shared": "workspace:*",
