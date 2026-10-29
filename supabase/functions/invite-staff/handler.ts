@@ -4,7 +4,7 @@ import { type CallerDeps, readJson, requireSuperAdmin } from '../_shared/staff-a
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export interface InviteDeps extends CallerDeps {
-  /** Where the invite link lands: the admin app's origin. */
+  /** The admin app's origin; invite links land on its /auth/callback. */
   adminUrl: string
   isStaffEmail(email: string): Promise<boolean>
   /** Sends the Supabase Auth invite and returns the new auth user id. */
@@ -27,7 +27,7 @@ export function createInviteHandler(deps: InviteDeps) {
 
     if (await deps.isStaffEmail(email)) return json({ error: 'That person is already on the staff list.' }, 409)
 
-    const invited = await deps.inviteUser(email, deps.adminUrl)
+    const invited = await deps.inviteUser(email, `${deps.adminUrl.replace(/\/$/, '')}/auth/callback`)
     if ('error' in invited) return json({ error: invited.error }, 400)
 
     // Invited people are always plain staff. Super admins are set in the dashboard.

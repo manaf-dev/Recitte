@@ -46,7 +46,7 @@ describe('invite-staff', () => {
     const res = await handle(post({ email: ' New@Example.com ' }, 'token-super'))
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ user_id: 'user-new', email: 'new@example.com', role: 'staff' })
-    expect(deps.inviteUser).toHaveBeenCalledWith('new@example.com', 'https://admin.example.org')
+    expect(deps.inviteUser).toHaveBeenCalledWith('new@example.com', 'https://admin.example.org/auth/callback')
     expect(deps.insertStaff).toHaveBeenCalledWith({ user_id: 'user-new', email: 'new@example.com', role: 'staff' })
   })
 
