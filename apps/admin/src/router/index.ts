@@ -44,6 +44,18 @@ export const routes: RouteRecordRaw[] = [
         props: true,
         meta: { title: 'Edit program' },
       },
+      {
+        path: 'testimonials',
+        name: 'testimonials',
+        component: () => import('@/pages/TestimonialsView.vue'),
+        meta: { title: 'Testimonials' },
+      },
+      {
+        path: 'content',
+        name: 'content',
+        component: () => import('@/pages/SettingsView.vue'),
+        meta: { title: 'Content & links' },
+      },
     ],
   },
   {
