@@ -1,3 +1,5 @@
 <template>
-  <main>Recitte</main>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
