@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory } from 'vue-router'
 import { sb } from '@/test/supabaseMock'
 import { createAdminRouter } from './index'
-import { resetAuthState } from '@/composables/useAuth'
+import { resetAuthState, signOut } from '@/composables/useAuth'
 import { clearStaffProfile } from '@/composables/useStaffProfile'
 
 vi.mock('@/lib/supabase', () => import('@/test/supabaseMock').then((m) => m.supabaseModule))
@@ -84,6 +84,20 @@ describe('route guard', () => {
     const route = await visit('/staff')
     expect(route.name).toBe('login')
     expect(route.query.redirect).toBe('/staff')
+  })
+
+  it('treats the user as signed out after signing out, without refetching their staff row', async () => {
+    sb.signIn()
+    sb.respond('staff', 'select', staffRow('staff'))
+    const router = createAdminRouter(createMemoryHistory())
+    await router.push('/')
+    expect(router.currentRoute.value.name).toBe('overview')
+
+    await signOut()
+    await router.push('/programs')
+    expect(router.currentRoute.value.name).toBe('login')
+    expect(router.currentRoute.value.query.redirect).toBe('/programs')
+    expect(sb.callsFor('staff', 'select')).toHaveLength(1)
   })
 
   it('ignores a redirect that points off-site', async () => {

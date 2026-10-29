@@ -4,15 +4,16 @@ import { supabase } from '@/lib/supabase'
 import { clearStaffProfile } from './useStaffProfile'
 
 const session = shallowRef<Session | null>(null)
-let ready: Promise<Session | null> | null = null
+let ready: Promise<void> | null = null
 
 const REDIRECT_KEY = 'recitte-admin:redirect'
 
 /**
- * Resolves once supabase-js has restored a stored session or read tokens from
- * the URL hash (magic link or invite). Safe to call many times.
+ * Resolves with the current session once supabase-js has restored a stored
+ * session or read tokens from the URL hash (magic link or invite). Safe to
+ * call many times; later calls see sign-ins and sign-outs since the first.
  */
-export function initAuth(): Promise<Session | null> {
+export async function initAuth(): Promise<Session | null> {
   if (!ready) {
     supabase.auth.onAuthStateChange((_event, next) => {
       // No awaiting Supabase calls in here: the auth lock is held.
@@ -21,10 +22,10 @@ export function initAuth(): Promise<Session | null> {
     })
     ready = supabase.auth.getSession().then(({ data }) => {
       session.value = data.session
-      return data.session
     })
   }
-  return ready
+  await ready
+  return session.value
 }
 
 /** Only same-app paths, so a crafted link cannot bounce staff to another site. */
