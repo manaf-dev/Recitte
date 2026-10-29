@@ -26,6 +26,15 @@ pnpm db:test         # pgTAP access-rule tests against the local database
 
 The settings row and the seven social platform rows are created by a migration, so production gets them too. No programs or testimonials are seeded.
 
+### Public site (`apps/web`)
+
+```bash
+cp apps/web/.env.example apps/web/.env   # fill in the URL and anon key from `pnpm db:start`
+pnpm --filter @recitte/web dev           # http://localhost:3000
+```
+
+Pages read programs, testimonials, settings and social links with the anon key and insert applications, registrations and contact messages; Row Level Security does the rest. Program pages render on the server with Open Graph tags, so a link under a flyer previews with the title, date and image. Set `NUXT_PUBLIC_SITE_URL` to the public origin so share links and `og:url` are canonical.
+
 ### Create the first super admin
 
 Public sign-up is disabled. The first account is made by hand, locally in Studio (http://127.0.0.1:54323) or in the Supabase dashboard for production:

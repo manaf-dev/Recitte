@@ -72,7 +72,7 @@ async function onSubmit() {
             :href="c.href"
             :target="c.external ? '_blank' : undefined"
             :rel="c.external ? 'noopener' : undefined"
-            class="grid grid-cols-[96px_minmax(0,1fr)_auto] items-center gap-4 rounded-2xl bg-white/7 p-5 text-left text-white no-underline hover:text-soft"
+            class="grid grid-cols-[72px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-white/7 p-5 sm:grid-cols-[96px_minmax(0,1fr)_auto] sm:gap-4 text-left text-white no-underline hover:text-soft"
           >
             <span class="text-sm font-semibold text-gold">{{ c.label }}</span>
             <span class="flex min-w-0 flex-col gap-0.5">
