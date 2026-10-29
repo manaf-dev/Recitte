@@ -27,6 +27,8 @@ export function useSiteSettings() {
       .filter((s) => s.active && s.url.trim() !== '')
       .map((s) => ({ ...s, label: SOCIAL_LABELS[s.platform] })),
   )
+  /** The WhatsApp channel: the active WhatsApp row under social links. */
+  const whatsappChannel = computed(() => activeSocials.value.find((s) => s.platform === 'whatsapp')?.url ?? '')
   const communityLink = computed(() => settings.value?.community_link.trim() ?? '')
   const whatsapp = computed(() => (whatsappDigits(settings.value?.whatsapp ?? '').length ? settings.value!.whatsapp : ''))
   const email = computed(() => settings.value?.email.trim() ?? '')
@@ -35,6 +37,7 @@ export function useSiteSettings() {
   return {
     settings,
     activeSocials,
+    whatsappChannel,
     communityLink,
     whatsapp,
     email,

@@ -130,7 +130,7 @@ onMounted(load)
               v-model="row.url"
               type="url"
               class="input"
-              placeholder="https://"
+              :placeholder="row.platform === 'whatsapp' ? 'https://whatsapp.com/channel/…' : 'https://'"
               :aria-invalid="socialErrors[row.platform] ? 'true' : undefined"
               :aria-describedby="socialErrors[row.platform] ? `social-${row.platform}-error` : undefined"
             />
@@ -138,6 +138,9 @@ onMounted(load)
               {{ socialErrors[row.platform] }}
             </span>
             <span v-else-if="row.active && !row.url.trim()" class="field-hint">Add a link, or it stays hidden on the site.</span>
+            <span v-else-if="row.platform === 'whatsapp'" class="field-hint">
+              Your WhatsApp channel link. When active, the Connect page shows a “Follow on WhatsApp” button.
+            </span>
           </div>
           <button
             type="button"
