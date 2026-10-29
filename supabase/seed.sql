@@ -1,0 +1,6 @@
+-- Local development seed. Intentionally empty.
+--
+-- The settings row and the social platform rows ship in
+-- migrations/20261025000100_settings_rows.sql so production has them too.
+-- The design forbids sample programs or testimonials, so none are added here.
+-- Create programs from the admin once it runs locally.
