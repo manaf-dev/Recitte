@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(60);
+select plan(61);
 
 -- Runs a statement as the current role and returns how many rows it touched.
 create function pg_temp.affected(statement text) returns integer
@@ -69,7 +69,7 @@ select throws_ok(
 set local role anon;
 set local request.jwt.claims = '{"role":"anon"}';
 
-select is((select count(*)::int from public.programs), 7, 'anon reads programs');
+select is((select count(*)::int from public.programs where id::text like '00000000-0000-4000-8000-0000000000b_'), 7, 'anon reads programs');
 select is((select count(*)::int from public.settings), 1, 'anon reads the settings row');
 select is((select count(*)::int from public.social_links), 7, 'anon reads social links');
 select lives_ok($$ select * from public.testimonials $$, 'anon reads testimonials');
@@ -81,37 +81,37 @@ select throws_ok($$ select * from public.staff $$, '42501', null, 'anon cannot r
 
 select lives_ok(
   $$ insert into public.applications (full_name, email, phone, country, program_id, program_title, level)
-     values ('Aisha', 'aisha@example.com', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b1', 'spoofed', 'Can read slowly with mistakes') $$,
+     values ('Aisha', 'aisha@fixture.test', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b1', 'spoofed', 'Can read slowly with mistakes') $$,
   'anon submits an application for an open workshop'
 );
 select lives_ok(
   $$ insert into public.applications (full_name, email, phone, country, program_id, program_title, level)
-     values ('Bilal', 'bilal@example.com', '0201234567', 'Ghana', null, 'spoofed', 'Advanced, seeking ijazah') $$,
+     values ('Bilal', 'bilal@fixture.test', '0201234567', 'Ghana', null, 'spoofed', 'Advanced, seeking ijazah') $$,
   'anon submits a "not sure" application'
 );
 select throws_ok(
   $$ insert into public.applications (status, full_name, email, phone, country, program_id, program_title, level)
-     values ('handled', 'Aisha', 'aisha@example.com', '+233 20 123 4567', 'Ghana', null, 'x', 'Can read slowly with mistakes') $$,
+     values ('handled', 'Aisha', 'aisha@fixture.test', '+233 20 123 4567', 'Ghana', null, 'x', 'Can read slowly with mistakes') $$,
   '42501', null, 'anon cannot insert an application that is already handled'
 );
 select throws_ok(
   $$ insert into public.applications (full_name, email, phone, country, program_id, program_title, level)
-     values ('Aisha', 'aisha@example.com', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b2', 'x', 'Can read slowly with mistakes') $$,
+     values ('Aisha', 'aisha@fixture.test', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b2', 'x', 'Can read slowly with mistakes') $$,
   '23514', 'Registration for this program has ended', 'application for a past program is rejected'
 );
 select throws_ok(
   $$ insert into public.applications (full_name, email, phone, country, program_id, program_title, level)
-     values ('Aisha', 'aisha@example.com', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b3', 'x', 'Can read slowly with mistakes') $$,
+     values ('Aisha', 'aisha@fixture.test', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b3', 'x', 'Can read slowly with mistakes') $$,
   '23514', 'Registration for this program is closed', 'application for a closed course is rejected'
 );
 select throws_ok(
   $$ insert into public.applications (full_name, email, phone, country, program_id, program_title, level)
-     values ('Aisha', 'aisha@example.com', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b7', 'x', 'Can read slowly with mistakes') $$,
+     values ('Aisha', 'aisha@fixture.test', '+233 20 123 4567', 'Ghana', '00000000-0000-4000-8000-0000000000b7', 'x', 'Can read slowly with mistakes') $$,
   '23514', 'This program does not take applications', 'application for a seminar is rejected'
 );
 select throws_ok(
   $$ insert into public.applications (full_name, email, phone, country, age, program_id, program_title, level)
-     values ('Aisha', 'aisha@example.com', '+233 20 123 4567', 'Ghana', 3, null, 'x', 'Can read slowly with mistakes') $$,
+     values ('Aisha', 'aisha@fixture.test', '+233 20 123 4567', 'Ghana', 3, null, 'x', 'Can read slowly with mistakes') $$,
   '23514', null, 'application with age 3 is rejected'
 );
 select throws_ok(
@@ -121,7 +121,7 @@ select throws_ok(
 );
 select throws_ok(
   $$ insert into public.applications (full_name, email, phone, country, program_id, program_title, level)
-     values ('Aisha', 'aisha@example.com', '123 45', 'Ghana', null, 'x', 'Can read slowly with mistakes') $$,
+     values ('Aisha', 'aisha@fixture.test', '123 45', 'Ghana', null, 'x', 'Can read slowly with mistakes') $$,
   '23514', null, 'application with fewer than 7 phone digits is rejected'
 );
 
@@ -148,15 +148,15 @@ select throws_ok(
 
 select lives_ok(
   $$ insert into public.contacts (subject, full_name, email, message)
-     values (null, 'Aisha', 'aisha@example.com', 'Assalamu alaikum, a question.') $$,
+     values (null, 'Aisha', 'aisha@fixture.test', 'Assalamu alaikum, a question.') $$,
   'anon sends a contact message with no subject'
 );
 select throws_ok(
-  $$ insert into public.contacts (full_name, email, message) values ('Aisha', 'aisha@example.com', 'too short') $$,
+  $$ insert into public.contacts (full_name, email, message) values ('Aisha', 'aisha@fixture.test', 'too short') $$,
   '23514', null, 'contact message under 10 characters is rejected'
 );
 select throws_ok(
-  $$ insert into public.contacts (subject, full_name, email, message) values ('Spam', 'Aisha', 'aisha@example.com', 'Assalamu alaikum, a question.') $$,
+  $$ insert into public.contacts (subject, full_name, email, message) values ('Spam', 'Aisha', 'aisha@fixture.test', 'Assalamu alaikum, a question.') $$,
   '23514', null, 'contact with an unknown subject is rejected'
 );
 
@@ -177,11 +177,11 @@ select throws_ok(
 reset role;
 
 select is(
-  (select program_title from public.applications where email = 'aisha@example.com'),
+  (select program_title from public.applications where email = 'aisha@fixture.test'),
   'Open Workshop', 'application title comes from the program, not the client'
 );
 select is(
-  (select program_title from public.applications where email = 'bilal@example.com'),
+  (select program_title from public.applications where email = 'bilal@fixture.test'),
   'Not sure, please advise', '"not sure" applications are titled as such'
 );
 
@@ -207,17 +207,17 @@ select throws_ok(
 
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
 
-select is((select count(*)::int from public.applications where email in ('aisha@example.com', 'bilal@example.com')), 2, 'staff read applications');
+select is((select count(*)::int from public.applications where email in ('aisha@fixture.test', 'bilal@fixture.test')), 2, 'staff read applications');
 select is(
-  pg_temp.affected($$ update public.applications set status = 'handled' where email = 'aisha@example.com' $$),
+  pg_temp.affected($$ update public.applications set status = 'handled' where email = 'aisha@fixture.test' $$),
   1, 'staff mark an application handled'
 );
-select is((select status::text from public.applications where email = 'aisha@example.com'), 'handled', 'the status is handled');
+select is((select status::text from public.applications where email = 'aisha@fixture.test'), 'handled', 'the status is handled');
 select is(
-  pg_temp.affected($$ update public.applications set status = 'new' where email = 'aisha@example.com' $$),
+  pg_temp.affected($$ update public.applications set status = 'new' where email = 'aisha@fixture.test' $$),
   1, 'staff move an application back to new'
 );
-select is(pg_temp.affected($$ delete from public.contacts where email = 'aisha@example.com' $$), 1, 'staff delete a contact');
+select is(pg_temp.affected($$ delete from public.contacts where email = 'aisha@fixture.test' $$), 1, 'staff delete a contact');
 select throws_ok(
   $$ insert into public.registrations (program_id, program_title, kind, full_name, email)
      values ('00000000-0000-4000-8000-0000000000b2', 'x', 'register', 'Staff', 'staff@example.com') $$,
@@ -245,7 +245,8 @@ select throws_ok(
 
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
 
-select is((select count(*)::int from public.staff), 2, 'super admin lists every staff row');
+select is((select count(*)::int from public.staff where email like '%@example.com' and user_id::text like '00000000-0000-4000-8000-0000000000a_'), 2, 'super admin lists every staff row');
+select ok((select count(*) from public.staff) >= 2, 'super admin sees rows beyond their own');
 select throws_ok(
   $$ update public.staff set role = 'super_admin' where user_id = '00000000-0000-4000-8000-0000000000a2' $$,
   '42501', null, 'super admin cannot promote staff through the API'

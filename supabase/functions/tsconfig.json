@@ -4,5 +4,5 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "allowImportingTsExtensions": true
   },
-  "include": ["**/handler.ts", "**/*.test.ts", "_shared/cors.ts", "_shared/staff-auth.ts", "_shared/test-helpers.ts"]
+  "include": ["**/handler.ts", "**/email.ts", "**/*.test.ts", "_shared/cors.ts", "_shared/staff-auth.ts", "_shared/test-helpers.ts"]
 }
