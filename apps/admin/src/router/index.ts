@@ -74,6 +74,12 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/SettingsView.vue'),
         meta: { title: 'Content & links' },
       },
+      {
+        path: 'staff',
+        name: 'staff',
+        component: () => import('@/pages/StaffView.vue'),
+        meta: { title: 'Staff', superAdmin: true },
+      },
     ],
   },
   {

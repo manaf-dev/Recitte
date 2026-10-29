@@ -66,6 +66,26 @@ describe('route guard', () => {
     expect(route.name).toBe('overview')
   })
 
+  it('redirects a staff member away from /staff', async () => {
+    sb.signIn()
+    sb.respond('staff', 'select', staffRow('staff'))
+    const route = await visit('/staff')
+    expect(route.name).toBe('overview')
+  })
+
+  it('lets the super admin open /staff', async () => {
+    sb.signIn()
+    sb.respond('staff', 'select', staffRow('super_admin'))
+    const route = await visit('/staff')
+    expect(route.name).toBe('staff')
+  })
+
+  it('sends a signed-out visit to /staff to login with the redirect', async () => {
+    const route = await visit('/staff')
+    expect(route.name).toBe('login')
+    expect(route.query.redirect).toBe('/staff')
+  })
+
   it('ignores a redirect that points off-site', async () => {
     sb.signIn()
     sb.respond('staff', 'select', staffRow('staff'))
