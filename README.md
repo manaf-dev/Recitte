@@ -57,3 +57,55 @@ That person signs in to the admin with a magic link and invites everyone else fr
 | `remove-staff` | super admin | Deletes another staff member's auth user (their row goes with it). Cannot remove yourself |
 
 The handlers in `supabase/functions/*/handler.ts` take their dependencies as arguments, so `pnpm test:functions` runs them under Vitest without Deno. `index.ts` wires them to the service-role client. They need `ADMIN_URL` as a function secret in production (`supabase secrets set ADMIN_URL=https://admin.example.org`).
+
+### Submission emails
+
+After an application, registration or contact message is saved, a database trigger queues a request (via `pg_net`) to the `notify-submission` Edge Function. It emails the staff address from **Content & links** and sends the visitor a short acknowledgement that repeats the reply window on the form (3 working days for applications, 2 for messages). The row is committed first, so email can never lose a submission:
+
+- Without the Vault secrets below, the trigger does nothing.
+- Without `RESEND_API_KEY` and `RESEND_FROM`, the function logs and exits.
+- A failed send is logged (`supabase functions logs notify-submission`). The site never says an email was sent.
+
+Wire it up once per environment:
+
+```sql
+-- Locally the database reaches functions at http://kong:8000.
+select vault.create_secret('https://<project-ref>.supabase.co/functions/v1/notify-submission', 'notify_submission_url');
+select vault.create_secret('<long random string>', 'notify_submission_secret');
+```
+
+```bash
+supabase secrets set NOTIFY_WEBHOOK_SECRET='<same random string>' ADMIN_URL=https://admin.example.org
+# when the client has a sending domain verified in Resend:
+supabase secrets set RESEND_API_KEY=re_... RESEND_FROM='Recitte <hello@recitte.org>'
+```
+
+For local runs, put the same keys in `supabase/functions/.env` (git-ignored).
+
+## Deploying
+
+One Supabase project and two Vercel projects from this repository.
+
+### Supabase
+
+```bash
+supabase link --project-ref <ref>
+supabase db push                 # schema, RLS, storage bucket, settings rows
+supabase functions deploy invite-staff remove-staff notify-submission
+```
+
+Then, in the dashboard:
+
+1. **Authentication → Sign In / Providers**: turn off *Allow new users to sign up*. Keep the Email provider on (magic links and invites use it).
+2. **Authentication → URL Configuration**: set *Site URL* to the admin origin (`https://admin.example.org`) and add `https://admin.example.org/**` to *Redirect URLs*. Magic links and invites land on `/auth/callback` there.
+3. Create the first super admin (above).
+4. Set the function secrets and Vault entries (above).
+
+### Vercel
+
+| Project | Root directory | Framework | Environment variables |
+| --- | --- | --- | --- |
+| recitte-web | `apps/web` | Nuxt | `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_ANON_KEY`, `NUXT_PUBLIC_SITE_URL` |
+| recitte-admin | `apps/admin` | Vite | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_PUBLIC_SITE_URL` (optional, for the "View site" link) |
+
+Both use the default install command (Vercel detects pnpm from the lockfile) and include files outside the root directory, so the workspace package resolves. Only the anon key goes to either app; the service role key stays in Supabase function secrets. Attach the public and admin domains when the client has them, then update `NUXT_PUBLIC_SITE_URL`, the Auth URLs, and `ADMIN_URL` to match. The admin sends `noindex` and has no public routes; the public site has no admin routes.
