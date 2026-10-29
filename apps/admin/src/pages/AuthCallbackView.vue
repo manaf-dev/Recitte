@@ -1,30 +1,51 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import type { EmailOtpType } from '@supabase/supabase-js'
 import BrandBar from '@/components/BrandBar.vue'
-import { consumeRedirect, initAuth } from '@/composables/useAuth'
+import { consumeRedirect, initAuth, verifyEmailLink } from '@/composables/useAuth'
 
 const router = useRouter()
 const problem = ref('')
+const verifying = ref(false)
+
+const query = new URLSearchParams(window.location.search)
+const tokenHash = query.get('token_hash')
+const type = query.get('type') as EmailOtpType | null
+const isInvite = computed(() => type === 'invite')
 
 /** GoTrue puts link errors (expired, already used) in the hash or the query. */
 function linkError(): string {
   const params = new URLSearchParams(window.location.hash.replace(/^#/, ''))
-  const query = new URLSearchParams(window.location.search)
   const code = params.get('error_code') ?? query.get('error_code')
   const description = params.get('error_description') ?? query.get('error_description')
   if (code === 'otp_expired') return 'This sign-in link has expired or was already used.'
   return description ? description.replace(/\+/g, ' ') : ''
 }
 
+async function enter() {
+  // The route guard checks for a staff row on the way in.
+  await router.replace(consumeRedirect() ?? { name: 'overview' })
+}
+
+/**
+ * Verifies the one-time link only when the person clicks, so an email
+ * scanner that pre-opens links cannot use the token up.
+ */
+async function continueSignIn() {
+  if (!tokenHash || !type) return
+  verifying.value = true
+  const result = await verifyEmailLink(tokenHash, type)
+  verifying.value = false
+  if (result.ok) return enter()
+  problem.value = result.message
+}
+
 onMounted(async () => {
+  window.history.replaceState(null, '', window.location.pathname)
   const session = await initAuth()
-  if (session) {
-    // The route guard checks for a staff row on the way in.
-    await router.replace(consumeRedirect() ?? { name: 'overview' })
-    return
-  }
-  problem.value = linkError() || 'This sign-in link is not valid.'
+  if (session && !tokenHash) return enter()
+  if (!tokenHash || !type) problem.value = linkError() || 'This sign-in link is not valid.'
 })
 </script>
 
@@ -36,14 +57,25 @@ onMounted(async () => {
       </div>
     </header>
     <main class="mx-auto flex max-w-[480px] flex-col gap-6 px-6 pb-20 pt-16">
-      <p v-if="!problem" class="text-[15px] text-muted" role="status">Signing you in…</p>
-      <section v-else class="card flex flex-col gap-4 p-7" role="alert">
+      <section v-if="problem" class="card flex flex-col gap-4 p-7" role="alert">
         <h1 class="card-title">Could not sign you in</h1>
         <p class="m-0 text-[15px]">{{ problem }} Request a new link to continue.</p>
         <div>
           <RouterLink :to="{ name: 'login' }" class="btn btn-primary">Back to sign in</RouterLink>
         </div>
       </section>
+      <section v-else-if="tokenHash" class="card flex flex-col gap-4 p-7">
+        <h1 class="card-title">{{ isInvite ? 'Welcome to Recitte Admin' : 'Sign in to Recitte Admin' }}</h1>
+        <p class="m-0 text-[15px]">
+          {{ isInvite ? 'Accept your invite to start using the admin.' : 'Continue to finish signing in.' }}
+        </p>
+        <div>
+          <button type="button" class="btn btn-primary" :disabled="verifying" data-autofocus @click="continueSignIn">
+            {{ verifying ? 'Signing in…' : isInvite ? 'Accept invite' : 'Continue' }}
+          </button>
+        </div>
+      </section>
+      <p v-else class="text-[15px] text-muted" role="status">Signing you in…</p>
     </main>
   </div>
 </template>

@@ -3,14 +3,14 @@ import { readEnv } from './env'
 
 describe('readEnv', () => {
   it('fails clearly when the Supabase settings are missing', () => {
-    expect(() => readEnv({})).toThrow(/missing VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.*\.env\.example/)
-    expect(() => readEnv({ VITE_SUPABASE_URL: 'http://x' })).toThrow(/missing VITE_SUPABASE_ANON_KEY/)
+    expect(() => readEnv({})).toThrow(/missing VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.*\.env\.example/)
+    expect(() => readEnv({ VITE_SUPABASE_URL: 'http://x' })).toThrow(/missing VITE_SUPABASE_PUBLISHABLE_KEY/)
   })
 
   it('treats the public site URL as optional', () => {
-    expect(readEnv({ VITE_SUPABASE_URL: 'http://x', VITE_SUPABASE_ANON_KEY: 'k' })).toEqual({
+    expect(readEnv({ VITE_SUPABASE_URL: 'http://x', VITE_SUPABASE_PUBLISHABLE_KEY: 'k' })).toEqual({
       supabaseUrl: 'http://x',
-      supabaseAnonKey: 'k',
+      supabasePublishableKey: 'k',
       publicSiteUrl: null,
     })
   })

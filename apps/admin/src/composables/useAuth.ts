@@ -1,5 +1,5 @@
 import { computed, readonly, shallowRef } from 'vue'
-import type { Session } from '@supabase/supabase-js'
+import type { EmailOtpType, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { clearStaffProfile } from './useStaffProfile'
 
@@ -90,6 +90,24 @@ export async function requestMagicLink(email: string, redirect?: unknown): Promi
     return { ok: false, reason: 'error', message: error.message || 'Could not send the sign-in link. Try again.' }
   } catch {
     return { ok: false, reason: 'error', message: 'Could not reach the server. Check your connection and try again.' }
+  }
+}
+
+/** Exchanges a token hash from a magic-link or invite email for a session. */
+export async function verifyEmailLink(
+  tokenHash: string,
+  type: EmailOtpType,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type })
+    if (error || !data.session) {
+      const expired = error?.code === 'otp_expired' || /expired|invalid/i.test(error?.message ?? '')
+      return { ok: false, message: expired ? 'This sign-in link has expired or was already used.' : (error?.message ?? 'This sign-in link is not valid.') }
+    }
+    session.value = data.session
+    return { ok: true }
+  } catch {
+    return { ok: false, message: 'Could not reach the server. Check your connection and try again.' }
   }
 }
 

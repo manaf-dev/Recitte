@@ -8,11 +8,11 @@ let client: SupabaseClient | null = null
  */
 export function useSupabaseClient(): SupabaseClient {
   if (import.meta.client && client) return client
-  const { supabaseUrl, supabaseAnonKey } = useRuntimeConfig().public
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Set NUXT_PUBLIC_SUPABASE_URL and NUXT_PUBLIC_SUPABASE_ANON_KEY.')
+  const { supabaseUrl, supabasePublishableKey } = useRuntimeConfig().public
+  if (!supabaseUrl || !supabasePublishableKey) {
+    throw new Error('Set NUXT_PUBLIC_SUPABASE_URL and NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.')
   }
-  const created = createClient(supabaseUrl, supabaseAnonKey, {
+  const created = createClient(supabaseUrl, supabasePublishableKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   })
   if (import.meta.client) client = created

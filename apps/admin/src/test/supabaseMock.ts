@@ -102,6 +102,7 @@ function createMock() {
     getSession: vi.fn(async () => ({ data: { session: null as unknown }, error: null })),
     onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
     signInWithOtp: vi.fn(async () => ({ data: {}, error: null as unknown })),
+    verifyOtp: vi.fn(async () => ({ data: { session: null as unknown }, error: null as unknown })),
     signOut: vi.fn(async () => ({ error: null })),
   }
 

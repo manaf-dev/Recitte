@@ -39,7 +39,7 @@ begin
 end;
 $$;
 
-revoke execute on function public.queue_submission_notification() from public, anon, authenticated;
+revoke execute on function public.queue_submission_notification() from public, anon, authenticated, service_role;
 
 create trigger applications_notify after insert on public.applications
   for each row execute function public.queue_submission_notification();

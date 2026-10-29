@@ -9,9 +9,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      // NUXT_PUBLIC_SUPABASE_URL, NUXT_PUBLIC_SUPABASE_ANON_KEY, NUXT_PUBLIC_SITE_URL
+      // NUXT_PUBLIC_SUPABASE_URL, NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NUXT_PUBLIC_SITE_URL
       supabaseUrl: '',
-      supabaseAnonKey: '',
+      supabasePublishableKey: '',
       siteUrl: '',
     },
   },

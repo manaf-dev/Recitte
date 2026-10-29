@@ -324,12 +324,42 @@ alter table public.applications enable row level security;
 alter table public.registrations enable row level security;
 alter table public.contacts enable row level security;
 
--- Privileges first, so a denied action fails loudly instead of matching no rows.
-revoke all on public.staff from anon;
-revoke insert, update, delete on public.staff from authenticated;
-revoke insert, update, delete, truncate on public.programs, public.testimonials, public.settings, public.social_links from anon;
-revoke select, update, delete, truncate on public.applications, public.registrations, public.contacts from anon;
-revoke insert, delete, truncate on public.settings, public.social_links from authenticated;
+-- Explicit Data API grants. Supabase no longer grants new public tables to
+-- anon/authenticated/service_role by default, so every privilege the API needs
+-- is stated here, next to RLS. Anything not granted fails loudly (42501)
+-- instead of silently matching no rows. Revokes first make this hold whether
+-- or not the project still has the old default privileges.
+revoke all on
+  public.staff, public.programs, public.testimonials, public.settings, public.social_links,
+  public.applications, public.registrations, public.contacts
+from anon, authenticated, service_role;
+
+-- Public content: everyone reads; signed-in staff write (RLS checks is_staff).
+grant select on public.programs, public.testimonials, public.settings, public.social_links to anon, authenticated;
+grant insert, update, delete on public.programs, public.testimonials to authenticated;
+grant update on public.settings, public.social_links to authenticated;
+
+-- Inboxes: anyone inserts; staff read, change status, delete.
+grant insert on public.applications, public.registrations, public.contacts to anon, authenticated;
+grant select, update, delete on public.applications, public.registrations, public.contacts to authenticated;
+
+-- Staff rows: readable per RLS; written only by Edge Functions.
+grant select on public.staff to authenticated;
+
+-- Edge Functions use a secret key (the service_role role): RLS is bypassed,
+-- privileges are not.
+grant select, insert, update, delete on
+  public.staff, public.programs, public.testimonials, public.settings, public.social_links,
+  public.applications, public.registrations, public.contacts
+to service_role;
+
+-- Functions are executable by PUBLIC by default. Keep only what RLS policies
+-- and checks call; triggers run regardless of EXECUTE.
+revoke execute on all functions in schema public from public, anon, authenticated;
+grant execute on function
+  public.is_staff(), public.is_super_admin(), public.is_valid_email(text), public.digit_count(text),
+  public.accra_today(), public.program_is_past(date, date)
+to anon, authenticated, service_role;
 
 -- Staff: you may read your own row; a super admin may read every row.
 -- No write policies: invites and removals go through service-role functions.

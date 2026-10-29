@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { sb } from '@/test/supabaseMock'
-import { consumeRedirect, requestMagicLink, safeRedirect } from './useAuth'
+import { consumeRedirect, requestMagicLink, safeRedirect, verifyEmailLink } from './useAuth'
 
 vi.mock('@/lib/supabase', () => import('@/test/supabaseMock').then((m) => m.supabaseModule))
 
@@ -43,5 +43,24 @@ describe('safeRedirect', () => {
     expect(safeRedirect('https://evil.example')).toBeNull()
     expect(safeRedirect('/login')).toBeNull()
     expect(safeRedirect(undefined)).toBeNull()
+  })
+})
+
+describe('verifyEmailLink', () => {
+  it('exchanges the token hash for a session', async () => {
+    sb.auth.verifyOtp.mockResolvedValueOnce({ data: { session: { user: { id: 'u1' } } }, error: null })
+    expect(await verifyEmailLink('hash-1', 'invite')).toEqual({ ok: true })
+    expect(sb.auth.verifyOtp).toHaveBeenCalledWith({ token_hash: 'hash-1', type: 'invite' })
+  })
+
+  it('explains an expired or reused link', async () => {
+    sb.auth.verifyOtp.mockResolvedValueOnce({
+      data: { session: null },
+      error: { code: 'otp_expired', message: 'Email link is invalid or has expired' },
+    })
+    expect(await verifyEmailLink('old', 'email')).toEqual({
+      ok: false,
+      message: 'This sign-in link has expired or was already used.',
+    })
   })
 })

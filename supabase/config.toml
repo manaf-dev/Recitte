@@ -6,6 +6,9 @@ project_id = "recitte"
 
 [api]
 enabled = true
+# Match hosted Supabase: new public tables get no Data API grants unless a
+# migration grants them. (Temporary CLI toggle; false is the default now.)
+auto_expose_new_tables = false
 # Port to use for the API URL.
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
@@ -246,7 +249,17 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Uncomment to customize email template
+# Links carry a token hash to the admin's /auth/callback, which calls
+# verifyOtp (works for invites, which cannot use PKCE). Use the same bodies in
+# the dashboard: Authentication > Emails.
+[auth.email.template.magic_link]
+subject = "Your Recitte Admin sign-in link"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.invite]
+subject = "You've been invited to Recitte Admin"
+content_path = "./supabase/templates/invite.html"
+
 # [auth.email.template.invite]
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
@@ -419,4 +432,12 @@ enabled = true
 
 # Called by the database trigger with a shared secret, not a user JWT.
 [functions.notify-submission]
+verify_jwt = false
+
+# The staff functions verify the caller's JWT themselves (getClaims) and check
+# the staff table. The platform check only understands legacy JWT keys.
+[functions.invite-staff]
+verify_jwt = false
+
+[functions.remove-staff]
 verify_jwt = false

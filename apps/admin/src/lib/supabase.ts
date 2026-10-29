@@ -4,16 +4,17 @@ import { readEnv } from './env'
 const env = readEnv()
 
 /**
- * The one browser client. It only ever holds the anon key; access is decided by
- * Row Level Security and the signed-in user's session.
+ * The one browser client. It only ever holds the publishable key; access is
+ * decided by Row Level Security and the signed-in user's session.
  *
- * The implicit flow is kept on purpose: invite links and magic links both land
- * with tokens in the URL hash, and supabase-js turns them into a session on load.
+ * Email links (magic link and invite) carry a token hash that
+ * AuthCallbackView exchanges with verifyOtp, so no session is read from the
+ * URL. PKCE is the flow for anything else.
  */
-export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
+export const supabase = createClient(env.supabaseUrl, env.supabasePublishableKey, {
   auth: {
-    flowType: 'implicit',
-    detectSessionInUrl: true,
+    flowType: 'pkce',
+    detectSessionInUrl: false,
     persistSession: true,
     autoRefreshToken: true,
   },

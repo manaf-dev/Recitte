@@ -29,11 +29,11 @@ The settings row and the seven social platform rows are created by a migration, 
 ### Public site (`apps/web`)
 
 ```bash
-cp apps/web/.env.example apps/web/.env   # fill in the URL and anon key from `pnpm db:start`
+cp apps/web/.env.example apps/web/.env   # fill in the URL and PUBLISHABLE_KEY from `pnpm db:start`
 pnpm --filter @recitte/web dev           # http://localhost:3000
 ```
 
-Pages read programs, testimonials, settings and social links with the anon key and insert applications, registrations and contact messages; Row Level Security does the rest. Program pages render on the server with Open Graph tags, so a link under a flyer previews with the title, date and image. Set `NUXT_PUBLIC_SITE_URL` to the public origin so share links and `og:url` are canonical.
+Pages read programs, testimonials, settings and social links with the publishable key and insert applications, registrations and contact messages; Row Level Security does the rest. Program pages render on the server with Open Graph tags, so a link under a flyer previews with the title, date and image. Set `NUXT_PUBLIC_SITE_URL` to the public origin so share links and `og:url` are canonical.
 
 ### Create the first super admin
 
@@ -55,6 +55,8 @@ That person signs in to the admin with a magic link and invites everyone else fr
 | --- | --- | --- |
 | `invite-staff` | super admin | Sends a Supabase Auth invite and adds a `staff` row |
 | `remove-staff` | super admin | Deletes another staff member's auth user (their row goes with it). Cannot remove yourself |
+
+`invite-staff` and `remove-staff` run with `verify_jwt = false` and verify the caller themselves: `auth.getClaims()` checks the JWT signature, then the live `staff` table decides the role. They talk to the database with the project's default secret key from `SUPABASE_SECRET_KEYS` (injected on hosted projects; the local CLI only injects the legacy key, which is used as a fallback).
 
 The handlers in `supabase/functions/*/handler.ts` take their dependencies as arguments, so `pnpm test:functions` runs them under Vitest without Deno. `index.ts` wires them to the service-role client. They need `ADMIN_URL` as a function secret in production (`supabase secrets set ADMIN_URL=https://admin.example.org`).
 
@@ -94,9 +96,13 @@ supabase db push                 # schema, RLS, storage bucket, settings rows
 supabase functions deploy invite-staff remove-staff notify-submission
 ```
 
+Every table's Data API access is granted explicitly in the migrations (Supabase no longer grants new `public` tables to the API roles automatically), so a fresh project needs nothing extra. `config.toml` sets `auto_expose_new_tables = false` so local runs behave the same.
+
 Then, in the dashboard:
 
+1. **Project Settings → API Keys**: use the publishable (`sb_publishable_…`) and secret (`sb_secret_…`) keys. The legacy `anon`/`service_role` keys are not needed by this repo and can be disabled.
 1. **Authentication → Sign In / Providers**: turn off *Allow new users to sign up*. Keep the Email provider on (magic links and invites use it).
+1. **Authentication → Emails**: paste `supabase/templates/magic_link.html` into *Magic Link* and `supabase/templates/invite.html` into *Invite user*. Their links carry a `token_hash` to the admin's `/auth/callback`, where the person clicks Continue and the app calls `verifyOtp`. This works for invites (which cannot use PKCE) and stops email scanners from using up the link.
 2. **Authentication → URL Configuration**: set *Site URL* to the admin origin (`https://admin.example.org`) and add `https://admin.example.org/**` to *Redirect URLs*. Magic links and invites land on `/auth/callback` there.
 3. Create the first super admin (above).
 4. Set the function secrets and Vault entries (above).
@@ -105,7 +111,7 @@ Then, in the dashboard:
 
 | Project | Root directory | Framework | Environment variables |
 | --- | --- | --- | --- |
-| recitte-web | `apps/web` | Nuxt | `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_ANON_KEY`, `NUXT_PUBLIC_SITE_URL` |
-| recitte-admin | `apps/admin` | Vite | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_PUBLIC_SITE_URL` (optional, for the "View site" link) |
+| recitte-web | `apps/web` | Nuxt | `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NUXT_PUBLIC_SITE_URL` |
+| recitte-admin | `apps/admin` | Vite | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_PUBLIC_SITE_URL` (optional, for the "View site" link) |
 
-Both use the default install command (Vercel detects pnpm from the lockfile) and include files outside the root directory, so the workspace package resolves. Only the anon key goes to either app; the service role key stays in Supabase function secrets. Attach the public and admin domains when the client has them, then update `NUXT_PUBLIC_SITE_URL`, the Auth URLs, and `ADMIN_URL` to match. The admin sends `noindex` and has no public routes; the public site has no admin routes.
+Both use the default install command (Vercel detects pnpm from the lockfile) and include files outside the root directory, so the workspace package resolves. Only the publishable key (`sb_publishable_…`) goes to either app. Secret keys stay in Supabase, where Edge Functions receive them as `SUPABASE_SECRET_KEYS`; the legacy `anon`/`service_role` keys are not used. Attach the public and admin domains when the client has them, then update `NUXT_PUBLIC_SITE_URL`, the Auth URLs, and `ADMIN_URL` to match. The admin sends `noindex` and has no public routes; the public site has no admin routes.
