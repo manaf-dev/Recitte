@@ -25,6 +25,25 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/OverviewView.vue'),
         meta: { title: 'Overview' },
       },
+      {
+        path: 'programs',
+        name: 'programs',
+        component: () => import('@/pages/ProgramsView.vue'),
+        meta: { title: 'Programs' },
+      },
+      {
+        path: 'programs/new',
+        name: 'program-new',
+        component: () => import('@/pages/ProgramEditView.vue'),
+        meta: { title: 'Add a program' },
+      },
+      {
+        path: 'programs/:id',
+        name: 'program-edit',
+        component: () => import('@/pages/ProgramEditView.vue'),
+        props: true,
+        meta: { title: 'Edit program' },
+      },
     ],
   },
   {

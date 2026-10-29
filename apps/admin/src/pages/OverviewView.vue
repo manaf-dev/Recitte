@@ -33,7 +33,7 @@ onMounted(load)
       :to="tile.to"
       class="card flex flex-col gap-1.5 p-6 text-left no-underline transition-colors hover:border-gold"
     >
-      <span class="font-display text-[48px] font-semibold leading-none text-ink">{{ tile.value ?? '–' }}</span>
+      <span class="font-display text-[48px] font-semibold leading-none text-ink lining-nums">{{ tile.value ?? '–' }}</span>
       <span class="text-[14px] font-semibold text-[#2b2b2b]">{{ tile.label }}</span>
     </RouterLink>
   </div>
