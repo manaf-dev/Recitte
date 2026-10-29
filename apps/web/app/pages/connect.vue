@@ -17,8 +17,34 @@ const cards = computed(() => forConnect(programs.value, today))
       title="A community that keeps you close to the Qur'an."
       lead="Rooted in the Qur'an and Sunnah, Recitte Connect brings Muslims together for daily reminders, challenges and mutual encouragement."
     >
-      <button v-if="canJoin" type="button" class="btn btn-gold" @click="openJoin()">Join Recitte Community</button>
+      <a v-if="whatsappChannel" :href="whatsappChannel.href" target="_blank" rel="noopener" class="btn btn-gold">
+        <SocialIcon platform="whatsapp" />Join our WhatsApp channel<span class="sr-only"> (opens WhatsApp in a new tab)</span>
+      </a>
+      <button v-if="canJoin" type="button" class="btn" :class="whatsappChannel ? 'btn-ghost' : 'btn-gold'" @click="openJoin()">
+        Join Recitte Community
+      </button>
     </PageHero>
+
+    <section v-if="whatsappChannel" class="bg-ground" aria-labelledby="channel-heading">
+      <div class="wrap py-16">
+        <div class="pad-card flex flex-wrap items-center justify-between gap-x-10 gap-y-6 rounded-card bg-soft">
+          <div class="flex max-w-[620px] items-start gap-5">
+            <span class="flex size-14 flex-none items-center justify-center rounded-full bg-ink text-soft">
+              <SocialIcon platform="whatsapp" />
+            </span>
+            <div class="flex flex-col gap-2">
+              <h2 id="channel-heading" class="h2 h2-sm">Join the Recitte WhatsApp channel</h2>
+              <p class="m-0 text-ink">
+                One short message a day: an ayah, a brief reflection and a small action to carry into your day. Free, quiet, and you can leave anytime.
+              </p>
+            </div>
+          </div>
+          <a :href="whatsappChannel.href" target="_blank" rel="noopener" class="btn btn-ink">
+            {{ whatsappChannel.kind === 'message' ? 'Message us to join' : 'Join on WhatsApp' }}<span class="sr-only"> (opens WhatsApp in a new tab)</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
     <section class="bg-white">
       <div class="wrap sec">
@@ -37,27 +63,6 @@ const cards = computed(() => forConnect(programs.value, today))
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <section v-if="whatsappChannel" class="bg-ground" aria-labelledby="channel-heading">
-      <div class="wrap pt-[120px]" :class="cards.length ? '' : 'pb-[120px]'">
-        <div class="pad-card flex flex-wrap items-center justify-between gap-x-10 gap-y-6 rounded-card bg-soft">
-          <div class="flex max-w-[620px] items-start gap-5">
-            <span class="flex size-14 flex-none items-center justify-center rounded-full bg-ink text-soft">
-              <SocialIcon platform="whatsapp" />
-            </span>
-            <div class="flex flex-col gap-2">
-              <h2 id="channel-heading" class="h2 h2-sm">Follow the Recitte WhatsApp channel</h2>
-              <p class="m-0 text-ink">
-                One short message a day: an ayah, a brief reflection and a small action to carry into your day. Free, quiet, and you can leave anytime.
-              </p>
-            </div>
-          </div>
-          <a :href="whatsappChannel" target="_blank" rel="noopener" class="btn btn-ink">
-            Follow on WhatsApp<span class="sr-only"> (opens WhatsApp in a new tab)</span>
-          </a>
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { SOCIAL_LABELS, whatsappDigits, type Settings, type SocialLink } from '@recitte/shared'
+import { whatsappChannelLink } from '~/utils/whatsappChannel'
 
 export interface ActiveSocial extends SocialLink {
   label: string
@@ -27,12 +28,14 @@ export function useSiteSettings() {
       .filter((s) => s.active && s.url.trim() !== '')
       .map((s) => ({ ...s, label: SOCIAL_LABELS[s.platform] })),
   )
-  /** The WhatsApp channel: the active WhatsApp row under social links. */
-  const whatsappChannel = computed(() => activeSocials.value.find((s) => s.platform === 'whatsapp')?.url ?? '')
   const communityLink = computed(() => settings.value?.community_link.trim() ?? '')
   const whatsapp = computed(() => (whatsappDigits(settings.value?.whatsapp ?? '').length ? settings.value!.whatsapp : ''))
   const email = computed(() => settings.value?.email.trim() ?? '')
   const phone = computed(() => settings.value?.phone.trim() ?? '')
+  /** Where the Connect page's "Join the WhatsApp channel" goes. */
+  const whatsappChannel = computed(() =>
+    whatsappChannelLink(data.value?.socials ?? [], communityLink.value, whatsapp.value),
+  )
 
   return {
     settings,

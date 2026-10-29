@@ -139,7 +139,8 @@ onMounted(load)
             </span>
             <span v-else-if="row.active && !row.url.trim()" class="field-hint">Add a link, or it stays hidden on the site.</span>
             <span v-else-if="row.platform === 'whatsapp'" class="field-hint">
-              Your WhatsApp channel link. When active, the Connect page shows a “Follow on WhatsApp” button.
+              Your WhatsApp channel link, used by “Join our WhatsApp channel” on Connect even while the footer icon is
+              hidden. Without it, that button uses the community link, then a message to the WhatsApp number.
             </span>
           </div>
           <button
