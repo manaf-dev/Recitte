@@ -1,4 +1,5 @@
 import { createRouter, type RouteRecordRaw, type RouterHistory } from 'vue-router'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 import { authGuard } from './guard'
 
 export const routes: RouteRecordRaw[] = [
@@ -16,9 +17,15 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    name: 'overview',
-    component: () => import('@/pages/OverviewView.vue'),
-    meta: { title: 'Overview' },
+    component: AdminLayout,
+    children: [
+      {
+        path: '',
+        name: 'overview',
+        component: () => import('@/pages/OverviewView.vue'),
+        meta: { title: 'Overview' },
+      },
+    ],
   },
   {
     // Unknown paths still pass the guard first, so a signed-out visitor keeps
