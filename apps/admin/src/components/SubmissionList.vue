@@ -43,7 +43,11 @@ async function onToggle(row: T) {
 
 async function onDelete(row: T) {
   const name = props.describe(row).heading
-  if (!confirmAction(`Delete the ${props.noun} from ${name}?\n\nThis cannot be undone.`)) return
+  const ok = await confirmAction({
+    title: `Delete this ${props.noun}?`,
+    message: `The ${props.noun} from ${name} will be deleted. This cannot be undone.`,
+  })
+  if (!ok) return
   const result = await remove(row)
   notice.value = result.ok
     ? { kind: 'ok', text: `Deleted the ${props.noun} from ${name}.` }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import ConfirmHost from '@/components/ConfirmHost.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
@@ -18,4 +19,5 @@ watch(session, (next, prev) => {
 
 <template>
   <RouterView />
+  <ConfirmHost />
 </template>

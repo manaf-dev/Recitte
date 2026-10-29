@@ -94,7 +94,7 @@ describe('SubmissionList', () => {
   })
 
   it('does not delete when the confirmation is cancelled', async () => {
-    const ask = vi.spyOn(confirm, 'confirmAction').mockReturnValue(false)
+    const ask = vi.spyOn(confirm, 'confirmAction').mockResolvedValue(false)
     const wrapper = await mountList()
     await rowFor(wrapper, 'Amina').get('button.btn-danger').trigger('click')
     await flushPromises()
@@ -104,7 +104,7 @@ describe('SubmissionList', () => {
   })
 
   it('deletes after the confirmation is accepted', async () => {
-    vi.spyOn(confirm, 'confirmAction').mockReturnValue(true)
+    vi.spyOn(confirm, 'confirmAction').mockResolvedValue(true)
     const wrapper = await mountList()
     await rowFor(wrapper, 'Amina').get('button.btn-danger').trigger('click')
     await flushPromises()

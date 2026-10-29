@@ -48,9 +48,10 @@ async function onPhoto(p: Program, event: Event) {
 }
 
 async function onRemove(p: Program) {
-  const ok = confirmAction(
-    `Remove “${p.title}”?\n\nIts page and link stop working. Applications and registrations already received stay in the inboxes.`,
-  )
+  const ok = await confirmAction({
+    title: 'Delete this program?',
+    message: `“${p.title}” will be deleted. Its page and link stop working. Applications and registrations already received stay in the inboxes.`,
+  })
   if (!ok) return
   show(await remove(p), `“${p.title}” was removed.`)
 }

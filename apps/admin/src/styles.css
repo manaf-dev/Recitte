@@ -95,6 +95,13 @@
     color: var(--color-ink);
   }
 
+  .section-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
   .eyebrow {
     font-size: 12px;
     letter-spacing: 0.16em;
@@ -195,6 +202,15 @@
 
   .btn-secondary:hover:not(:disabled) {
     border-color: var(--color-gold);
+  }
+
+  .btn-destructive {
+    background: var(--color-danger);
+    color: #fff;
+  }
+
+  .btn-destructive:hover:not(:disabled) {
+    background: #8a2f22;
   }
 
   .btn-small {
