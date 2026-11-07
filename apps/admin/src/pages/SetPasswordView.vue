@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BrandBar from '@/components/BrandBar.vue'
 import FormField from '@/components/FormField.vue'
+import PasswordInput from '@/components/PasswordInput.vue'
 import { MIN_PASSWORD_LENGTH, useSetPassword } from '@/composables/useSetPassword'
 
 const { phase, problem, linkError, linkType, busy, form, errors, submitError, start, accept, submit } = useSetPassword(useRouter())
@@ -55,11 +56,9 @@ onMounted(() => start())
           :error="errors.password"
         >
           <template #default="{ id, describedBy, invalid }">
-            <input
+            <PasswordInput
               :id="id"
               v-model="form.password"
-              class="input"
-              type="password"
               name="new-password"
               autocomplete="new-password"
               required
@@ -72,11 +71,9 @@ onMounted(() => start())
 
         <FormField id="confirm-password" label="Confirm password" required :error="errors.confirm">
           <template #default="{ id, describedBy, invalid }">
-            <input
+            <PasswordInput
               :id="id"
               v-model="form.confirm"
-              class="input"
-              type="password"
               name="confirm-password"
               autocomplete="new-password"
               required

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { STAFF_NAME_MAX, type StaffRole } from '@recitte/shared'
 import FormField from '@/components/FormField.vue'
+import PasswordInput from '@/components/PasswordInput.vue'
 import { signOut } from '@/composables/useAuth'
 import { useProfile, type EmailField, type NameField } from '@/composables/useProfile'
 
@@ -142,12 +143,10 @@ async function onChangeEmail() {
         </FormField>
         <FormField id="profile-current-password" label="Current password" required :error="emailErrors.current_password">
           <template #default="{ id, describedBy, invalid }">
-            <input
+            <PasswordInput
               :id="id"
               v-model="currentPassword"
-              type="password"
               autocomplete="current-password"
-              class="input"
               :aria-describedby="describedBy"
               :aria-invalid="invalid"
             />

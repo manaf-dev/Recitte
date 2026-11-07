@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { isValidEmail } from '@recitte/shared'
 import BrandBar from '@/components/BrandBar.vue'
 import FormField from '@/components/FormField.vue'
+import PasswordInput from '@/components/PasswordInput.vue'
 import { safeRedirect, signInWithPassword } from '@/composables/useAuth'
 
 const route = useRoute()
@@ -76,11 +77,9 @@ async function submit() {
 
         <FormField id="login-password" label="Password" :error="fieldErrors.password">
           <template #default="{ id, describedBy, invalid }">
-            <input
+            <PasswordInput
               :id="id"
               v-model="form.password"
-              class="input"
-              type="password"
               name="password"
               autocomplete="current-password"
               required
