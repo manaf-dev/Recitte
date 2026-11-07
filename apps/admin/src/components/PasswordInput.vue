@@ -7,6 +7,7 @@ withDefaults(defineProps<{
   name?: string
   autocomplete?: string
   placeholder?: string
+  inputClass?: string
   required?: boolean
   minlength?: number
   describedBy?: string
@@ -23,7 +24,7 @@ const visible = ref(false)
       :id="id"
       :value="modelValue"
       @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-      class="input pr-12"
+      :class="['input pr-12', inputClass]"
       :type="visible ? 'text' : 'password'"
       :name="name"
       :autocomplete="autocomplete"
@@ -35,7 +36,7 @@ const visible = ref(false)
     />
     <button
       type="button"
-      class="absolute inset-y-0 right-0 flex w-12 cursor-pointer items-center justify-center rounded-r-[10px] border-0 bg-transparent text-muted transition-colors hover:text-ink focus-visible:text-ink"
+      class="absolute inset-y-0 right-0 flex w-12 cursor-pointer items-center justify-center rounded-r-field border-0 bg-transparent text-muted transition-colors hover:text-ink focus-visible:text-ink"
       :aria-label="visible ? 'Hide password' : 'Show password'"
       :aria-pressed="visible"
       @click="visible = !visible"
