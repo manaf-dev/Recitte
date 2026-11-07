@@ -441,3 +441,15 @@ verify_jwt = false
 
 [functions.remove-staff]
 verify_jwt = false
+
+# Hosted production project. `supabase config push` applies these over the
+# local values above.
+[remotes.production]
+project_id = "vzjhbftviusqiedzubkv"
+
+[remotes.production.auth]
+site_url = "https://recitte-admin.vercel.app"
+additional_redirect_urls = ["https://recitte-admin.vercel.app/**"]
+
+[remotes.production.auth.email]
+max_frequency = "60s"
