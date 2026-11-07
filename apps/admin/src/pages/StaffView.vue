@@ -8,7 +8,7 @@ import { useStaffProfile } from '@/composables/useStaffProfile'
 import { confirmAction } from '@/lib/confirm'
 import { formatDate } from '@/lib/format'
 
-const { staff, loading, loaded, error, load, invite, remove } = useStaffAdmin()
+const { staff, loading, loaded, error, load, invite, remove, changeRole } = useStaffAdmin()
 const { profile } = useStaffProfile()
 
 const ROLE_LABELS: Record<StaffRole, string> = { super_admin: 'Super admin', staff: 'Staff' }
@@ -23,6 +23,8 @@ const inviteErrors = ref<Partial<Record<InviteField, string>>>({})
 const inviting = ref(false)
 const notice = ref<{ kind: 'ok' | 'error'; text: string } | null>(null)
 const removing = ref<string | null>(null)
+/** The row whose role is being saved. */
+const changingRole = ref<string | null>(null)
 /** The last invite's one-time link. Kept in memory only, gone on reload or dismiss. */
 const created = ref<InviteResult | null>(null)
 const copyState = ref<'idle' | 'copied' | 'manual'>('idle')
@@ -36,9 +38,14 @@ function hasName(member: Staff) {
   return staffDisplayName(member) !== member.email
 }
 
-/** Only invited staff can be removed here, and never your own account. */
-function canRemove(member: Staff) {
-  return member.role === 'staff' && member.user_id !== profile.value?.user_id
+/** Your own row is read-only: you cannot change your own role or remove yourself. */
+function isSelf(member: Staff) {
+  return member.user_id === profile.value?.user_id
+}
+
+/** True while that row's role change or removal is in flight. */
+function isBusy(member: Staff) {
+  return removing.value === member.user_id || changingRole.value === member.user_id
 }
 
 function openInvite() {
@@ -97,10 +104,49 @@ function dismissInvite() {
   copyState.value = 'idle'
 }
 
+async function onRoleChange(member: Staff, event: Event) {
+  const select = event.target as HTMLSelectElement
+  const next = select.value as StaffRole
+  if (next === member.role) return
+  const name = staffDisplayName(member)
+  const ok = await confirmAction(
+    next === 'super_admin'
+      ? {
+          title: 'Make super admin?',
+          message: `Make ${name} a super admin? They will be able to invite, remove and change the role of anyone else.`,
+          confirmLabel: 'Make super admin',
+          danger: false,
+        }
+      : {
+          title: 'Make staff?',
+          message: `Make ${name} staff? They will lose access to the Staff screen.`,
+          confirmLabel: 'Make staff',
+        },
+  )
+  if (!ok) {
+    select.value = member.role
+    return
+  }
+  notice.value = null
+  changingRole.value = member.user_id
+  const result = await changeRole(member.user_id, next)
+  changingRole.value = null
+  if (result.ok) {
+    notice.value = { kind: 'ok', text: `${name} is now ${result.role === 'super_admin' ? 'a super admin' : 'staff'}.` }
+  } else {
+    select.value = member.role
+    notice.value = { kind: 'error', text: `Role not changed. ${result.error}` }
+  }
+}
+
 async function onRemove(member: Staff) {
+  const name = staffDisplayName(member)
   const ok = await confirmAction({
     title: 'Remove this person?',
-    message: `${staffDisplayName(member)} loses access straight away. An invite they have not accepted stops working.`,
+    message:
+      member.role === 'super_admin'
+        ? `${name} is a super admin. They lose access straight away, including the Staff screen. An invite they have not accepted stops working.`
+        : `${name} loses access straight away. An invite they have not accepted stops working.`,
     confirmLabel: 'Remove',
   })
   if (!ok) return
@@ -121,7 +167,7 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
     <div class="flex flex-col gap-1">
       <h1 class="page-title">Staff</h1>
       <p class="m-0 max-w-[640px] text-[14px] text-muted">
-        Staff can use every section except this one. Super admins can also invite and remove staff.
+        Staff can use every section except this one. Super admins can also invite, remove and change the role of anyone else.
       </p>
     </div>
     <button type="button" class="btn btn-primary" @click="openInvite">+ Invite someone</button>
@@ -185,22 +231,35 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
         <div class="flex min-w-0 flex-col gap-0.5">
           <span class="flex flex-wrap items-center gap-2">
             <span class="break-words font-bold text-ink" :class="{ 'break-all': !hasName(member) }">{{ staffDisplayName(member) }}</span>
-            <span v-if="member.user_id === profile?.user_id" class="pill bg-ground text-ink">You</span>
+            <span v-if="isSelf(member)" class="pill bg-ground text-ink">You</span>
           </span>
           <span v-if="hasName(member)" class="break-all text-[13px] text-muted">{{ member.email }}</span>
           <span class="text-[13px] text-muted">
             {{ ROLE_LABELS[member.role] }} · added {{ formatDate(member.created_at) }}
           </span>
         </div>
-        <button
-          v-if="canRemove(member)"
-          type="button"
-          class="btn-link btn-danger self-start sm:self-auto"
-          :disabled="removing === member.user_id"
-          @click="onRemove(member)"
-        >
-          {{ removing === member.user_id ? 'Removing…' : 'Remove' }}<span class="sr-only"> {{ staffDisplayName(member) }}</span>
-        </button>
+        <div v-if="!isSelf(member)" class="flex shrink-0 items-center gap-4 self-start sm:self-auto" data-row-actions>
+          <label :for="`role-${member.user_id}`" class="sr-only">Role for {{ staffDisplayName(member) }}</label>
+          <select
+            :id="`role-${member.user_id}`"
+            :value="member.role"
+            class="input w-auto"
+            :disabled="isBusy(member)"
+            :aria-busy="changingRole === member.user_id"
+            @change="onRoleChange(member, $event)"
+          >
+            <option value="staff">{{ ROLE_LABELS.staff }}</option>
+            <option value="super_admin">{{ ROLE_LABELS.super_admin }}</option>
+          </select>
+          <button
+            type="button"
+            class="btn-link btn-danger"
+            :disabled="isBusy(member)"
+            @click="onRemove(member)"
+          >
+            {{ removing === member.user_id ? 'Removing…' : 'Remove' }}<span class="sr-only">{{ ` ${staffDisplayName(member)}` }}</span>
+          </button>
+        </div>
       </li>
     </ul>
   </section>
@@ -249,7 +308,7 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
           />
         </template>
       </FormField>
-      <FormField id="invite-role" label="Role" :error="inviteErrors.role" hint="Super admins can invite and remove staff.">
+      <FormField id="invite-role" label="Role" :error="inviteErrors.role" hint="Super admins can invite, remove and change the role of anyone else.">
         <template #default="{ id, describedBy, invalid }">
           <select :id="id" v-model="role" class="input" :aria-describedby="describedBy" :aria-invalid="invalid">
             <option value="staff">{{ ROLE_LABELS.staff }}</option>

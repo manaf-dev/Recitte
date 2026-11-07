@@ -130,4 +130,48 @@ describe('useStaffAdmin', () => {
     expect(sb.client.functions.invoke).toHaveBeenCalledWith('remove-staff', { body: { user_id: 'u2' } })
     expect(admin.staff.value).toEqual([])
   })
+
+  it('removes a super admin through the same function', async () => {
+    const admin = useStaffAdmin()
+    admin.staff.value = [{ user_id: 'u3', email: 'b@example.com', first_name: null, last_name: null, role: 'super_admin', created_at: 'x' }]
+    const result = await admin.remove(admin.staff.value[0]!)
+    expect(result).toEqual({ ok: true })
+    expect(sb.client.functions.invoke).toHaveBeenCalledWith('remove-staff', { body: { user_id: 'u3' } })
+  })
+
+  it('changes a role through the change-role function and updates the row', async () => {
+    sb.client.functions.invoke.mockResolvedValueOnce({ data: { user_id: 'u2', role: 'super_admin' }, error: null })
+    const admin = useStaffAdmin()
+    admin.staff.value = [
+      { user_id: 'u1', email: 'a@example.com', first_name: null, last_name: null, role: 'super_admin', created_at: 'x' },
+      { user_id: 'u2', email: 'b@example.com', first_name: null, last_name: null, role: 'staff', created_at: 'x' },
+    ]
+    const result = await admin.changeRole('u2', 'super_admin')
+    expect(result).toEqual({ ok: true, role: 'super_admin' })
+    expect(sb.client.functions.invoke).toHaveBeenCalledWith('change-role', { body: { user_id: 'u2', role: 'super_admin' } })
+    expect(admin.staff.value.map((s) => s.role)).toEqual(['super_admin', 'super_admin'])
+  })
+
+  it.each([
+    ['', 'staff', 'Choose who to change.'],
+    ['u2', 'owner', 'Choose a role.'],
+  ])('does not call change-role for user %j and role %j', async (userId, role, error) => {
+    const result = await useStaffAdmin().changeRole(userId, role as 'staff')
+    expect(result).toEqual({ ok: false, error })
+    expect(sb.client.functions.invoke).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    [400, 'You cannot change your own role.'],
+    [403, 'Only a super admin can change roles.'],
+    [404, 'That person is not on the staff list.'],
+    [500, 'Could not change the role.'],
+  ])('passes through the %i change-role error and leaves the row alone', async (status, message) => {
+    sb.client.functions.invoke.mockResolvedValueOnce({ data: null, error: httpError(status, { error: message }) })
+    const admin = useStaffAdmin()
+    admin.staff.value = [{ user_id: 'u2', email: 'b@example.com', first_name: null, last_name: null, role: 'staff', created_at: 'x' }]
+    const result = await admin.changeRole('u2', 'super_admin')
+    expect(result).toEqual({ ok: false, error: message })
+    expect(admin.staff.value[0]?.role).toBe('staff')
+  })
 })

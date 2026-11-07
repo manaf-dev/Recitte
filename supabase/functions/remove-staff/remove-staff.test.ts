@@ -46,10 +46,12 @@ describe('remove-staff', () => {
     expect(deps.deleteUser).toHaveBeenCalledWith(STAFF.id)
   })
 
-  it('does not remove another super admin', async () => {
+  it('removes another super admin', async () => {
     const { deps, handle } = setup()
-    expect((await handle(post({ user_id: 'user-other-super' }, 'token-super'))).status).toBe(403)
-    expect(deps.deleteUser).not.toHaveBeenCalled()
+    const res = await handle(post({ user_id: 'user-other-super' }, 'token-super'))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ removed: 'user-other-super' })
+    expect(deps.deleteUser).toHaveBeenCalledWith('user-other-super')
   })
 
   it('returns 404 for someone not on the staff list', async () => {
@@ -60,6 +62,22 @@ describe('remove-staff', () => {
   it('requires a user_id', async () => {
     const { handle } = setup()
     expect((await handle(post({}, 'token-super'))).status).toBe(400)
+  })
+
+  it('answers 409 when the database keeps the last super admin', async () => {
+    const { handle } = setup({
+      deleteUser: vi.fn(async () => ({ error: 'At least one super admin must remain.', code: 'P0001' })),
+    })
+    const res = await handle(post({ user_id: 'user-other-super' }, 'token-super'))
+    expect(res.status).toBe(409)
+    expect(await res.json()).toEqual({ error: 'At least one super admin must remain.' })
+  })
+
+  it('maps the trigger message to 409 even without a code', async () => {
+    const { handle } = setup({
+      deleteUser: vi.fn(async () => ({ error: 'ERROR: At least one super admin must remain. (SQLSTATE P0001)' })),
+    })
+    expect((await handle(post({ user_id: 'user-other-super' }, 'token-super'))).status).toBe(409)
   })
 
   it('reports a failed deletion', async () => {

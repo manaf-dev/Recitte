@@ -12,7 +12,7 @@ Deno.serve(
     },
     async deleteUser(userId) {
       const { error } = await admin.auth.admin.deleteUser(userId)
-      return { error: error?.message }
+      return error ? { error: error.message, code: error.code } : {}
     },
   }),
 )

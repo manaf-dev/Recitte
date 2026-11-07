@@ -18,6 +18,8 @@ export interface InviteResult {
 /** The invite form field an error belongs to, when it was caught before calling the server. */
 export type InviteField = 'first_name' | 'last_name' | 'email' | 'role'
 
+type RoleOutcome = { ok: true; role: StaffRole } | { ok: false; error: string }
+
 type InviteOutcome = { ok: true; invite: InviteResult } | { ok: false; error: string; field?: InviteField }
 
 /** Points a name error from invite-staff (e.g. "Enter a first name.") at its field. */
@@ -30,7 +32,7 @@ function serverErrorField(message: string): InviteField | undefined {
 
 /**
  * The super admin's staff screen. Reads go through RLS (only a super admin can
- * list every row); invites and removals go through the Edge Functions, which
+ * list every row); invites, removals and role changes go through the Edge Functions, which
  * check the caller's role again and hold the service role.
  */
 export function useStaffAdmin() {
@@ -102,7 +104,27 @@ export function useStaffAdmin() {
     return { ok: true, invite: result }
   }
 
-  /** Removes an invited person. The caller asks for confirmation first. */
+  /**
+   * Makes someone staff or a super admin. The caller asks for confirmation
+   * first; change-role refuses your own row and anyone not on the list.
+   */
+  async function changeRole(userId: string, role: StaffRole): Promise<RoleOutcome> {
+    if (!userId) return { ok: false, error: 'Choose who to change.' }
+    if (!STAFF_ROLES.includes(role)) return { ok: false, error: 'Choose a role.' }
+    let saved: StaffRole = role
+    try {
+      const { data, error: err } = await supabase.functions.invoke('change-role', { body: { user_id: userId, role } })
+      if (err) return { ok: false, error: await functionErrorMessage(err) }
+      const body = data as { role?: StaffRole } | null
+      if (body?.role && STAFF_ROLES.includes(body.role)) saved = body.role
+    } catch (e) {
+      return { ok: false, error: await functionErrorMessage(e) }
+    }
+    staff.value = staff.value.map((s) => (s.user_id === userId ? { ...s, role: saved } : s))
+    return { ok: true, role: saved }
+  }
+
+  /** Removes someone, staff or super admin (never yourself). The caller asks for confirmation first. */
   async function remove(member: Staff): Promise<Outcome> {
     try {
       const { error: err } = await supabase.functions.invoke('remove-staff', { body: { user_id: member.user_id } })
@@ -114,5 +136,5 @@ export function useStaffAdmin() {
     return { ok: true }
   }
 
-  return { staff, loading, loaded, error, load, invite, remove }
+  return { staff, loading, loaded, error, load, invite, remove, changeRole }
 }

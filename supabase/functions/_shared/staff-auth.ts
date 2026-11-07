@@ -24,6 +24,18 @@ export function isAlreadyRegistered(error: { code?: string; message?: string } |
   return !error.code && /already been registered/i.test(error.message ?? '')
 }
 
+/** Raised (SQLSTATE P0001) by the keep_a_super_admin trigger on public.staff. */
+export const LAST_SUPER_ADMIN = 'At least one super admin must remain.'
+
+/**
+ * True when a database error (surfaced by PostgREST or Supabase Auth) is the
+ * keep_a_super_admin trigger refusing to drop the last super admin.
+ */
+export function isLastSuperAdminError(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false
+  return error.code === 'P0001' || (error.message ?? '').includes(LAST_SUPER_ADMIN)
+}
+
 /** Escapes LIKE wildcards so `ilike` is an exact, case-insensitive match. */
 export function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (c) => `\\${c}`)
