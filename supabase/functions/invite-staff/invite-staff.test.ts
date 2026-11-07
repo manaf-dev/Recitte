@@ -5,10 +5,14 @@ import {
   ALREADY_REGISTERED,
   createInviteHandler,
   escapeLike,
+  FIRST_NAME_INVALID,
   type InviteDeps,
   isAlreadyRegistered,
+  LAST_NAME_INVALID,
   resolveAdminUrl,
 } from './handler.ts'
+
+const NAMES = { first_name: 'Aisha', last_name: 'Mensah' }
 
 function setup(overrides: Partial<InviteDeps> = {}) {
   const deps: InviteDeps = {
@@ -51,35 +55,42 @@ describe('invite-staff', () => {
 
   it('invites as plain staff by default and returns an invite link to the admin', async () => {
     const { deps, handle } = setup()
-    const res = await handle(post({ email: ' New@Example.com ' }, 'token-super'))
+    const res = await handle(post({ email: ' New@Example.com ', ...NAMES }, 'token-super'))
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       user_id: 'user-new',
       email: 'new@example.com',
       role: 'staff',
+      first_name: 'Aisha',
+      last_name: 'Mensah',
       invite_url: 'https://admin.example.org/auth/set-password#token_hash=hash-abc&type=invite',
     })
-    expect(deps.createInvite).toHaveBeenCalledWith('new@example.com', 'https://admin.example.org/auth/set-password')
-    expect(deps.insertStaff).toHaveBeenCalledWith({ user_id: 'user-new', email: 'new@example.com', role: 'staff' })
+    expect(deps.createInvite).toHaveBeenCalledWith('new@example.com', 'https://admin.example.org/auth/set-password', NAMES)
+    expect(deps.insertStaff).toHaveBeenCalledWith({ user_id: 'user-new', email: 'new@example.com', role: 'staff', ...NAMES })
   })
 
   it('invites a super admin when asked', async () => {
     const { deps, handle } = setup()
-    const res = await handle(post({ email: 'boss@example.com', role: 'super_admin' }, 'token-super'))
+    const res = await handle(post({ email: 'boss@example.com', role: 'super_admin', ...NAMES }, 'token-super'))
     expect(res.status).toBe(200)
     expect(await res.json()).toMatchObject({ role: 'super_admin' })
-    expect(deps.insertStaff).toHaveBeenCalledWith({ user_id: 'user-new', email: 'boss@example.com', role: 'super_admin' })
+    expect(deps.insertStaff).toHaveBeenCalledWith({
+      user_id: 'user-new',
+      email: 'boss@example.com',
+      role: 'super_admin',
+      ...NAMES,
+    })
   })
 
   it('accepts an explicit staff role', async () => {
     const { deps, handle } = setup()
-    expect((await handle(post({ email: 'new@example.com', role: 'staff' }, 'token-super'))).status).toBe(200)
+    expect((await handle(post({ email: 'new@example.com', role: 'staff', ...NAMES }, 'token-super'))).status).toBe(200)
     expect(deps.insertStaff).toHaveBeenCalledWith(expect.objectContaining({ role: 'staff' }))
   })
 
   it.each(['owner', 'SUPER_ADMIN', '', 1, null])('refuses the role %j with 400', async (role) => {
     const { deps, handle } = setup()
-    const res = await handle(post({ email: 'new@example.com', role }, 'token-super'))
+    const res = await handle(post({ email: 'new@example.com', role, ...NAMES }, 'token-super'))
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: 'Choose a valid role.' })
     expect(deps.createInvite).not.toHaveBeenCalled()
@@ -91,8 +102,8 @@ describe('invite-staff', () => {
       adminUrl: 'https://admin.example.org/',
       createInvite: vi.fn(async () => ({ id: 'user-new', hashedToken: 'a+b/c=d&e f' })),
     })
-    const res = await handle(post({ email: 'new@example.com' }, 'token-super'))
-    expect(deps.createInvite).toHaveBeenCalledWith('new@example.com', 'https://admin.example.org/auth/set-password')
+    const res = await handle(post({ email: 'new@example.com', ...NAMES }, 'token-super'))
+    expect(deps.createInvite).toHaveBeenCalledWith('new@example.com', 'https://admin.example.org/auth/set-password', NAMES)
     const { invite_url } = await res.json()
     expect(invite_url).toBe(
       'https://admin.example.org/auth/set-password#token_hash=a%2Bb%2Fc%3Dd%26e%20f&type=invite',
@@ -107,7 +118,7 @@ describe('invite-staff', () => {
 
   it('refuses to invite with 500 when the admin URL is not set', async () => {
     const { deps, handle } = setup({ adminUrl: undefined })
-    const res = await handle(post({ email: 'new@example.com' }, 'token-super'))
+    const res = await handle(post({ email: 'new@example.com', ...NAMES }, 'token-super'))
     expect(res.status).toBe(500)
     expect(await res.json()).toEqual({ error: ADMIN_URL_MISSING })
     expect(deps.createInvite).not.toHaveBeenCalled()
@@ -120,22 +131,66 @@ describe('invite-staff', () => {
     expect((await handle(post({ email: 'new@example.com' }, 'token-staff'))).status).toBe(403)
   })
 
+  it('trims the names, saves them on the staff row and returns them', async () => {
+    const { deps, handle } = setup()
+    const res = await handle(
+      post({ email: 'new@example.com', first_name: '  Aisha ', last_name: '\tMensah\n' }, 'token-super'),
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject(NAMES)
+    expect(deps.createInvite).toHaveBeenCalledWith('new@example.com', 'https://admin.example.org/auth/set-password', NAMES)
+    expect(deps.insertStaff).toHaveBeenCalledWith(expect.objectContaining(NAMES))
+  })
+
+  it('accepts names of exactly 80 characters', async () => {
+    const { deps, handle } = setup()
+    const names = { first_name: 'a'.repeat(80), last_name: 'b'.repeat(80) }
+    expect((await handle(post({ email: 'new@example.com', ...names }, 'token-super'))).status).toBe(200)
+    expect(deps.insertStaff).toHaveBeenCalledWith(expect.objectContaining(names))
+  })
+
+  it.each([undefined, null, '', '   ', 'a'.repeat(81), 7])('refuses the first name %j with 400', async (first_name) => {
+    const { deps, handle } = setup()
+    const res = await handle(post({ email: 'new@example.com', first_name, last_name: 'Mensah' }, 'token-super'))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: FIRST_NAME_INVALID })
+    expect(deps.isStaffEmail).not.toHaveBeenCalled()
+    expect(deps.createInvite).not.toHaveBeenCalled()
+    expect(deps.insertStaff).not.toHaveBeenCalled()
+  })
+
+  it.each([undefined, null, '', '   ', 'b'.repeat(81), 7])('refuses the last name %j with 400', async (last_name) => {
+    const { deps, handle } = setup()
+    const res = await handle(post({ email: 'new@example.com', first_name: 'Aisha', last_name }, 'token-super'))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: LAST_NAME_INVALID })
+    expect(deps.isStaffEmail).not.toHaveBeenCalled()
+    expect(deps.createInvite).not.toHaveBeenCalled()
+    expect(deps.insertStaff).not.toHaveBeenCalled()
+  })
+
+  it('checks the first name before the last name', async () => {
+    const { handle } = setup()
+    const res = await handle(post({ email: 'new@example.com' }, 'token-super'))
+    expect(await res.json()).toEqual({ error: FIRST_NAME_INVALID })
+  })
+
   it('validates the email', async () => {
     const { deps, handle } = setup()
-    expect((await handle(post({ email: 'nope' }, 'token-super'))).status).toBe(400)
+    expect((await handle(post({ email: 'nope', ...NAMES }, 'token-super'))).status).toBe(400)
     expect((await handle(post({}, 'token-super'))).status).toBe(400)
     expect(deps.createInvite).not.toHaveBeenCalled()
   })
 
   it('refuses someone already on staff', async () => {
     const { deps, handle } = setup({ isStaffEmail: vi.fn(async () => true) })
-    expect((await handle(post({ email: 'staff@example.com' }, 'token-super'))).status).toBe(409)
+    expect((await handle(post({ email: 'staff@example.com', ...NAMES }, 'token-super'))).status).toBe(409)
     expect(deps.createInvite).not.toHaveBeenCalled()
   })
 
   it('passes on an invite error from Supabase Auth', async () => {
     const { deps, handle } = setup({ createInvite: vi.fn(async () => ({ error: 'Database error saving new user' })) })
-    const res = await handle(post({ email: 'new@example.com' }, 'token-super'))
+    const res = await handle(post({ email: 'new@example.com', ...NAMES }, 'token-super'))
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: 'Database error saving new user' })
     expect(deps.insertStaff).not.toHaveBeenCalled()
@@ -148,7 +203,7 @@ describe('invite-staff', () => {
         alreadyRegistered: true,
       })),
     })
-    const res = await handle(post({ email: 'old@example.com' }, 'token-super'))
+    const res = await handle(post({ email: 'old@example.com', ...NAMES }, 'token-super'))
     expect(res.status).toBe(409)
     expect(await res.json()).toEqual({ error: ALREADY_REGISTERED })
     expect(deps.insertStaff).not.toHaveBeenCalled()
@@ -157,7 +212,7 @@ describe('invite-staff', () => {
 
   it('removes the auth user again if the staff row cannot be saved', async () => {
     const { deps, handle } = setup({ insertStaff: vi.fn(async () => ({ error: 'boom' })) })
-    const res = await handle(post({ email: 'new@example.com', role: 'super_admin' }, 'token-super'))
+    const res = await handle(post({ email: 'new@example.com', role: 'super_admin', ...NAMES }, 'token-super'))
     expect(res.status).toBe(500)
     expect(await res.json()).not.toHaveProperty('invite_url')
     expect(deps.deleteUser).toHaveBeenCalledWith('user-new')

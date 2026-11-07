@@ -11,9 +11,14 @@ Deno.serve(
       const { data } = await admin.from('staff').select('user_id').ilike('email', escapeLike(email)).maybeSingle()
       return !!data
     },
-    async createInvite(email, redirectTo) {
-      // generateLink creates the user and token without sending an email.
-      const { data, error } = await admin.auth.admin.generateLink({ type: 'invite', email, options: { redirectTo } })
+    async createInvite(email, redirectTo, names) {
+      // generateLink creates the user and token without sending an email. The names also go
+      // into the auth user's user_metadata; public.staff stays the source of truth.
+      const { data, error } = await admin.auth.admin.generateLink({
+        type: 'invite',
+        email,
+        options: { redirectTo, data: names },
+      })
       if (error || !data.user || !data.properties?.hashed_token) {
         return { error: error?.message ?? 'The invite could not be created.', alreadyRegistered: isAlreadyRegistered(error) }
       }

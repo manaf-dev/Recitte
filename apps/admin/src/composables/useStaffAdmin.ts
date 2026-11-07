@@ -1,5 +1,5 @@
 import { ref, shallowRef } from 'vue'
-import { isValidEmail, STAFF_ROLES, type Staff, type StaffRole } from '@recitte/shared'
+import { isValidEmail, STAFF_ROLES, staffNameError, type Staff, type StaffRole } from '@recitte/shared'
 import { supabase } from '@/lib/supabase'
 import { dbErrorMessage, errorText, functionErrorMessage } from '@/lib/errors'
 
@@ -10,10 +10,23 @@ export interface InviteResult {
   user_id: string
   email: string
   role: StaffRole
+  first_name: string
+  last_name: string
   invite_url: string
 }
 
-type InviteOutcome = { ok: true; invite: InviteResult } | { ok: false; error: string }
+/** The invite form field an error belongs to, when it was caught before calling the server. */
+export type InviteField = 'first_name' | 'last_name' | 'email' | 'role'
+
+type InviteOutcome = { ok: true; invite: InviteResult } | { ok: false; error: string; field?: InviteField }
+
+/** Points a name error from invite-staff (e.g. "Enter a first name.") at its field. */
+function serverErrorField(message: string): InviteField | undefined {
+  const text = message.toLowerCase()
+  if (text.includes('first name')) return 'first_name'
+  if (text.includes('last name')) return 'last_name'
+  return undefined
+}
 
 /**
  * The super admin's staff screen. Reads go through RLS (only a super admin can
@@ -32,7 +45,7 @@ export function useStaffAdmin() {
     try {
       const { data, error: err } = await supabase
         .from('staff')
-        .select('user_id, email, role, created_at')
+        .select('user_id, email, first_name, last_name, role, created_at')
         .order('created_at', { ascending: true })
       if (err) {
         error.value = dbErrorMessage(err)
@@ -51,14 +64,25 @@ export function useStaffAdmin() {
    * Creates the invite and returns its one-time link. The link is only handed
    * back to the caller; nothing here stores it.
    */
-  async function invite(email: string, role: StaffRole = 'staff'): Promise<InviteOutcome> {
+  async function invite(email: string, role: StaffRole, firstName: string, lastName: string): Promise<InviteOutcome> {
+    const first = firstName.trim()
+    const last = lastName.trim()
     const address = email.trim().toLowerCase()
-    if (!isValidEmail(address)) return { ok: false, error: 'Enter a valid email address.' }
-    if (!STAFF_ROLES.includes(role)) return { ok: false, error: 'Choose a role.' }
+    const firstError = staffNameError(first, 'first')
+    if (firstError) return { ok: false, error: firstError, field: 'first_name' }
+    const lastError = staffNameError(last, 'last')
+    if (lastError) return { ok: false, error: lastError, field: 'last_name' }
+    if (!isValidEmail(address)) return { ok: false, error: 'Enter a valid email address.', field: 'email' }
+    if (!STAFF_ROLES.includes(role)) return { ok: false, error: 'Choose a role.', field: 'role' }
     let result: InviteResult
     try {
-      const { data, error: err } = await supabase.functions.invoke('invite-staff', { body: { email: address, role } })
-      if (err) return { ok: false, error: await functionErrorMessage(err) }
+      const { data, error: err } = await supabase.functions.invoke('invite-staff', {
+        body: { email: address, role, first_name: first, last_name: last },
+      })
+      if (err) {
+        const message = await functionErrorMessage(err)
+        return { ok: false, error: message, field: serverErrorField(message) }
+      }
       const body = data as Partial<InviteResult> | null
       if (!body || typeof body.invite_url !== 'string' || !body.invite_url) {
         return { ok: false, error: 'The server did not send back an invite link. Try again.' }
@@ -67,6 +91,8 @@ export function useStaffAdmin() {
         user_id: String(body.user_id ?? ''),
         email: typeof body.email === 'string' ? body.email : address,
         role: body.role && STAFF_ROLES.includes(body.role) ? body.role : role,
+        first_name: typeof body.first_name === 'string' && body.first_name ? body.first_name : first,
+        last_name: typeof body.last_name === 'string' && body.last_name ? body.last_name : last,
         invite_url: body.invite_url,
       }
     } catch (e) {

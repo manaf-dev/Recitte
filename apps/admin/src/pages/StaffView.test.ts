@@ -11,8 +11,22 @@ beforeEach(() => {
   sb.reset()
   sb.respond('staff', 'select', {
     data: [
-      { user_id: 'u1', email: 'owner@example.com', role: 'super_admin', created_at: '2026-10-01T00:00:00Z' },
-      { user_id: 'u2', email: 'helper@example.com', role: 'staff', created_at: '2026-10-02T00:00:00Z' },
+      {
+        user_id: 'u1',
+        email: 'owner@example.com',
+        first_name: 'Kofi',
+        last_name: 'Owusu',
+        role: 'super_admin',
+        created_at: '2026-10-01T00:00:00Z',
+      },
+      {
+        user_id: 'u2',
+        email: 'helper@example.com',
+        first_name: null,
+        last_name: null,
+        role: 'staff',
+        created_at: '2026-10-02T00:00:00Z',
+      },
     ],
   })
 })
@@ -29,6 +43,22 @@ async function openInvite() {
   return wrapper
 }
 
+function type(selector: string, value: string) {
+  const input = document.querySelector<HTMLInputElement>(selector)!
+  input.value = value
+  input.dispatchEvent(new Event('input'))
+}
+
+function fillInvite(email: string, first = 'Amina', last = 'Mensah') {
+  type('#invite-first-name', first)
+  type('#invite-last-name', last)
+  type('#invite-email', email)
+}
+
+function submitInvite() {
+  document.querySelector<HTMLFormElement>('#invite-form')!.dispatchEvent(new Event('submit'))
+}
+
 function setClipboard(value: unknown) {
   Object.defineProperty(navigator, 'clipboard', { value, configurable: true })
 }
@@ -39,6 +69,45 @@ describe('StaffView', () => {
     await flushPromises()
     expect(wrapper.text()).toContain('Super admin · added')
     expect(wrapper.text()).toContain('Staff · added')
+  })
+
+  it('shows the name with the email beneath, and just the email for older rows', async () => {
+    const wrapper = mount(StaffView)
+    await flushPromises()
+    const [owner, helper] = wrapper.findAll('li')
+    const ownerLines = owner!.findAll('div > span').map((s) => s.text())
+    expect(ownerLines[0]).toBe('Kofi Owusu')
+    expect(ownerLines[1]).toBe('owner@example.com')
+    const helperLines = helper!.findAll('div > span').map((s) => s.text())
+    expect(helperLines[0]).toBe('helper@example.com')
+    expect(helperLines[1]).toMatch(/^Staff · added/)
+  })
+
+  it('asks for first name, last name, then email', async () => {
+    await openInvite()
+    const ids = [...document.querySelectorAll('#invite-form input, #invite-form select')].map((el) => el.id)
+    expect(ids).toEqual(['invite-first-name', 'invite-last-name', 'invite-email', 'invite-role'])
+    expect(document.querySelector('#invite-first-name')!.getAttribute('autocomplete')).toBe('given-name')
+    expect(document.querySelector('#invite-last-name')!.getAttribute('autocomplete')).toBe('family-name')
+  })
+
+  it('shows inline name errors without calling the server', async () => {
+    await openInvite()
+    fillInvite('new@example.com', '  ', 'Mensah')
+    submitInvite()
+    await flushPromises()
+    expect(document.querySelector('#invite-first-name-error')?.textContent).toBe('Enter a first name.')
+    expect(document.querySelector('#invite-first-name')!.getAttribute('aria-invalid')).toBe('true')
+    expect(document.querySelector('#invite-email-error')).toBeNull()
+
+    fillInvite('new@example.com', 'Amina', 'x'.repeat(81))
+    submitInvite()
+    await flushPromises()
+    expect(document.querySelector('#invite-first-name-error')).toBeNull()
+    expect(document.querySelector('#invite-last-name-error')?.textContent).toBe(
+      'Keep the last name to 80 characters or fewer.',
+    )
+    expect(sb.client.functions.invoke).not.toHaveBeenCalled()
   })
 
   it('defaults the invite role to Staff', async () => {
@@ -52,26 +121,31 @@ describe('StaffView', () => {
     const writeText = vi.fn(async () => {})
     setClipboard({ writeText })
     sb.client.functions.invoke.mockResolvedValueOnce({
-      data: { user_id: 'u3', email: 'new@example.com', role: 'super_admin', invite_url: LINK },
+      data: {
+        user_id: 'u3',
+        email: 'new@example.com',
+        role: 'super_admin',
+        first_name: 'Amina',
+        last_name: 'Mensah',
+        invite_url: LINK,
+      },
       error: null,
     })
     const wrapper = await openInvite()
 
-    const email = document.querySelector<HTMLInputElement>('#invite-email')!
-    email.value = 'New@example.com'
-    email.dispatchEvent(new Event('input'))
+    fillInvite('New@example.com', ' Amina ', 'Mensah')
     const select = document.querySelector<HTMLSelectElement>('#invite-role')!
     select.value = 'super_admin'
     select.dispatchEvent(new Event('change'))
-    document.querySelector<HTMLFormElement>('#invite-form')!.dispatchEvent(new Event('submit'))
+    submitInvite()
     await flushPromises()
 
     expect(sb.client.functions.invoke).toHaveBeenCalledWith('invite-staff', {
-      body: { email: 'new@example.com', role: 'super_admin' },
+      body: { email: 'new@example.com', role: 'super_admin', first_name: 'Amina', last_name: 'Mensah' },
     })
     expect(wrapper.get<HTMLInputElement>('#invite-link').element.value).toBe(LINK)
     expect(wrapper.text()).toContain(
-      'Send this link to new@example.com privately. It works once and expires in 24 hours.',
+      'Send this link to Amina Mensah (new@example.com) privately. It works once and expires in 24 hours.',
     )
 
     const copy = wrapper.findAll('button').find((b) => b.text() === 'Copy link')!
@@ -91,10 +165,8 @@ describe('StaffView', () => {
       error: null,
     })
     const wrapper = await openInvite()
-    const email = document.querySelector<HTMLInputElement>('#invite-email')!
-    email.value = 'new@example.com'
-    email.dispatchEvent(new Event('input'))
-    document.querySelector<HTMLFormElement>('#invite-form')!.dispatchEvent(new Event('submit'))
+    fillInvite('new@example.com')
+    submitInvite()
     await flushPromises()
 
     await wrapper.findAll('button').find((b) => b.text() === 'Copy link')!.trigger('click')
@@ -111,10 +183,8 @@ describe('StaffView', () => {
     })
     sb.client.functions.invoke.mockResolvedValueOnce({ data: null, error: err })
     const wrapper = await openInvite()
-    const email = document.querySelector<HTMLInputElement>('#invite-email')!
-    email.value = 'helper@example.com'
-    email.dispatchEvent(new Event('input'))
-    document.querySelector<HTMLFormElement>('#invite-form')!.dispatchEvent(new Event('submit'))
+    fillInvite('helper@example.com')
+    submitInvite()
     await flushPromises()
 
     expect(document.querySelector('#invite-email-error')?.textContent).toContain('already on the staff list')

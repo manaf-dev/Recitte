@@ -43,11 +43,11 @@ Public sign-up is disabled. The first account is made by hand, locally in Studio
 2. **SQL editor**, with that user's id:
 
    ```sql
-   insert into public.staff (user_id, email, role)
-   values ('<auth user id>', '<email>', 'super_admin');
+   insert into public.staff (user_id, email, first_name, last_name, role)
+   values ('<auth user id>', '<email>', '<first name>', '<last name>', 'super_admin');
    ```
 
-That person signs in to the admin with that email and password and invites everyone else from the Staff screen, choosing *Staff* or *Super admin* for each. No email is sent: the Staff screen shows a one-time invite link to copy and send privately (WhatsApp, for example). It opens the admin's *Set your password* page, verifies only when the person clicks Accept (so chat link previews cannot use it up), and expires after 24 hours (`otp_expiry`). After choosing a password they are sent to the sign-in screen. An unused or expired invite is replaced by removing the person on the Staff screen and inviting them again.
+That person signs in to the admin with that email and password and invites everyone else from the Staff screen, entering each person's first and last name and choosing *Staff* or *Super admin*. No email is sent: the Staff screen shows a one-time invite link to copy and send privately (WhatsApp, for example). It opens the admin's *Set your password* page, verifies only when the person clicks Accept (so chat link previews cannot use it up), and expires after 24 hours (`otp_expiry`). After choosing a password they are sent to the sign-in screen. An unused or expired invite is replaced by removing the person on the Staff screen and inviting them again.
 
 ### Edge Functions
 

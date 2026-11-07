@@ -25,7 +25,7 @@ export function loadStaffProfile(userId: string): Promise<StaffProfileResult> {
     try {
       const { data, error } = await supabase
         .from('staff')
-        .select('user_id, email, role, created_at')
+        .select('user_id, email, first_name, last_name, role, created_at')
         .eq('user_id', userId)
         .maybeSingle()
       if (error) return { profile: null, error: dbErrorMessage(error) }

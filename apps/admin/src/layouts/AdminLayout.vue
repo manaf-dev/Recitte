@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { staffDisplayName } from '@recitte/shared'
 import NavIcon, { type NavIconName } from '@/components/NavIcon.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useStaffProfile } from '@/composables/useStaffProfile'
@@ -36,7 +37,18 @@ const menuOpen = ref(false)
 const menuEl = ref<HTMLElement | null>(null)
 
 const pageTitle = computed(() => route.meta.title ?? 'Admin')
-const initials = computed(() => (profile.value?.email ?? '?').slice(0, 1).toUpperCase())
+const displayName = computed(() => (profile.value ? staffDisplayName(profile.value) : ''))
+/** Shown under the name in the account menu; skipped when the name already is the email. */
+const secondaryEmail = computed(() =>
+  profile.value && displayName.value !== profile.value.email ? profile.value.email : '',
+)
+const initials = computed(() => {
+  const p = profile.value
+  if (!p) return '?'
+  const first = p.first_name?.trim().charAt(0) ?? ''
+  const last = p.last_name?.trim().charAt(0) ?? ''
+  return (first + last || p.email.charAt(0)).toUpperCase()
+})
 const roleLabel = computed(() => (isSuperAdmin.value ? 'Super admin' : 'Staff'))
 
 function isActive(item: NavItem) {
@@ -146,7 +158,7 @@ async function leave() {
         >
           <span class="flex h-8 w-8 items-center justify-center rounded-full bg-soft text-[13px] font-bold text-ink">{{ initials }}</span>
           <span class="hidden flex-col items-start leading-tight sm:flex">
-            <span class="max-w-[220px] truncate text-[13px] font-semibold text-ink">{{ profile?.email }}</span>
+            <span class="max-w-[220px] truncate text-[13px] font-semibold text-ink" data-test="account-name">{{ displayName }}</span>
             <span class="text-[12px] text-muted">{{ roleLabel }}</span>
           </span>
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="text-muted" aria-hidden="true">
@@ -158,7 +170,11 @@ async function leave() {
           role="menu"
           class="absolute right-0 top-[calc(100%+8px)] w-56 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-[0_16px_40px_-16px_rgba(32,37,69,.35)]"
         >
-          <p class="m-0 border-b border-rule px-4 py-3 text-[12px] text-muted sm:hidden">{{ profile?.email }}</p>
+          <div class="flex flex-col gap-0.5 border-b border-rule px-4 py-3" data-test="account-summary">
+            <span class="truncate text-[13px] font-semibold text-ink">{{ displayName }}</span>
+            <span v-if="secondaryEmail" class="truncate text-[12px] text-muted">{{ secondaryEmail }}</span>
+            <span class="text-[12px] text-muted sm:hidden">{{ roleLabel }}</span>
+          </div>
           <a
             v-if="publicSiteUrl"
             :href="publicSiteUrl"

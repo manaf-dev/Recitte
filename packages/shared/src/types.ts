@@ -158,6 +158,9 @@ export interface Contact extends SubmissionBase {
 export interface Staff {
   user_id: string
   email: string
+  /** Null for people invited before names were collected. */
+  first_name: string | null
+  last_name: string | null
   role: StaffRole
   created_at: string
 }

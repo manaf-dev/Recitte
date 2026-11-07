@@ -3,6 +3,18 @@ import { type CallerDeps, readJson, requireSuperAdmin, type StaffRole } from '..
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ROLES: readonly StaffRole[] = ['staff', 'super_admin']
+/** Matches the staff_first_name_check / staff_last_name_check constraints. */
+export const NAME_MAX = 80
+
+export const FIRST_NAME_INVALID = 'Enter a first name.'
+export const LAST_NAME_INVALID = 'Enter a last name.'
+
+/** A trimmed name of 1 to NAME_MAX characters, or undefined when the value is not one. */
+export function cleanName(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const name = value.trim()
+  return name.length >= 1 && name.length <= NAME_MAX ? name : undefined
+}
 
 export const ALREADY_REGISTERED = 'That email already has an account. Remove them on the Staff screen first.'
 export const ADMIN_URL_MISSING = 'ADMIN_URL is not set for this project.'
@@ -55,8 +67,18 @@ export interface InviteDeps extends CallerDeps {
    * Creates the Supabase Auth user and an invite token without sending any email.
    * Returns the new auth user id and the hashed token our set-password page verifies.
    */
-  createInvite(email: string, redirectTo: string): Promise<CreateInviteResult>
-  insertStaff(row: { user_id: string; email: string; role: StaffRole }): Promise<{ error?: string }>
+  createInvite(
+    email: string,
+    redirectTo: string,
+    names: { first_name: string; last_name: string },
+  ): Promise<CreateInviteResult>
+  insertStaff(row: {
+    user_id: string
+    email: string
+    role: StaffRole
+    first_name: string
+    last_name: string
+  }): Promise<{ error?: string }>
   deleteUser(userId: string): Promise<void>
 }
 
@@ -82,17 +104,22 @@ export function createInviteHandler(deps: InviteDeps) {
     if (!ROLES.includes(rawRole as StaffRole)) return json({ error: 'Choose a valid role.' }, 400)
     const role = rawRole as StaffRole
 
+    const first_name = cleanName(body?.first_name)
+    if (!first_name) return json({ error: FIRST_NAME_INVALID }, 400)
+    const last_name = cleanName(body?.last_name)
+    if (!last_name) return json({ error: LAST_NAME_INVALID }, 400)
+
     if (await deps.isStaffEmail(email)) return json({ error: 'That person is already on the staff list.' }, 409)
 
     const adminUrl = deps.adminUrl.replace(/\/$/, '')
-    const invited = await deps.createInvite(email, `${adminUrl}/auth/set-password`)
+    const invited = await deps.createInvite(email, `${adminUrl}/auth/set-password`, { first_name, last_name })
     if ('error' in invited) {
       if (invited.alreadyRegistered) return json({ error: ALREADY_REGISTERED }, 409)
       return json({ error: invited.error }, 400)
     }
 
     // The super admin picks the role at invite time (staff unless they choose otherwise).
-    const inserted = await deps.insertStaff({ user_id: invited.id, email, role })
+    const inserted = await deps.insertStaff({ user_id: invited.id, email, role, first_name, last_name })
     if (inserted.error) {
       await deps.deleteUser(invited.id)
       return json({ error: 'The invite could not be saved. Try again.' }, 500)
@@ -105,6 +132,6 @@ export function createInviteHandler(deps: InviteDeps) {
     const invite_url =
       `${adminUrl}/auth/set-password#token_hash=${encodeURIComponent(invited.hashedToken)}&type=invite`
 
-    return json({ user_id: invited.id, email, role, invite_url })
+    return json({ user_id: invited.id, email, role, first_name, last_name, invite_url })
   }
 }

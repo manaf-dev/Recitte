@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-import type { Staff, StaffRole } from '@recitte/shared'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { staffDisplayName, type Staff, type StaffRole } from '@recitte/shared'
 import AppModal from '@/components/AppModal.vue'
 import FormField from '@/components/FormField.vue'
-import { useStaffAdmin, type InviteResult } from '@/composables/useStaffAdmin'
+import { useStaffAdmin, type InviteField, type InviteResult } from '@/composables/useStaffAdmin'
 import { useStaffProfile } from '@/composables/useStaffProfile'
 import { confirmAction } from '@/lib/confirm'
 import { formatDate } from '@/lib/format'
@@ -14,9 +14,12 @@ const { profile } = useStaffProfile()
 const ROLE_LABELS: Record<StaffRole, string> = { super_admin: 'Super admin', staff: 'Staff' }
 
 const inviteOpen = ref(false)
+const firstName = ref('')
+const lastName = ref('')
 const email = ref('')
 const role = ref<StaffRole>('staff')
-const inviteError = ref('')
+/** Errors keyed by form field. Server errors with no field show under Email. */
+const inviteErrors = ref<Partial<Record<InviteField, string>>>({})
 const inviting = ref(false)
 const notice = ref<{ kind: 'ok' | 'error'; text: string } | null>(null)
 const removing = ref<string | null>(null)
@@ -26,15 +29,24 @@ const copyState = ref<'idle' | 'copied' | 'manual'>('idle')
 const linkInput = ref<HTMLInputElement | null>(null)
 let copiedTimer: ReturnType<typeof setTimeout> | undefined
 
+const createdName = computed(() => (created.value ? staffDisplayName(created.value) : ''))
+
+/** True when the row has a saved name, so the email goes on its own line beneath. */
+function hasName(member: Staff) {
+  return staffDisplayName(member) !== member.email
+}
+
 /** Only invited staff can be removed here, and never your own account. */
 function canRemove(member: Staff) {
   return member.role === 'staff' && member.user_id !== profile.value?.user_id
 }
 
 function openInvite() {
+  firstName.value = ''
+  lastName.value = ''
   email.value = ''
   role.value = 'staff'
-  inviteError.value = ''
+  inviteErrors.value = {}
   inviteOpen.value = true
 }
 
@@ -43,15 +55,17 @@ function closeInvite() {
 }
 
 async function onInvite() {
-  inviteError.value = ''
+  inviteErrors.value = {}
   notice.value = null
   inviting.value = true
-  const result = await invite(email.value, role.value)
+  const result = await invite(email.value, role.value, firstName.value, lastName.value)
   inviting.value = false
   if (!result.ok) {
-    inviteError.value = result.error
+    inviteErrors.value = { [result.field ?? 'email']: result.error }
     return
   }
+  firstName.value = ''
+  lastName.value = ''
   email.value = ''
   inviteOpen.value = false
   copyState.value = 'idle'
@@ -86,7 +100,7 @@ function dismissInvite() {
 async function onRemove(member: Staff) {
   const ok = await confirmAction({
     title: 'Remove this person?',
-    message: `${member.email} loses access straight away. An invite they have not accepted stops working.`,
+    message: `${staffDisplayName(member)} loses access straight away. An invite they have not accepted stops working.`,
     confirmLabel: 'Remove',
   })
   if (!ok) return
@@ -94,7 +108,7 @@ async function onRemove(member: Staff) {
   const result = await remove(member)
   removing.value = null
   notice.value = result.ok
-    ? { kind: 'ok', text: `${member.email} was removed.` }
+    ? { kind: 'ok', text: `${staffDisplayName(member)} was removed.` }
     : { kind: 'error', text: `Not removed. ${result.error}` }
 }
 
@@ -122,17 +136,18 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
       <div class="flex min-w-0 flex-col gap-0.5">
         <h2 id="invite-link-title" class="card-title">Invite link ready</h2>
         <span class="text-[13px] text-muted">
-          <span class="break-all font-bold text-ink">{{ created.email }}</span> · {{ ROLE_LABELS[created.role] }}
+          <span class="font-bold text-ink">{{ createdName }}</span> ·
+          <span class="break-all">{{ created.email }}</span> · {{ ROLE_LABELS[created.role] }}
         </span>
       </div>
       <button type="button" class="btn-link shrink-0" @click="dismissInvite">Dismiss</button>
     </div>
     <p class="m-0 text-[14px] text-muted">
-      Send this link to {{ created.email }} privately. It works once and expires in 24 hours. They will choose a
+      Send this link to {{ createdName }} ({{ created.email }}) privately. It works once and expires in 24 hours. They will choose a
       password, then sign in.
     </p>
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <label for="invite-link" class="sr-only">Invite link for {{ created.email }}</label>
+      <label for="invite-link" class="sr-only">Invite link for {{ createdName }}</label>
       <input
         id="invite-link"
         ref="linkInput"
@@ -169,9 +184,10 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
       >
         <div class="flex min-w-0 flex-col gap-0.5">
           <span class="flex flex-wrap items-center gap-2">
-            <span class="break-all font-bold text-ink">{{ member.email }}</span>
+            <span class="break-words font-bold text-ink" :class="{ 'break-all': !hasName(member) }">{{ staffDisplayName(member) }}</span>
             <span v-if="member.user_id === profile?.user_id" class="pill bg-ground text-ink">You</span>
           </span>
+          <span v-if="hasName(member)" class="break-all text-[13px] text-muted">{{ member.email }}</span>
           <span class="text-[13px] text-muted">
             {{ ROLE_LABELS[member.role] }} · added {{ formatDate(member.created_at) }}
           </span>
@@ -183,7 +199,7 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
           :disabled="removing === member.user_id"
           @click="onRemove(member)"
         >
-          {{ removing === member.user_id ? 'Removing…' : 'Remove' }}<span class="sr-only"> {{ member.email }}</span>
+          {{ removing === member.user_id ? 'Removing…' : 'Remove' }}<span class="sr-only"> {{ staffDisplayName(member) }}</span>
         </button>
       </li>
     </ul>
@@ -191,7 +207,35 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
 
   <AppModal :open="inviteOpen" title="Invite someone" size="sm" @close="closeInvite">
     <form id="invite-form" class="flex flex-col gap-3" novalidate @submit.prevent="onInvite">
-      <FormField id="invite-email" label="Email" required :error="inviteError" hint="No email is sent. You will get a link to send them.">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <FormField id="invite-first-name" label="First name" required :error="inviteErrors.first_name">
+          <template #default="{ id, describedBy, invalid }">
+            <input
+              :id="id"
+              v-model="firstName"
+              type="text"
+              autocomplete="given-name"
+              class="input"
+              :aria-describedby="describedBy"
+              :aria-invalid="invalid"
+            />
+          </template>
+        </FormField>
+        <FormField id="invite-last-name" label="Last name" required :error="inviteErrors.last_name">
+          <template #default="{ id, describedBy, invalid }">
+            <input
+              :id="id"
+              v-model="lastName"
+              type="text"
+              autocomplete="family-name"
+              class="input"
+              :aria-describedby="describedBy"
+              :aria-invalid="invalid"
+            />
+          </template>
+        </FormField>
+      </div>
+      <FormField id="invite-email" label="Email" required :error="inviteErrors.email" hint="No email is sent. You will get a link to send them.">
         <template #default="{ id, describedBy, invalid }">
           <input
             :id="id"
@@ -205,9 +249,9 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
           />
         </template>
       </FormField>
-      <FormField id="invite-role" label="Role" hint="Super admins can invite and remove staff.">
-        <template #default="{ id, describedBy }">
-          <select :id="id" v-model="role" class="input" :aria-describedby="describedBy">
+      <FormField id="invite-role" label="Role" :error="inviteErrors.role" hint="Super admins can invite and remove staff.">
+        <template #default="{ id, describedBy, invalid }">
+          <select :id="id" v-model="role" class="input" :aria-describedby="describedBy" :aria-invalid="invalid">
             <option value="staff">{{ ROLE_LABELS.staff }}</option>
             <option value="super_admin">{{ ROLE_LABELS.super_admin }}</option>
           </select>
