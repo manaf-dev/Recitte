@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { NOT_SURE_PROGRAM, type Program } from '@recitte/shared'
+import { NOT_SURE_PROGRAM, type Program, type ProgramTypeRow } from '@recitte/shared'
 import {
   applicationProgramOptions,
   featuredForHome,
@@ -19,7 +19,6 @@ function program(p: Partial<Program>): Program {
     type: 'workshop',
     title: `Program ${n}`,
     description: 'd',
-    about: null,
     highlights: [],
     starts_on: null,
     ends_on: null,
@@ -31,6 +30,11 @@ function program(p: Partial<Program>): Program {
     speaker_bio: null,
     speaker_photo_url: null,
     status: 'open',
+    is_draft: false,
+    start_time: null,
+    end_time: null,
+    format_kind: null,
+    location: null,
     featured: false,
     created_at: '2026-10-01T00:00:00Z',
     updated_at: '2026-10-01T00:00:00Z',
@@ -88,6 +92,24 @@ describe('forConnect and forAcademy', () => {
 
   it('lists workshop, seminar, course and event programs that are not past on Academy, closed included', () => {
     expect(forAcademy(all, TODAY)).toEqual([seminar, closedEvent, course])
+  })
+
+  const custom: ProgramTypeRow[] = [
+    { slug: 'halaqa', label: 'Halaqa', area: 'connect', builtin: false },
+    { slug: 'intensive', label: 'Intensive', area: 'academy', builtin: false },
+  ]
+
+  it('lists a custom type under the area it was given', () => {
+    const halaqa = program({ type: 'halaqa' })
+    const intensive = program({ type: 'intensive' })
+    expect(forConnect([halaqa, intensive], TODAY, custom)).toEqual([halaqa])
+    expect(forAcademy([halaqa, intensive], TODAY, custom)).toEqual([intensive])
+  })
+
+  it('falls back to Academy for an unknown slug with no types list', () => {
+    const mystery = program({ type: 'mystery' })
+    expect(forAcademy([mystery], TODAY)).toEqual([mystery])
+    expect(forConnect([mystery], TODAY)).toEqual([])
   })
 })
 

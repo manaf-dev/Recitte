@@ -11,10 +11,9 @@ export interface ProgramFieldConfig {
   /** null hides the speaker block entirely. */
   person: 'Teacher' | 'Speaker' | null
   highlightsLabel: string
-  placeholders: { time?: string; duration?: string; format: string }
 }
 
-export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
+const BUILTIN_FIELDS: Record<string, ProgramFieldConfig> = {
   workshop: {
     blurb: 'A short run of sessions on one skill.',
     dates: 'range',
@@ -22,7 +21,6 @@ export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
     duration: true,
     person: 'Teacher',
     highlightsLabel: "What you'll learn",
-    placeholders: { time: '7:00 PM GMT', duration: '4 weeks · 2×/week', format: 'Live online' },
   },
   course: {
     blurb: 'A level-based course people apply to.',
@@ -31,7 +29,6 @@ export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
     duration: true,
     person: 'Teacher',
     highlightsLabel: "What you'll learn",
-    placeholders: { time: 'Saturdays, 9:00 AM GMT', duration: '10 weeks', format: 'Live online' },
   },
   seminar: {
     blurb: 'A single talk, usually monthly.',
@@ -40,7 +37,6 @@ export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
     duration: false,
     person: 'Speaker',
     highlightsLabel: 'What to expect',
-    placeholders: { time: '7:00 PM GMT', format: 'Hybrid · Accra & online' },
   },
   event: {
     blurb: 'A gathering people register to attend.',
@@ -49,7 +45,6 @@ export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
     duration: false,
     person: 'Speaker',
     highlightsLabel: 'What to expect',
-    placeholders: { time: '10:00 AM GMT', format: 'Accra Central Mosque' },
   },
   challenge: {
     blurb: 'A community challenge over several days.',
@@ -58,7 +53,6 @@ export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
     duration: true,
     person: null,
     highlightsLabel: 'What to expect',
-    placeholders: { duration: '30 days', format: 'WhatsApp group' },
   },
   community: {
     blurb: 'An ongoing space people join on WhatsApp.',
@@ -67,8 +61,21 @@ export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
     duration: false,
     person: null,
     highlightsLabel: 'What to expect',
-    placeholders: { format: 'WhatsApp channel' },
   },
+}
+
+/** Types staff add themselves get the general-purpose layout. */
+const CUSTOM_FIELDS: ProgramFieldConfig = {
+  blurb: 'A program of your own: dates, time and a speaker are all optional.',
+  dates: 'range',
+  time: true,
+  duration: true,
+  person: 'Speaker',
+  highlightsLabel: 'What to expect',
+}
+
+export function fieldsFor(type: ProgramType): ProgramFieldConfig {
+  return BUILTIN_FIELDS[type] ?? CUSTOM_FIELDS
 }
 
 /**
@@ -76,14 +83,17 @@ export const PROGRAM_FIELDS: Record<ProgramType, ProgramFieldConfig> = {
  * type was changed are not published on a page that has no place for them.
  */
 export function clearUnusedFields(form: ProgramInput): void {
-  const cfg = PROGRAM_FIELDS[form.type]
+  const cfg = fieldsFor(form.type)
   if (cfg.dates === 'none') {
     form.starts_on = ''
     form.ends_on = ''
   }
   if (cfg.dates === 'single') form.ends_on = ''
-  if (!cfg.time) form.time = ''
-  if (!cfg.duration) form.duration = ''
+  if (!cfg.time) {
+    form.start_time = ''
+    form.end_time = ''
+    form.legacy_time = ''
+  }
   if (!cfg.person) {
     form.speaker = ''
     form.speaker_bio = ''

@@ -1,5 +1,7 @@
-import { reactive, ref, watch } from 'vue'
-import { suggestSlug, validateProgram, type Program, type ProgramInput, type ProgramWrite } from '@recitte/shared'
+import { computed, reactive, ref, watch } from 'vue'
+import { describeDuration, suggestSlug, validateProgram, type Program, type ProgramInput, type ProgramWrite } from '@recitte/shared'
+
+import { fieldsFor } from '@/lib/programFields'
 
 export function emptyProgramInput(): ProgramInput {
   return {
@@ -7,13 +9,14 @@ export function emptyProgramInput(): ProgramInput {
     title: '',
     slug: '',
     description: '',
-    about: '',
-    highlights: '',
+    highlights: [''],
     starts_on: '',
     ends_on: '',
-    time: '',
-    duration: '',
-    format: '',
+    start_time: '',
+    end_time: '',
+    legacy_time: '',
+    format_kind: '',
+    location: '',
     extra_details: [],
     speaker: '',
     speaker_bio: '',
@@ -30,13 +33,14 @@ export function programToInput(p: Program): ProgramInput {
     title: p.title,
     slug: p.slug,
     description: p.description,
-    about: p.about ?? '',
-    highlights: p.highlights.join('\n'),
+    highlights: p.highlights.length ? [...p.highlights] : [''],
     starts_on: p.starts_on ?? '',
     ends_on: p.ends_on ?? '',
-    time: p.time ?? '',
-    duration: p.duration ?? '',
-    format: p.format ?? '',
+    start_time: (p.start_time ?? '').slice(0, 5),
+    end_time: (p.end_time ?? '').slice(0, 5),
+    legacy_time: p.start_time ? '' : (p.time ?? ''),
+    format_kind: p.format_kind ?? '',
+    location: p.location ?? '',
     extra_details: p.extra_details.map((d) => ({ ...d })),
     speaker: p.speaker ?? '',
     speaker_bio: p.speaker_bio ?? '',
@@ -72,6 +76,18 @@ export function useProgramForm(existing?: Program | null) {
     form.slug = value
   }
 
+  /** Worked out from the dates: nothing to type. */
+  const duration = computed(() => describeDuration(form.starts_on || null, form.ends_on || null))
+
+  function addHighlight() {
+    form.highlights.push('')
+  }
+
+  function removeHighlight(index: number) {
+    form.highlights.splice(index, 1)
+    if (!form.highlights.length) form.highlights.push('')
+  }
+
   function addDetail() {
     form.extra_details.push({ label: '', value: '' })
   }
@@ -80,16 +96,21 @@ export function useProgramForm(existing?: Program | null) {
     form.extra_details.splice(index, 1)
   }
 
-  /** Validates with the shared rules; on success returns the row to write. */
-  function validate(): ProgramWrite | null {
-    const result = validateProgram(form)
+  /**
+   * Validates with the shared rules; on success returns the row to write.
+   * A draft only needs a title and link.
+   */
+  function validate(opts: { draft?: boolean } = {}): ProgramWrite | null {
+    const result = validateProgram(form, opts)
     if (!result.ok) {
       errors.value = result.errors
       return null
     }
     errors.value = {}
+    // Only types with a duration row show one.
+    if (!fieldsFor(form.type).duration) result.value.duration = null
     return result.value
   }
 
-  return { form, slugEdited, errors, editSlug, addDetail, removeDetail, validate }
+  return { form, slugEdited, errors, duration, editSlug, addHighlight, removeHighlight, addDetail, removeDetail, validate }
 }

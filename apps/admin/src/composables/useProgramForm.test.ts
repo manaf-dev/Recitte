@@ -8,13 +8,17 @@ const existing: Program = {
   type: 'course',
   title: 'Tajweed Essentials',
   description: 'Core rules of recitation.',
-  about: null,
   highlights: ['Makharij', 'Madd'],
   starts_on: '2026-11-14',
   ends_on: null,
   time: null,
   duration: null,
   format: null,
+  start_time: null,
+  end_time: null,
+  format_kind: null,
+  location: null,
+  is_draft: false,
   extra_details: [{ label: 'Level', value: 'Beginner' }],
   speaker: null,
   speaker_bio: null,
@@ -52,7 +56,7 @@ describe('useProgramForm slug', () => {
   it('starts new programs not featured and loads existing values for editing', () => {
     expect(useProgramForm().form.featured).toBe(false)
     const { form } = useProgramForm(existing)
-    expect(form.highlights).toBe('Makharij\nMadd')
+    expect(form.highlights).toEqual(['Makharij', 'Madd'])
     expect(form.featured).toBe(true)
     expect(form.extra_details).toEqual([{ label: 'Level', value: 'Beginner' }])
   })
@@ -67,7 +71,43 @@ describe('useProgramForm slug', () => {
     form.title = 'Tajweed Essentials'
     form.description = 'Core rules.'
     form.ends_on = ''
-    expect(validate()).toMatchObject({ slug: 'tajweed-essentials', ends_on: null, featured: false })
+    expect(validate()).toMatchObject({ slug: 'tajweed-essentials', ends_on: null, featured: false, is_draft: false })
     expect(errors.value).toEqual({})
+  })
+})
+
+describe('useProgramForm schedule', () => {
+  it('works out the duration from the dates', () => {
+    const { form, duration } = useProgramForm()
+    expect(duration.value).toBeNull()
+    form.starts_on = '2026-11-14'
+    expect(duration.value).toBe('Open-ended')
+    form.ends_on = '2026-12-11'
+    expect(duration.value).toBe('4 weeks')
+  })
+
+  it('skips the duration row for types without one', () => {
+    const { form, validate } = useProgramForm()
+    form.title = 'Monthly talk'
+    form.description = 'A talk.'
+    form.type = 'seminar'
+    form.starts_on = '2026-11-14'
+    expect(validate()).toMatchObject({ duration: null })
+  })
+
+  it('always keeps at least one empty highlight row to type in', () => {
+    const { form, addHighlight, removeHighlight } = useProgramForm()
+    addHighlight()
+    expect(form.highlights).toEqual(['', ''])
+    removeHighlight(0)
+    removeHighlight(0)
+    expect(form.highlights).toEqual([''])
+  })
+
+  it('validates a draft with only a title and link', () => {
+    const { form, validate } = useProgramForm()
+    form.title = 'Work in progress'
+    expect(validate()).toBeNull()
+    expect(validate({ draft: true })).toMatchObject({ is_draft: true, description: '' })
   })
 })

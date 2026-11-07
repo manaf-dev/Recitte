@@ -120,6 +120,10 @@ export function useProgramsAdmin() {
     return patch(program, { status: NEXT_STATUS[program.status] })
   }
 
+  function publish(program: Program) {
+    return patch(program, { is_draft: false })
+  }
+
   function toggleFeatured(program: Program) {
     return patch(program, { featured: !program.featured })
   }
@@ -158,5 +162,5 @@ export function useProgramsAdmin() {
     })
   }
 
-  return { programs, loading, loaded, error, busy, load, cycleStatus, toggleFeatured, replacePhoto, remove }
+  return { programs, loading, loaded, error, busy, load, cycleStatus, toggleFeatured, publish, replacePhoto, remove }
 }

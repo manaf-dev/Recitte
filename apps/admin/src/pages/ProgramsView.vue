@@ -4,16 +4,19 @@ import {
   formatProgramDateRange,
   isProgramPast,
   PROGRAM_STATUS_LABELS,
-  PROGRAM_TYPE_LABELS,
+  programTypeLabel,
   type Program,
   type ProgramStatus,
 } from '@recitte/shared'
+import { useProgramTypes } from '@/composables/useProgramTypes'
 import { NEXT_STATUS, useProgramsAdmin, type Outcome } from '@/composables/useProgramsAdmin'
 import { confirmAction } from '@/lib/confirm'
 import { takeFlash } from '@/lib/flash'
 
-const { programs, loading, loaded, error, busy, load, cycleStatus, toggleFeatured, replacePhoto, remove } =
+const { programs, loading, loaded, error, busy, load, cycleStatus, toggleFeatured, publish, replacePhoto, remove } =
   useProgramsAdmin()
+
+const { types, load: loadTypes } = useProgramTypes()
 
 const notice = ref<{ kind: 'ok' | 'error'; text: string } | null>(null)
 
@@ -30,6 +33,14 @@ function show(result: Outcome, success: string) {
 async function onStatus(p: Program) {
   const next = NEXT_STATUS[p.status]
   show(await cycleStatus(p), `“${p.title}” is now ${PROGRAM_STATUS_LABELS[next].toLowerCase()}.`)
+}
+
+async function onPublish(p: Program) {
+  if (!p.description.trim()) {
+    notice.value = { kind: 'error', text: `“${p.title}” needs a description before it can be published. Open it to add one.` }
+    return
+  }
+  show(await publish(p), `“${p.title}” is published.`)
 }
 
 async function onFeatured(p: Program) {
@@ -60,6 +71,7 @@ onMounted(() => {
   const flash = takeFlash()
   if (flash) notice.value = { kind: 'ok', text: flash }
   void load()
+  void loadTypes()
 })
 </script>
 
@@ -106,17 +118,22 @@ onMounted(() => {
               <RouterLink :to="`/programs/${p.id}`" class="font-bold text-ink no-underline hover:underline">
                 {{ p.title }}
               </RouterLink>
-              <span v-if="isProgramPast(p)" class="pill bg-[#e6e6e6] text-[#555]">Past</span>
+              <span v-if="p.is_draft" class="pill bg-line text-[#5e5037]">Draft</span>
+              <span v-if="!p.is_draft && isProgramPast(p)" class="pill bg-[#e6e6e6] text-[#555]">Past</span>
             </span>
             <span class="text-[13px] text-muted">
-              {{ PROGRAM_TYPE_LABELS[p.type] }} · {{ formatProgramDateRange(p.starts_on, p.ends_on) ?? 'No date' }}
+              {{ programTypeLabel(p.type, types) }} · {{ formatProgramDateRange(p.starts_on, p.ends_on) ?? 'No date' }}
               <span class="whitespace-nowrap">· /programs/{{ p.slug }}</span>
             </span>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
+          <button v-if="p.is_draft" type="button" class="btn btn-primary btn-small" :disabled="busy.has(p.id)" @click="onPublish(p)">
+            Publish
+          </button>
           <button
+            v-else
             type="button"
             class="btn btn-small border-[#d9d2c2]"
             :class="STATUS_STYLE[p.status]"
@@ -127,6 +144,7 @@ onMounted(() => {
             {{ PROGRAM_STATUS_LABELS[p.status] }} <span aria-hidden="true">↻</span>
           </button>
           <button
+            v-if="!p.is_draft"
             type="button"
             class="btn btn-secondary btn-small"
             :aria-pressed="p.featured"

@@ -1,5 +1,5 @@
 // Static copy ported verbatim from the prototype. Staff do not edit this.
-import type { ProgramType } from '@recitte/shared'
+import { programTypeArea, type ProgramType, type ProgramTypeRow } from '@recitte/shared'
 
 export interface TitledText {
   title: string
@@ -91,11 +91,19 @@ export const pictures = {
 } satisfies Record<string, Picture>
 
 /** Program hero image by type, as in the prototype. */
-export const heroPictureByType: Record<ProgramType, Picture> = {
+const heroPictureByType: Record<string, Picture> = {
   workshop: pictures.workshopMushaf,
   seminar: pictures.ghanaMosque,
   community: pictures.communityCircle,
   course: pictures.kufic,
   challenge: pictures.heroMushaf,
   event: pictures.connectMosque,
+}
+
+/** Custom types borrow the Workshop (Academy) or Community (Connect) picture. */
+export function heroPictureFor(type: ProgramType, types: readonly ProgramTypeRow[] = []): Picture {
+  return (
+    heroPictureByType[type] ??
+    (programTypeArea(type, types) === 'connect' ? pictures.communityCircle : pictures.workshopMushaf)
+  )
 }

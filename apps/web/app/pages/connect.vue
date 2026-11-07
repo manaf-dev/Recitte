@@ -5,8 +5,8 @@ import { forConnect } from '~/utils/programQueries'
 useSeoMeta({ title: 'Recitte Connect | Recitte' })
 const { canJoin, whatsappChannel } = useSiteSettings()
 const { openJoin } = useDialogs()
-const { programs, today } = usePrograms()
-const cards = computed(() => forConnect(programs.value, today))
+const { programs, today, types } = usePrograms()
+const cards = computed(() => forConnect(programs.value, today, types.value))
 </script>
 
 <template>

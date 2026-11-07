@@ -14,13 +14,17 @@ const existing = {
   type: 'course',
   title: 'Tajweed Essentials',
   description: 'Core rules of recitation.',
-  about: null,
   highlights: [],
   starts_on: null,
   ends_on: null,
   time: null,
   duration: null,
   format: null,
+  start_time: null,
+  end_time: null,
+  format_kind: null,
+  location: null,
+  is_draft: false,
   extra_details: [],
   speaker: null,
   speaker_bio: null,
@@ -56,7 +60,7 @@ describe('ProgramForm', () => {
     await wrapper.get('form').trigger('submit')
     await flushPromises()
     expect(wrapper.get('#pf-title-error').text()).toMatch(/title is required/i)
-    expect(wrapper.get('#pf-description-error').text()).toMatch(/description is required/i)
+    expect(wrapper.get('#pf-description-error').text()).toMatch(/add a description before publishing/i)
     expect(sb.callsFor('programs')).toHaveLength(0)
   })
 
@@ -81,5 +85,90 @@ describe('ProgramForm', () => {
     const insert = sb.callsFor('programs', 'insert')[0]
     expect(insert?.payload).toMatchObject({ title: 'Tajweed Essentials', slug: 'tajweed-essentials', featured: false })
     expect(wrapper.emitted('saved')?.[0]?.[0]).toMatchObject({ id: 'new-id' })
+  })
+
+  it('saves a draft with only a title, hidden and never featured', async () => {
+    sb.respond('programs', 'insert', (call) => ({ data: { ...existing, ...(call.payload as object), id: 'draft-id' } }))
+    const wrapper = mount(ProgramForm)
+    await wrapper.get('#pf-title').setValue('Work in progress')
+    await wrapper.findAll('button').find((b) => b.text() === 'Save as draft')!.trigger('click')
+    await flushPromises()
+    expect(sb.callsFor('programs', 'insert')[0]?.payload).toMatchObject({ is_draft: true, description: '', featured: false })
+    expect(wrapper.emitted('saved')?.[0]?.[0]).toMatchObject({ id: 'draft-id' })
+  })
+
+  it('does not publish a draft without a description', async () => {
+    const wrapper = mount(ProgramForm)
+    await wrapper.get('#pf-title').setValue('Work in progress')
+    await wrapper.findAll('button').find((b) => b.text() === 'Publish program')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.get('#pf-description-error').text()).toMatch(/description/i)
+    expect(sb.callsFor('programs', 'insert')).toHaveLength(0)
+  })
+
+  it('shows the duration from the dates and open-ended with no end date', async () => {
+    const wrapper = mount(ProgramForm)
+    await wrapper.get('#pf-starts').setValue('2026-11-14')
+    expect(wrapper.get('[role="status"]').text()).toContain('Open-ended')
+    await wrapper.get('#pf-ends').setValue('2026-12-11')
+    expect(wrapper.get('[role="status"]').text()).toContain('4 weeks')
+  })
+
+  it('asks for a location only when the format is in person', async () => {
+    const wrapper = mount(ProgramForm)
+    expect(wrapper.find('#pf-location').exists()).toBe(false)
+    await wrapper.get('#pf-format').setValue('in_person')
+    expect(wrapper.find('#pf-location').exists()).toBe(true)
+    await wrapper.get('#pf-format').setValue('online')
+    expect(wrapper.find('#pf-location').exists()).toBe(false)
+    expect(wrapper.find('#pf-platform').exists()).toBe(true)
+    expect(wrapper.find('#pf-platform-other').exists()).toBe(false)
+    await wrapper.get('#pf-platform').setValue('Other')
+    expect(wrapper.find('#pf-platform-other').exists()).toBe(true)
+  })
+
+  it('saves the chosen online platform as the location and format text', async () => {
+    sb.respond('programs', 'insert', (call) => ({ data: { ...existing, ...(call.payload as object), id: 'n' } }))
+    const wrapper = mount(ProgramForm)
+    await wrapper.get('#pf-title').setValue('Tajweed Essentials')
+    await wrapper.get('#pf-description').setValue('Core rules.')
+    await wrapper.get('#pf-format').setValue('online')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('#pf-platform-error').text()).toMatch(/choose the online platform/i)
+    await wrapper.get('#pf-platform').setValue('Google Meet')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(sb.callsFor('programs', 'insert')[0]?.payload).toMatchObject({
+      format_kind: 'online',
+      location: 'Google Meet',
+      format: 'Online · Google Meet',
+    })
+  })
+
+  it('adds highlights one line at a time and drops blank ones on save', async () => {
+    sb.respond('programs', 'insert', (call) => ({ data: { ...existing, ...(call.payload as object), id: 'n' } }))
+    const wrapper = mount(ProgramForm)
+    await wrapper.get('#pf-title').setValue('Tajweed Essentials')
+    await wrapper.get('#pf-description').setValue('Core rules.')
+    await wrapper.get('input[aria-label$="point 1"]').setValue('Makharij')
+    await wrapper.findAll('button').find((b) => b.text().includes('Add a point'))!.trigger('click')
+    await wrapper.get('input[aria-label$="point 2"]').setValue('Madd')
+    await wrapper.findAll('button').find((b) => b.text().includes('Add a point'))!.trigger('click')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(sb.callsFor('programs', 'insert')[0]?.payload).toMatchObject({ highlights: ['Makharij', 'Madd'] })
+  })
+
+  it('adds a new program type and selects it', async () => {
+    sb.respond('program_types', 'insert', (call) => ({ data: { ...(call.payload as object), builtin: false } }))
+    const wrapper = mount(ProgramForm)
+    await flushPromises()
+    await wrapper.get('#pf-type').setValue('__new__')
+    await wrapper.get('#pf-new-type').setValue('Fireside chat')
+    await wrapper.findAll('button').find((b) => b.text() === 'Add type')!.trigger('click')
+    await flushPromises()
+    expect(sb.callsFor('program_types', 'insert')[0]?.payload).toEqual({ slug: 'fireside-chat', label: 'Fireside chat', area: 'academy' })
+    expect(wrapper.get<HTMLSelectElement>('#pf-type').element.value).toBe('fireside-chat')
   })
 })

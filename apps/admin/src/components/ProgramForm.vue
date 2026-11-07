@@ -1,21 +1,33 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
-import { PROGRAM_STATUS_LABELS, PROGRAM_STATUSES, PROGRAM_TYPE_LABELS, PROGRAM_TYPES, type Program } from '@recitte/shared'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  ONLINE_PLATFORMS,
+  PROGRAM_FORMAT_KINDS,
+  PROGRAM_FORMAT_LABELS,
+  PROGRAM_STATUS_LABELS,
+  PROGRAM_STATUSES,
+  type Program,
+  type ProgramArea,
+} from '@recitte/shared'
 import FormField from './FormField.vue'
 import { useProgramForm } from '@/composables/useProgramForm'
 import { createProgram, updateProgram } from '@/composables/useProgramsAdmin'
+import { useProgramTypes } from '@/composables/useProgramTypes'
 import { removeSpeakerPhoto, useSpeakerUpload } from '@/composables/useSpeakerUpload'
-import { clearUnusedFields, PROGRAM_FIELDS } from '@/lib/programFields'
+import { clearUnusedFields, fieldsFor } from '@/lib/programFields'
 
 const props = defineProps<{ program?: Program | null }>()
 const emit = defineEmits<{ saved: [program: Program]; cancel: [] }>()
 
 const original = props.program ?? null
 const isNew = !original
-const { form, errors, editSlug, addDetail, removeDetail, validate } = useProgramForm(original)
+const wasDraft = original?.is_draft ?? false
+const { form, errors, editSlug, duration, addHighlight, removeHighlight, addDetail, removeDetail, validate } =
+  useProgramForm(original)
+const { types, load: loadTypes, add: addType } = useProgramTypes()
 const { uploading: photoUploading, error: photoError, upload: uploadPhoto } = useSpeakerUpload()
 
-const saving = ref(false)
+const saving = ref<'publish' | 'draft' | null>(null)
 const formError = ref('')
 const formEl = ref<HTMLFormElement | null>(null)
 
@@ -23,7 +35,7 @@ const formEl = ref<HTMLFormElement | null>(null)
 const uploaded: string[] = []
 let saved = false
 
-const cfg = computed(() => PROGRAM_FIELDS[form.type])
+const cfg = computed(() => fieldsFor(form.type))
 
 const slugHint = computed(() =>
   isNew
@@ -31,10 +43,126 @@ const slugHint = computed(() =>
     : 'Changing it breaks links already shared; old links do not redirect.',
 )
 
-/** Optional extras start open only when the program already uses them. */
-const extrasOpen = ref(Boolean(form.about || form.highlights || form.extra_details.length))
+const academyTypes = computed(() => types.value.filter((t) => t.area === 'academy'))
+const connectTypes = computed(() => types.value.filter((t) => t.area === 'connect'))
 
-const FIELD_ORDER = ['title', 'slug', 'description', 'starts_on', 'ends_on', 'extra_details', 'type', 'status']
+/* ---- Program type: a dropdown with "add new" ---- */
+
+const NEW_TYPE = '__new__'
+const typeChoice = computed({
+  get: () => form.type,
+  set: (value: string) => {
+    if (value === NEW_TYPE) {
+      addingType.value = true
+      void nextTick(() => {
+        // The select would keep showing "Add a new type" because form.type did not change.
+        const select = formEl.value?.querySelector<HTMLSelectElement>('#pf-type')
+        if (select) select.value = form.type
+        formEl.value?.querySelector<HTMLInputElement>('#pf-new-type')?.focus()
+      })
+      return
+    }
+    form.type = value
+  },
+})
+const addingType = ref(false)
+const newTypeName = ref('')
+const newTypeArea = ref<ProgramArea>('academy')
+const newTypeError = ref('')
+const newTypeBusy = ref(false)
+
+async function submitNewType() {
+  newTypeError.value = ''
+  newTypeBusy.value = true
+  const result = await addType(newTypeName.value, newTypeArea.value)
+  newTypeBusy.value = false
+  if (!result.ok) {
+    newTypeError.value = result.error
+    return
+  }
+  form.type = result.value.slug
+  cancelNewType()
+}
+
+function cancelNewType() {
+  addingType.value = false
+  newTypeName.value = ''
+  newTypeError.value = ''
+}
+
+/* ---- Where: online platform or in-person location ---- */
+
+const OTHER = 'Other'
+const platformChoice = ref<string>(
+  form.format_kind === 'online' && form.location && !(ONLINE_PLATFORMS as readonly string[]).includes(form.location)
+    ? OTHER
+    : form.format_kind === 'online'
+      ? form.location
+      : '',
+)
+
+function onFormatChange() {
+  // Each format keeps its own kind of place, so clear the other's.
+  form.location = ''
+  platformChoice.value = ''
+}
+
+function onPlatformChange() {
+  form.location = platformChoice.value === OTHER ? '' : platformChoice.value
+  if (platformChoice.value === OTHER) {
+    void nextTick(() => formEl.value?.querySelector<HTMLInputElement>('#pf-platform-other')?.focus())
+  }
+}
+
+/* ---- Dates: no end date means open-ended; the end can never precede the start ---- */
+
+watch(
+  () => form.starts_on,
+  (start) => {
+    if (form.ends_on && start && form.ends_on < start) form.ends_on = ''
+  },
+)
+
+const durationText = computed(() => (cfg.value.duration ? duration.value : null))
+
+/* ---- Highlights ---- */
+
+const highlightEls = ref<HTMLInputElement[]>([])
+
+async function addHighlightAndFocus() {
+  addHighlight()
+  await nextTick()
+  highlightEls.value[form.highlights.length - 1]?.focus()
+}
+
+function onHighlightEnter(index: number) {
+  if (!form.highlights[index]?.trim()) return
+  if (index === form.highlights.length - 1) void addHighlightAndFocus()
+  else highlightEls.value[index + 1]?.focus()
+}
+
+async function onRemoveHighlight(index: number) {
+  removeHighlight(index)
+  await nextTick()
+  highlightEls.value[Math.min(index, form.highlights.length - 1)]?.focus()
+}
+
+/** Optional extras start open only when the program already uses them. */
+const extrasOpen = ref(Boolean(form.extra_details.length))
+
+const FIELD_ORDER = [
+  'type',
+  'title',
+  'slug',
+  'description',
+  'starts_on',
+  'ends_on',
+  'start_time',
+  'end_time',
+  'location',
+  'extra_details',
+  'status',
+]
 
 async function focusFirstError() {
   await nextTick()
@@ -61,18 +189,20 @@ function removePhoto() {
   form.speaker_photo_url = null
 }
 
-async function submit() {
+async function submit(mode: 'publish' | 'draft') {
+  if (saving.value) return
   formError.value = ''
   clearUnusedFields(form)
-  const write = validate()
+  const write = validate({ draft: mode === 'draft' })
   if (!write) {
-    formError.value = 'Some fields need attention.'
+    formError.value =
+      mode === 'draft' ? 'A draft needs a title and a link.' : 'Some fields need attention before this can be published.'
     await focusFirstError()
     return
   }
-  saving.value = true
+  saving.value = mode
   const result = original ? await updateProgram(original.id, write) : await createProgram(write)
-  saving.value = false
+  saving.value = null
   if (!result.ok) {
     if (result.code === '23505') {
       errors.value = { ...errors.value, slug: result.error }
@@ -91,6 +221,17 @@ async function submit() {
   emit('saved', result.value)
 }
 
+const primaryLabel = computed(() => {
+  if (saving.value === 'publish') return 'Publishing…'
+  return isNew || wasDraft ? 'Publish program' : 'Save changes'
+})
+const draftLabel = computed(() => {
+  if (saving.value === 'draft') return 'Saving…'
+  return !isNew && !wasDraft ? 'Unpublish as draft' : 'Save as draft'
+})
+
+onMounted(loadTypes)
+
 onBeforeUnmount(() => {
   // Leaving without saving: drop photos uploaded for this draft.
   if (!saved) for (const url of uploaded) void removeSpeakerPhoto(url)
@@ -98,15 +239,80 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <form ref="formEl" class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]" novalidate @submit.prevent="submit">
+  <form
+    ref="formEl"
+    class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"
+    novalidate
+    @submit.prevent="submit('publish')"
+  >
     <div class="flex min-w-0 flex-col gap-6">
-      <section class="card flex flex-col gap-4 p-6" aria-labelledby="pf-basics">
+      <!-- 1. Basics -->
+      <section class="card flex flex-col gap-5 p-6" aria-labelledby="pf-basics">
         <h2 id="pf-basics" class="section-title">Basics</h2>
-        <FormField id="pf-title" label="Title" required :error="errors.title">
-          <template #default="{ id, describedBy, invalid }">
-            <input :id="id" v-model="form.title" data-field="title" class="input" maxlength="200" autocomplete="off" :aria-describedby="describedBy" :aria-invalid="invalid" />
-          </template>
-        </FormField>
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <FormField id="pf-title" label="Title" required :error="errors.title">
+            <template #default="{ id, describedBy, invalid }">
+              <input :id="id" v-model="form.title" data-field="title" class="input" maxlength="200" autocomplete="off" :aria-describedby="describedBy" :aria-invalid="invalid" />
+            </template>
+          </FormField>
+
+          <FormField id="pf-type" label="Type" required :hint="addingType ? undefined : cfg.blurb" :error="errors.type">
+            <template #default="{ id, describedBy, invalid }">
+              <select :id="id" v-model="typeChoice" data-field="type" class="input" :aria-describedby="describedBy" :aria-invalid="invalid">
+                <optgroup label="Academy">
+                  <option v-for="t in academyTypes" :key="t.slug" :value="t.slug">{{ t.label }}</option>
+                </optgroup>
+                <optgroup label="Connect">
+                  <option v-for="t in connectTypes" :key="t.slug" :value="t.slug">{{ t.label }}</option>
+                </optgroup>
+                <option :value="NEW_TYPE">+ Add a new type…</option>
+              </select>
+            </template>
+          </FormField>
+        </div>
+
+        <div v-if="addingType" class="flex flex-col gap-4 rounded-[14px] bg-ground p-4" role="group" aria-labelledby="pf-new-type-title">
+          <p id="pf-new-type-title" class="m-0 text-[14px] font-bold text-ink">New program type</p>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <FormField id="pf-new-type" label="Name" :error="newTypeError">
+              <template #default="{ id, describedBy, invalid }">
+                <input
+                  :id="id"
+                  v-model="newTypeName"
+                  class="input"
+                  maxlength="60"
+                  autocomplete="off"
+                  placeholder="For example, Fireside chat"
+                  :aria-describedby="describedBy"
+                  :aria-invalid="invalid"
+                  @keydown.enter.prevent="submitNewType"
+                />
+              </template>
+            </FormField>
+            <fieldset class="m-0 flex flex-col gap-1.5 border-0 p-0">
+              <legend class="field-label mb-1.5 p-0">Listed under</legend>
+              <div class="flex gap-2">
+                <label
+                  v-for="area in ['academy', 'connect'] as const"
+                  :key="area"
+                  class="flex min-h-[44px] cursor-pointer items-center rounded-[10px] border px-4 text-[14px] font-semibold capitalize focus-within:outline-2 focus-within:outline-gold"
+                  :class="newTypeArea === area ? 'border-ink bg-ink text-white' : 'border-field bg-white text-ink'"
+                >
+                  <input v-model="newTypeArea" type="radio" name="pf-new-type-area" :value="area" class="sr-only" />
+                  {{ area }}
+                </label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" class="btn btn-primary btn-small" :disabled="newTypeBusy" @click="submitNewType">
+              {{ newTypeBusy ? 'Adding…' : 'Add type' }}
+            </button>
+            <button type="button" class="btn btn-secondary btn-small" :disabled="newTypeBusy" @click="cancelNewType">Cancel</button>
+          </div>
+        </div>
+
         <FormField id="pf-slug" label="Link" required :error="errors.slug" :hint="slugHint">
           <template #default="{ id, describedBy, invalid }">
             <div class="flex items-stretch overflow-hidden rounded-[10px] border border-field focus-within:border-gold focus-within:outline-2 focus-within:outline-gold" :class="{ '!border-danger': invalid }">
@@ -127,14 +333,53 @@ onBeforeUnmount(() => {
             </div>
           </template>
         </FormField>
-        <FormField id="pf-description" label="Short description" required hint="Shown under the title and on cards." :error="errors.description">
-          <template #default="{ id, describedBy, invalid }">
-            <textarea :id="id" v-model="form.description" data-field="description" class="input" rows="2" maxlength="1000" :aria-describedby="describedBy" :aria-invalid="invalid" />
-          </template>
-        </FormField>
       </section>
 
-      <section class="card flex flex-col gap-4 p-6" aria-labelledby="pf-when">
+      <!-- 2. About + learning points -->
+      <section class="card flex flex-col gap-5 p-6" aria-labelledby="pf-about">
+        <h2 id="pf-about" class="section-title">About this program</h2>
+        <FormField id="pf-description" label="Description" required hint="Shown on the program page and, shortened, on cards." :error="errors.description">
+          <template #default="{ id, describedBy, invalid }">
+            <textarea :id="id" v-model="form.description" data-field="description" class="input" rows="6" maxlength="5000" :aria-describedby="describedBy" :aria-invalid="invalid" />
+          </template>
+        </FormField>
+
+        <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend class="field-label mb-1 p-0">{{ cfg.highlightsLabel }}</legend>
+          <span class="field-hint -mt-1">One point per line. Press Enter to add the next.</span>
+          <ul class="m-0 flex list-none flex-col gap-2 p-0">
+            <li v-for="(_, index) in form.highlights" :key="index" class="flex items-center gap-2">
+              <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-gold" aria-hidden="true" />
+              <input
+                :ref="(el) => (highlightEls[index] = el as HTMLInputElement)"
+                v-model="form.highlights[index]"
+                class="input"
+                maxlength="200"
+                autocomplete="off"
+                :placeholder="index === 0 ? 'For example, Correct pronunciation of every letter' : ''"
+                :aria-label="`${cfg.highlightsLabel}, point ${index + 1}`"
+                @keydown.enter.prevent="onHighlightEnter(index)"
+              />
+              <button
+                type="button"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[18px] text-muted hover:bg-ground hover:text-danger"
+                :aria-label="`Remove point ${index + 1}`"
+                @click="onRemoveHighlight(index)"
+              >
+                ×
+              </button>
+            </li>
+          </ul>
+          <div>
+            <button type="button" class="btn btn-secondary btn-small" @click="addHighlightAndFocus">
+              <span aria-hidden="true">+</span> Add a point
+            </button>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- 3. Schedule -->
+      <section class="card flex flex-col gap-5 p-6" aria-labelledby="pf-when">
         <div class="flex flex-col gap-1">
           <h2 id="pf-when" class="section-title">{{ cfg.dates === 'none' ? 'Where' : 'When and where' }}</h2>
           <p v-if="cfg.dates === 'none'" class="m-0 text-[13px] text-muted">Ongoing: no dates, it is always listed while open.</p>
@@ -143,35 +388,85 @@ onBeforeUnmount(() => {
             Leave empty if it has no fixed date.
           </p>
         </div>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormField v-if="cfg.dates !== 'none'" id="pf-starts" :label="cfg.dates === 'single' ? 'Date' : 'Starts on'" :error="errors.starts_on">
+
+        <div v-if="cfg.dates !== 'none'" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField id="pf-starts" :label="cfg.dates === 'single' ? 'Date' : 'Starts on'" :error="errors.starts_on">
             <template #default="{ id, describedBy, invalid }">
               <input :id="id" v-model="form.starts_on" data-field="starts_on" type="date" class="input" :aria-describedby="describedBy" :aria-invalid="invalid" />
             </template>
           </FormField>
-          <FormField v-if="cfg.dates === 'range'" id="pf-ends" label="Ends on" hint="Optional." :error="errors.ends_on">
+          <FormField v-if="cfg.dates === 'range'" id="pf-ends" label="Ends on" hint="Leave empty if it has no end." :error="errors.ends_on">
             <template #default="{ id, describedBy, invalid }">
-              <input :id="id" v-model="form.ends_on" data-field="ends_on" type="date" class="input" :min="form.starts_on || undefined" :aria-describedby="describedBy" :aria-invalid="invalid" />
+              <input :id="id" v-model="form.ends_on" data-field="ends_on" type="date" class="input" :min="form.starts_on || undefined" :disabled="!form.starts_on" :aria-describedby="describedBy" :aria-invalid="invalid" />
             </template>
           </FormField>
-          <FormField v-if="cfg.time" id="pf-time" label="Time">
-            <template #default="{ id }">
-              <input :id="id" v-model="form.time" class="input" maxlength="200" :placeholder="cfg.placeholders.time" />
+          <p
+            v-if="durationText"
+            class="m-0 flex items-center gap-2 rounded-[10px] bg-ground px-4 py-2.5 text-[14px] sm:col-span-2"
+            role="status"
+          >
+            <span class="text-muted">Duration</span>
+            <strong class="text-ink">{{ durationText }}</strong>
+            <span v-if="durationText === 'Open-ended'" class="text-muted">· no end date</span>
+          </p>
+        </div>
+
+        <div v-if="cfg.time" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField id="pf-start-time" label="Starts at" hint="Accra time (GMT)." :error="errors.start_time">
+            <template #default="{ id, describedBy, invalid }">
+              <input :id="id" v-model="form.start_time" data-field="start_time" type="time" step="300" class="input" :aria-describedby="describedBy" :aria-invalid="invalid" />
             </template>
           </FormField>
-          <FormField v-if="cfg.duration" id="pf-duration" label="Duration">
-            <template #default="{ id }">
-              <input :id="id" v-model="form.duration" class="input" maxlength="200" :placeholder="cfg.placeholders.duration" />
+          <FormField id="pf-end-time" label="Ends at" hint="Optional." :error="errors.end_time">
+            <template #default="{ id, describedBy, invalid }">
+              <input :id="id" v-model="form.end_time" data-field="end_time" type="time" step="300" class="input" :min="form.start_time || undefined" :disabled="!form.start_time" :aria-describedby="describedBy" :aria-invalid="invalid" />
             </template>
           </FormField>
-          <FormField id="pf-format" label="Format / location" class="sm:col-span-2">
+          <p v-if="form.legacy_time && !form.start_time" class="m-0 flex flex-wrap items-center gap-2 text-[13px] text-muted sm:col-span-2">
+            Currently shown as “{{ form.legacy_time }}”. Pick a start time to replace it.
+            <button type="button" class="btn-link !min-h-0 !p-0 text-[13px]" @click="form.legacy_time = ''">Clear</button>
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField id="pf-format" label="Format" :error="errors.format_kind">
             <template #default="{ id }">
-              <input :id="id" v-model="form.format" class="input" maxlength="200" :placeholder="cfg.placeholders.format" />
+              <select :id="id" v-model="form.format_kind" class="input" @change="onFormatChange">
+                <option value="">Not set</option>
+                <option v-for="k in PROGRAM_FORMAT_KINDS" :key="k" :value="k">{{ PROGRAM_FORMAT_LABELS[k] }}</option>
+              </select>
+            </template>
+          </FormField>
+
+          <FormField v-if="form.format_kind === 'online'" id="pf-platform" label="Platform" required :error="errors.location">
+            <template #default="{ id, describedBy, invalid }">
+              <select :id="id" v-model="platformChoice" data-field="location" class="input" :aria-describedby="describedBy" :aria-invalid="invalid" @change="onPlatformChange">
+                <option value="">Choose a platform</option>
+                <option v-for="p in ONLINE_PLATFORMS" :key="p" :value="p">{{ p }}</option>
+                <option :value="OTHER">Other…</option>
+              </select>
+            </template>
+          </FormField>
+          <FormField v-else-if="form.format_kind === 'in_person'" id="pf-location" label="Location" required :error="errors.location">
+            <template #default="{ id, describedBy, invalid }">
+              <input :id="id" v-model="form.location" data-field="location" class="input" maxlength="200" autocomplete="off" placeholder="For example, Accra Central Mosque" :aria-describedby="describedBy" :aria-invalid="invalid" />
+            </template>
+          </FormField>
+          <FormField v-else-if="form.location" id="pf-location-legacy" label="Shown as">
+            <template #default="{ id }">
+              <input :id="id" v-model="form.location" class="input" maxlength="200" />
+            </template>
+          </FormField>
+
+          <FormField v-if="form.format_kind === 'online' && platformChoice === OTHER" id="pf-platform-other" label="Platform name" required class="sm:col-start-2">
+            <template #default="{ id }">
+              <input :id="id" v-model="form.location" class="input" maxlength="200" autocomplete="off" placeholder="For example, Discord" />
             </template>
           </FormField>
         </div>
       </section>
 
+      <!-- 4. Speaker -->
       <section v-if="cfg.person" class="card flex flex-col gap-4 p-6" aria-labelledby="pf-speaker">
         <div class="flex flex-col gap-1">
           <h2 id="pf-speaker" class="section-title">{{ cfg.person }}</h2>
@@ -207,79 +502,53 @@ onBeforeUnmount(() => {
         <span v-if="photoError" class="field-error" role="alert">{{ photoError }}</span>
       </section>
 
+      <!-- 5. Extra rows -->
       <details class="card group" :open="extrasOpen" @toggle="extrasOpen = ($event.target as HTMLDetailsElement).open">
         <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-6 [&::-webkit-details-marker]:hidden">
           <span class="flex flex-col gap-1">
-            <span class="section-title">More details</span>
-            <span class="text-[13px] text-muted">Optional: longer text, {{ cfg.highlightsLabel.toLowerCase() }}, extra rows.</span>
+            <span class="section-title">Extra detail rows</span>
+            <span class="text-[13px] text-muted">Optional: shown in the Details box, such as Entry: Free · RSVP.</span>
           </span>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0 text-muted transition-transform group-open:rotate-180" aria-hidden="true">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </summary>
-        <div class="flex flex-col gap-4 border-t border-rule p-6">
-          <FormField id="pf-about" label="About" hint="When empty, the page uses the short description.">
-            <template #default="{ id, describedBy }">
-              <textarea :id="id" v-model="form.about" class="input" rows="4" maxlength="10000" :aria-describedby="describedBy" />
-            </template>
-          </FormField>
-          <FormField id="pf-highlights" :label="cfg.highlightsLabel" hint="One per line.">
-            <template #default="{ id, describedBy }">
-              <textarea :id="id" v-model="form.highlights" class="input" rows="3" :aria-describedby="describedBy" />
-            </template>
-          </FormField>
-          <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
-            <legend class="field-label mb-1 p-0">Extra detail rows</legend>
-            <span class="field-hint -mt-1">Shown in the Details box, such as Entry: Free · RSVP, or Level: 2.</span>
-            <div v-for="(detail, index) in form.extra_details" :key="index" class="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] items-center gap-2">
-              <input
-                v-model="detail.label"
-                :data-field="index === 0 ? 'extra_details' : undefined"
-                class="input"
-                maxlength="100"
-                placeholder="Label"
-                :aria-label="`Detail ${index + 1} label`"
-              />
-              <input v-model="detail.value" class="input" maxlength="300" placeholder="Value" :aria-label="`Detail ${index + 1} value`" />
-              <button
-                type="button"
-                class="flex h-9 w-9 items-center justify-center rounded-full text-[18px] text-muted hover:bg-ground hover:text-danger"
-                :aria-label="`Remove detail ${detail.label || index + 1}`"
-                @click="removeDetail(index)"
-              >
-                ×
-              </button>
-            </div>
-            <span v-if="errors.extra_details" class="field-error">{{ errors.extra_details }}</span>
-            <div><button type="button" class="btn-link" @click="addDetail">+ Add a row</button></div>
-          </fieldset>
-        </div>
+        <fieldset class="m-0 flex flex-col gap-2 border-0 border-t border-rule p-6">
+          <legend class="sr-only">Extra detail rows</legend>
+          <div v-for="(detail, index) in form.extra_details" :key="index" class="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] items-center gap-2">
+            <input
+              v-model="detail.label"
+              :data-field="index === 0 ? 'extra_details' : undefined"
+              class="input"
+              maxlength="100"
+              placeholder="Label"
+              :aria-label="`Detail ${index + 1} label`"
+            />
+            <input v-model="detail.value" class="input" maxlength="300" placeholder="Value" :aria-label="`Detail ${index + 1} value`" />
+            <button
+              type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-full text-[18px] text-muted hover:bg-ground hover:text-danger"
+              :aria-label="`Remove detail ${detail.label || index + 1}`"
+              @click="removeDetail(index)"
+            >
+              ×
+            </button>
+          </div>
+          <span v-if="errors.extra_details" class="field-error">{{ errors.extra_details }}</span>
+          <div><button type="button" class="btn-link" @click="addDetail">+ Add a row</button></div>
+        </fieldset>
       </details>
     </div>
 
+    <!-- Publishing -->
     <aside class="flex flex-col gap-6 lg:sticky lg:top-24">
-      <section class="card flex flex-col gap-4 p-6" aria-labelledby="pf-type-title">
-        <h2 id="pf-type-title" class="section-title">Type</h2>
-        <fieldset class="m-0 border-0 p-0">
-          <legend class="sr-only">Program type</legend>
-          <div class="grid grid-cols-2 gap-2" data-field="type" tabindex="-1">
-            <label
-              v-for="t in PROGRAM_TYPES"
-              :key="t"
-              class="flex cursor-pointer items-center justify-center rounded-[10px] border px-2 py-2 text-center text-[13px] font-semibold transition-colors focus-within:outline-2 focus-within:outline-gold"
-              :class="form.type === t ? 'border-ink bg-ink text-white' : 'border-field bg-white text-ink hover:border-gold'"
-            >
-              <input v-model="form.type" type="radio" name="pf-type" :value="t" class="sr-only" />
-              {{ PROGRAM_TYPE_LABELS[t] }}
-            </label>
-          </div>
-        </fieldset>
-        <p class="m-0 text-[13px] text-muted">{{ cfg.blurb }}</p>
-        <span v-if="errors.type" class="field-error">{{ errors.type }}</span>
-      </section>
-
       <section class="card flex flex-col gap-4 p-6" aria-labelledby="pf-publish">
-        <h2 id="pf-publish" class="section-title">Publishing</h2>
+        <div class="flex items-center justify-between gap-3">
+          <h2 id="pf-publish" class="section-title">Publishing</h2>
+          <span class="pill" :class="isNew || wasDraft ? 'bg-line text-[#5e5037]' : 'bg-soft text-ink'">
+            {{ isNew ? 'New' : wasDraft ? 'Draft' : 'Published' }}
+          </span>
+        </div>
         <FormField id="pf-status" label="Registration" required :error="errors.status">
           <template #default="{ id, describedBy, invalid }">
             <select :id="id" v-model="form.status" data-field="status" class="input" :aria-describedby="describedBy" :aria-invalid="invalid">
@@ -291,14 +560,18 @@ onBeforeUnmount(() => {
           <input v-model="form.featured" type="checkbox" class="mt-0.5 h-[18px] w-[18px] accent-ink" aria-describedby="pf-featured-hint" />
           <span class="flex flex-col">
             <span class="field-label">Feature on homepage</span>
-            <span id="pf-featured-hint" class="field-hint">Up to three show in “What's happening now”.</span>
+            <span id="pf-featured-hint" class="field-hint">Up to three show in “What's happening now”. Drafts are never featured.</span>
           </span>
         </label>
         <div class="flex flex-col gap-2 border-t border-rule pt-4">
-          <button type="submit" class="btn btn-primary w-full" :disabled="saving || photoUploading">
-            {{ saving ? 'Saving…' : isNew ? 'Publish program' : 'Save changes' }}
+          <button type="button" class="btn btn-primary w-full" :disabled="!!saving || photoUploading" @click="submit('publish')">
+            {{ primaryLabel }}
           </button>
-          <button type="button" class="btn btn-secondary w-full" :disabled="saving" @click="emit('cancel')">Cancel</button>
+          <button type="button" class="btn btn-secondary w-full" :disabled="!!saving || photoUploading" @click="submit('draft')">
+            {{ draftLabel }}
+          </button>
+          <button type="button" class="btn-link w-full justify-center" :disabled="!!saving" @click="emit('cancel')">Cancel</button>
+          <p v-if="isNew || wasDraft" class="field-hint m-0 text-center">Drafts are visible to staff only.</p>
           <span v-if="formError" class="field-error text-center" role="alert">{{ formError }}</span>
         </div>
       </section>

@@ -1,7 +1,14 @@
-import { CONNECT_TYPES, formatProgramDateRange, type Program, type ProgramDetail, type ProgramType } from '@recitte/shared'
+import {
+  formatProgramDateRange,
+  programTypeArea,
+  type Program,
+  type ProgramDetail,
+  type ProgramType,
+  type ProgramTypeRow,
+} from '@recitte/shared'
 
-export function isConnectProgram(type: ProgramType): boolean {
-  return CONNECT_TYPES.includes(type)
+export function isConnectProgram(type: ProgramType, types: readonly ProgramTypeRow[] = []): boolean {
+  return programTypeArea(type, types) === 'connect'
 }
 
 /** "Teacher" for courses and workshops, otherwise "Speaker". */
@@ -45,20 +52,31 @@ export function cardMeta(p: Program): string {
     .join('  ·  ')
 }
 
-export function cardTheme(type: ProgramType) {
-  const dark = type === 'seminar' || type === 'event' || type === 'challenge'
+/** Built-in look for a type; custom types borrow the Workshop (Academy) or Community (Connect) look. */
+function lookSlug(type: ProgramType, types: readonly ProgramTypeRow[]): ProgramType {
+  if (type in TYPE_ACCENT) return type
+  return isConnectProgram(type, types) ? 'community' : 'workshop'
+}
+
+export function cardTheme(type: ProgramType, types: readonly ProgramTypeRow[] = []) {
+  const look = lookSlug(type, types)
+  const dark = look === 'seminar' || look === 'event' || look === 'challenge'
   return {
-    headBg: dark ? '#202545' : type === 'community' ? '#F2ECB6' : '#E5E3DE',
+    headBg: dark ? '#202545' : look === 'community' ? '#F2ECB6' : '#E5E3DE',
     headFg: dark ? '#fff' : '#202545',
     headSub: dark ? '#B29B72' : '#6b5a3a',
   }
 }
 
-export const TYPE_ACCENT: Record<ProgramType, string> = {
+const TYPE_ACCENT: Record<string, string> = {
   workshop: '#B29B72',
   seminar: '#202545',
   course: '#B29B72',
   community: '#F2ECB6',
   challenge: '#343434',
   event: '#202545',
+}
+
+export function typeAccent(type: ProgramType, types: readonly ProgramTypeRow[] = []): string {
+  return TYPE_ACCENT[lookSlug(type, types)]!
 }

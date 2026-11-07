@@ -27,7 +27,9 @@ async function load() {
 }
 
 function onSaved(saved: Program) {
-  setFlash(props.id ? `“${saved.title}” was saved.` : `“${saved.title}” was published.`)
+  const priorDraft = program.value?.is_draft ?? false
+  const what = saved.is_draft ? 'saved as a draft' : props.id && !priorDraft ? 'saved' : 'published'
+  setFlash(`“${saved.title}” was ${what}.`)
   void router.push('/programs')
 }
 

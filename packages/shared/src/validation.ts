@@ -1,9 +1,10 @@
+import { describeDuration, formatProgramFormat, formatTimeRange, TIME_RE } from './programText'
 import { isValidSlug } from './slug'
 import {
   CONTACT_SUBJECTS,
   NOT_SURE_PROGRAM,
   PROGRAM_STATUSES,
-  PROGRAM_TYPES,
+  PROGRAM_FORMAT_KINDS,
   RECITATION_LEVELS,
   REGISTRATION_KINDS,
   TAJWEED_EXPERIENCE,
@@ -135,14 +136,21 @@ export function validateTestimonial(input: TestimonialInput): ValidationResult<T
   }))
 }
 
-export function validateProgram(input: ProgramInput): ValidationResult<ProgramWrite> {
+/**
+ * Validates a program form. A draft only needs a title and a link, so staff
+ * can save half-finished work; publishing needs the full set.
+ */
+export function validateProgram(input: ProgramInput, opts: { draft?: boolean } = {}): ValidationResult<ProgramWrite> {
+  const draft = opts.draft ?? false
   const errors: Record<string, string> = {}
-  if (!includes(PROGRAM_TYPES, input.type)) errors.type = 'Choose a type.'
+  if (!input.type.trim()) errors.type = 'Choose a type.'
   if (!input.title.trim()) errors.title = 'Title is required.'
   const slug = input.slug.trim()
-  if (!slug) errors.slug = 'Slug is required.'
+  if (!slug) errors.slug = 'Link is required.'
   else if (!isValidSlug(slug)) errors.slug = 'Use lowercase letters, digits and single hyphens.'
-  if (!input.description.trim()) errors.description = 'Description is required.'
+  const description = input.description.trim()
+  if (!draft && !description) errors.description = 'Add a description before publishing.'
+  if (description.length > 5000) errors.description = 'Keep the description under 5000 characters.'
   if (!includes(PROGRAM_STATUSES, input.status)) errors.status = 'Choose a status.'
 
   const startsOn = orNull(input.starts_on)
@@ -152,31 +160,46 @@ export function validateProgram(input: ProgramInput): ValidationResult<ProgramWr
   else if (endsOn && !startsOn) errors.ends_on = 'Set a start date before an end date.'
   else if (endsOn && startsOn && endsOn < startsOn) errors.ends_on = 'End date must be on or after the start date.'
 
+  const startTime = orNull(input.start_time)
+  const endTime = orNull(input.end_time)
+  if (startTime && !TIME_RE.test(startTime)) errors.start_time = 'Use a valid time.'
+  if (endTime && !TIME_RE.test(endTime)) errors.end_time = 'Use a valid time.'
+  else if (endTime && !startTime) errors.end_time = 'Set a start time before an end time.'
+  else if (endTime && startTime && endTime <= startTime) errors.end_time = 'End time must be after the start time.'
+
+  if (input.format_kind && !includes(PROGRAM_FORMAT_KINDS, input.format_kind)) errors.format_kind = 'Choose a format.'
+  const location = orNull(input.location)
+  if (!draft && !location) {
+    if (input.format_kind === 'in_person') errors.location = 'Add where it takes place.'
+    if (input.format_kind === 'online') errors.location = 'Choose the online platform.'
+  }
+
   const extra = input.extra_details
     .map((d) => ({ label: d.label.trim(), value: d.value.trim() }))
     .filter((d) => d.label || d.value)
   if (extra.some((d) => !d.label || !d.value)) errors.extra_details = 'Each extra detail needs a label and a value.'
 
   return result(errors, () => ({
-    type: input.type,
+    type: input.type.trim(),
     title: input.title.trim(),
     slug,
-    description: input.description.trim(),
-    about: orNull(input.about),
-    highlights: input.highlights
-      .split('\n')
-      .map((l) => l.trim())
-      .filter(Boolean),
+    description,
+    highlights: input.highlights.map((l) => l.trim()).filter(Boolean),
     starts_on: startsOn,
     ends_on: endsOn,
-    time: orNull(input.time),
-    duration: orNull(input.duration),
-    format: orNull(input.format),
+    start_time: startTime,
+    end_time: endTime,
+    time: startTime ? formatTimeRange(startTime, endTime) : orNull(input.legacy_time),
+    duration: describeDuration(startsOn, endsOn),
+    format: formatProgramFormat(input.format_kind, location),
+    format_kind: input.format_kind || null,
+    location,
     extra_details: extra,
     speaker: orNull(input.speaker),
     speaker_bio: orNull(input.speaker_bio),
     speaker_photo_url: orNull(input.speaker_photo_url),
     status: input.status,
-    featured: input.featured,
+    featured: draft ? false : input.featured,
+    is_draft: draft,
   }))
 }

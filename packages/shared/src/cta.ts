@@ -15,22 +15,26 @@ export interface ProgramCta {
   label: string
 }
 
-const OPEN_CTA: Record<ProgramType, ProgramCta> = {
+const REGISTER_CTA: ProgramCta = { action: 'register', label: 'Register to attend' }
+const JOIN_CTA: ProgramCta = { action: 'join', label: 'Join on WhatsApp' }
+
+const OPEN_CTA: Record<string, ProgramCta> = {
   workshop: { action: 'interest', label: "I'm interested" },
   seminar: { action: 'interest', label: "I'm interested" },
   course: { action: 'apply', label: 'Apply now' },
-  event: { action: 'register', label: 'Register to attend' },
-  challenge: { action: 'register', label: 'Register to attend' },
-  community: { action: 'join', label: 'Join on WhatsApp' },
+  event: REGISTER_CTA,
+  challenge: REGISTER_CTA,
+  community: JOIN_CTA,
 }
 
 /** The call to action for a program, per the design's past/status/type tables. */
 export function programCta(program: ProgramLike, today?: string): ProgramCta {
   if (isProgramPast(program, today)) return { action: 'ended', label: 'Registration has ended' }
   if (program.status === 'closed') return { action: 'closed', label: 'Registration closed' }
-  if (program.type === 'community') return OPEN_CTA.community
+  if (program.type === 'community') return JOIN_CTA
   if (program.status === 'soon') return { action: 'notify', label: 'Notify me' }
-  return OPEN_CTA[program.type]
+  // Types staff add themselves take registrations.
+  return OPEN_CTA[program.type] ?? REGISTER_CTA
 }
 
 /** Whether a program can still take an application, registration or interest. */

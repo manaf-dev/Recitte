@@ -4,8 +4,8 @@ import { forAcademy } from '~/utils/programQueries'
 
 useSeoMeta({ title: 'Recitte Academy | Recitte' })
 const { openApply } = useDialogs()
-const { programs, today } = usePrograms()
-const cards = computed(() => forAcademy(programs.value, today))
+const { programs, today, types } = usePrograms()
+const cards = computed(() => forAcademy(programs.value, today, types.value))
 </script>
 
 <template>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { PROGRAM_TYPE_LABELS, programStatusLabel } from '@recitte/shared'
-import { academyPitch, connectPitch, heroPictureByType } from '~/content/siteCopy'
+import { programStatusLabel, programTypeLabel } from '@recitte/shared'
+import { heroPictureFor } from '~/content/siteCopy'
 import { relatedPrograms } from '~/utils/programQueries'
 
 const route = useRoute()
-const { programs, today, ready, error } = usePrograms()
+const { programs, today, types, ready, error } = usePrograms()
 const toast = useToast()
 await ready
 
@@ -18,27 +18,11 @@ if (!program.value) {
 // Non-null from here: the page 404s above when the slug is unknown.
 const p = computed(() => program.value!)
 
-const connect = computed(() => isConnectProgram(p.value.type))
-const hero = computed(() => heroPictureByType[p.value.type])
+const connect = computed(() => isConnectProgram(p.value.type, types.value))
+const hero = computed(() => heroPictureFor(p.value.type, types.value))
 const details = computed(() => programDetails(p.value))
 const related = computed(() => relatedPrograms(p.value, programs.value, today))
-const part = computed(() =>
-  connect.value
-    ? {
-        title: 'Part of Recitte Connect',
-        text: connectPitch,
-        to: '/connect',
-        cta: 'Explore Connect',
-        back: '← Back to Connect',
-      }
-    : {
-        title: 'Part of Recitte Academy',
-        text: academyPitch,
-        to: '/academy',
-        cta: 'Explore Academy',
-        back: '← Back to Academy',
-      },
-)
+const back = computed(() => (connect.value ? { to: '/connect', text: '← Back to Connect' } : { to: '/academy', text: '← Back to Academy' }))
 
 const { siteUrl } = useRuntimeConfig().public
 const origin = (siteUrl || useRequestURL().origin).replace(/\/$/, '')
@@ -73,29 +57,23 @@ async function share() {
 
 <template>
   <div>
-    <section class="on-ink relative overflow-hidden bg-ink text-white">
-      <img class="hero-img" :src="hero.src" :alt="hero.alt" width="1600" height="900" />
-      <div class="hero-scrim" />
-      <div class="wrap relative z-[1] flex min-h-[clamp(480px,66svh,640px)] flex-col gap-12 pt-8 pb-22">
-        <div><NuxtLink :to="part.to" class="btn btn-ghost btn-sm">{{ part.back }}</NuxtLink></div>
-        <div class="mt-auto flex max-w-[640px] flex-col gap-6">
-          <h1 class="h1">{{ p.title }}</h1>
-          <p class="lead max-w-[600px] text-haze">{{ p.description }}</p>
-          <span class="row font-bold text-soft">
-            <span class="dot" :style="{ background: TYPE_ACCENT[p.type] }" />
-            {{ PROGRAM_TYPE_LABELS[p.type] }} · {{ programStatusLabel(p, today) }}
-          </span>
-          <div><ProgramCtaButton :program="p" variant="hero" /></div>
-        </div>
-      </div>
-    </section>
-
     <section class="bg-ground">
-      <div class="wrap flex flex-wrap items-start gap-12 pt-24 pb-[120px]">
+      <div class="wrap flex flex-wrap items-start gap-12 pt-12 pb-[120px]">
         <div class="flex min-w-0 flex-[1_1_560px] flex-col gap-14">
+          <div class="flex max-w-[720px] flex-col gap-5">
+            <NuxtLink :to="back.to" class="link self-start text-sm">{{ back.text }}</NuxtLink>
+            <div class="flex flex-col gap-3">
+              <h1 class="h2">{{ p.title }}</h1>
+              <span class="row text-sm font-bold text-label">
+                <span class="dot" :style="{ background: typeAccent(p.type, types) }" />
+                {{ programTypeLabel(p.type, types) }} · {{ programStatusLabel(p, today) }}
+              </span>
+            </div>
+          </div>
+
           <div class="flex max-w-[720px] flex-col gap-4">
             <h2 class="h2 h2-sm">About this program</h2>
-            <p class="m-0 leading-[1.75] whitespace-pre-line text-pretty">{{ p.about || p.description }}</p>
+            <p class="m-0 leading-[1.75] whitespace-pre-line text-pretty">{{ p.description }}</p>
           </div>
 
           <div v-if="p.highlights.length" class="flex flex-col gap-5">
@@ -138,14 +116,6 @@ async function share() {
           <ProgramCtaButton :program="p" variant="block" />
           <button type="button" class="btn btn-stone w-full" @click="share">Share this program</button>
         </aside>
-      </div>
-    </section>
-
-    <section class="bg-white">
-      <div class="wrap flex flex-col items-start gap-4 py-24">
-        <h2 class="h2 h2-sm">{{ part.title }}</h2>
-        <p class="m-0 max-w-[640px]">{{ part.text }}</p>
-        <NuxtLink :to="part.to" class="btn btn-ink mt-2">{{ part.cta }}</NuxtLink>
       </div>
     </section>
 

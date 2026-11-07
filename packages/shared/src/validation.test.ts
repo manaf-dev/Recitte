@@ -145,14 +145,14 @@ const program: ProgramInput = {
   title: 'Recitte Huruf Workshop',
   slug: 'recitte-huruf-workshop',
   description: 'A focused workshop on the Arabic letters.',
-  about: '',
-  highlights: 'Makharij\n\n  Sifat  \n',
+  highlights: ['Makharij', '', '  Sifat  '],
   starts_on: '2026-11-14',
-  ends_on: '',
-  time: '',
-  duration: '4 weeks · 2×/week',
-  format: 'Live online',
-  extra_details: [
+  ends_on: '2026-12-11',
+  start_time: '19:00',
+  end_time: '21:00',
+  legacy_time: '',
+  format_kind: 'online',
+  location: 'Zoom',  extra_details: [
     { label: 'Level', value: 'Level 1' },
     { label: ' ', value: ' ' },
   ],
@@ -164,22 +164,62 @@ const program: ProgramInput = {
 }
 
 describe('validateProgram', () => {
-  it('normalises optional fields to null and splits highlights', () => {
+  it('normalises fields and derives time, duration and format text', () => {
     const r = validateProgram(program)
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.value.highlights).toEqual(['Makharij', 'Sifat'])
     expect(r.value.extra_details).toEqual([{ label: 'Level', value: 'Level 1' }])
-    expect(r.value.about).toBeNull()
-    expect(r.value.ends_on).toBeNull()
-    expect(r.value.duration).toBe('4 weeks · 2×/week')
+    expect(r.value.time).toBe('7:00 PM – 9:00 PM GMT')
+    expect(r.value.duration).toBe('4 weeks')
+    expect(r.value.format).toBe('Online · Zoom')
+    expect(r.value.is_draft).toBe(false)
   })
 
-  it('requires type, title, slug and description', () => {
-    const r = validateProgram({ ...program, title: '', slug: '', description: '', type: 'class' as never })
+  it('is open-ended with a start date and no end date', () => {
+    const r = validateProgram({ ...program, ends_on: '' })
+    expect(r.ok && r.value.duration).toBe('Open-ended')
+  })
+
+  it('has no duration without a start date', () => {
+    const r = validateProgram({ ...program, starts_on: '', ends_on: '' })
+    expect(r.ok && r.value.duration).toBeNull()
+  })
+
+  it('keeps a legacy time until a start time is picked', () => {
+    const legacy = validateProgram({ ...program, start_time: '', end_time: '', legacy_time: 'Saturdays, 9:00 AM GMT' })
+    expect(legacy.ok && legacy.value.time).toBe('Saturdays, 9:00 AM GMT')
+    const picked = validateProgram({ ...program, legacy_time: 'Saturdays, 9:00 AM GMT' })
+    expect(picked.ok && picked.value.time).toBe('7:00 PM – 9:00 PM GMT')
+  })
+
+  it('requires type, title, slug and description to publish', () => {
+    const r = validateProgram({ ...program, title: '', slug: '', description: '', type: '' })
     expect(r.ok).toBe(false)
     if (r.ok) return
     expect(Object.keys(r.errors).sort()).toEqual(['description', 'slug', 'title', 'type'])
+  })
+
+  it('lets a draft save with only a title and link, and never features it', () => {
+    const r = validateProgram({ ...program, description: '', featured: true }, { draft: true })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.value.is_draft).toBe(true)
+    expect(r.value.featured).toBe(false)
+    expect(validateProgram({ ...program, title: '' }, { draft: true }).ok).toBe(false)
+  })
+
+  it('requires a platform for online programs, but not for drafts', () => {
+    const online = { ...program, location: '' }
+    expect(validateProgram(online).ok).toBe(false)
+    expect(validateProgram(online, { draft: true }).ok).toBe(true)
+  })
+
+  it('requires a venue for in-person programs, but not for drafts', () => {
+    const inPerson = { ...program, format_kind: 'in_person' as const, location: '' }
+    expect(validateProgram(inPerson).ok).toBe(false)
+    expect(validateProgram(inPerson, { draft: true }).ok).toBe(true)
+    expect(validateProgram({ ...inPerson, location: 'Accra Central Mosque' }).ok).toBe(true)
   })
 
   it('rejects a malformed slug', () => {
@@ -190,6 +230,11 @@ describe('validateProgram', () => {
     expect(validateProgram({ ...program, ends_on: '2026-11-13' }).ok).toBe(false)
     expect(validateProgram({ ...program, ends_on: '2026-11-14' }).ok).toBe(true)
     expect(validateProgram({ ...program, starts_on: '', ends_on: '2026-11-14' }).ok).toBe(false)
+  })
+
+  it('requires the end time to be after the start time, and a start time with an end time', () => {
+    expect(validateProgram({ ...program, end_time: '19:00' }).ok).toBe(false)
+    expect(validateProgram({ ...program, start_time: '', end_time: '21:00' }).ok).toBe(false)
   })
 
   it('rejects half-filled extra detail rows', () => {

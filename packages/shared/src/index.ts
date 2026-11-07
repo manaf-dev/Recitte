@@ -1,5 +1,6 @@
 export * from './types'
 export * from './dates'
+export * from './programText'
 export * from './slug'
 export * from './cta'
 export * from './validation'

@@ -1,10 +1,10 @@
 import {
-  ACADEMY_TYPES,
   APPLICATION_TYPES,
-  CONNECT_TYPES,
   NOT_SURE_PROGRAM,
   isProgramPast,
+  programTypeArea,
   type Program,
+  type ProgramTypeRow,
 } from '@recitte/shared'
 
 type Dated = Pick<Program, 'starts_on' | 'title'>
@@ -26,12 +26,12 @@ export function featuredForHome(programs: readonly Program[], today?: string): P
   return sortBySoonest(current(programs, today).filter((p) => p.featured && p.status !== 'closed')).slice(0, 3)
 }
 
-export function forConnect(programs: readonly Program[], today?: string): Program[] {
-  return sortBySoonest(current(programs, today).filter((p) => CONNECT_TYPES.includes(p.type)))
+export function forConnect(programs: readonly Program[], today?: string, types: readonly ProgramTypeRow[] = []): Program[] {
+  return sortBySoonest(current(programs, today).filter((p) => programTypeArea(p.type, types) === 'connect'))
 }
 
-export function forAcademy(programs: readonly Program[], today?: string): Program[] {
-  return sortBySoonest(current(programs, today).filter((p) => ACADEMY_TYPES.includes(p.type)))
+export function forAcademy(programs: readonly Program[], today?: string, types: readonly ProgramTypeRow[] = []): Program[] {
+  return sortBySoonest(current(programs, today).filter((p) => programTypeArea(p.type, types) === 'academy'))
 }
 
 /** Up to three other programs that are not past and not closed, same type first. */
