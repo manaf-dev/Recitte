@@ -2,6 +2,7 @@
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { isValidEmail } from '@recitte/shared'
+import BrandBar from '@/components/BrandBar.vue'
 import FormField from '@/components/FormField.vue'
 import PasswordInput from '@/components/PasswordInput.vue'
 import { safeRedirect, signInWithPassword } from '@/composables/useAuth'
@@ -46,7 +47,7 @@ async function submit() {
 <template>
   <div class="grid min-h-screen grid-rows-[auto_1fr] bg-ground">
     <header class="bg-ink px-6 py-5 sm:px-10">
-      <img src="/logo-word-navy.png" alt="Recitte" class="block h-[28px] w-auto" width="91" height="28" />
+      <BrandBar />
     </header>
 
     <main class="flex items-center justify-center px-6 py-12 sm:px-12">
@@ -64,12 +65,12 @@ async function submit() {
               <input
                 :id="id"
                 v-model="form.email"
-                class="input"
+                class="input min-h-12 px-3.5 text-[15px]"
                 type="email"
                 name="email"
                 autocomplete="email"
                 inputmode="email"
-                placeholder="you@recitte.org"
+                placeholder="name@example.com"
                 required
                 :aria-describedby="describedBy"
                 :aria-invalid="invalid"
@@ -85,6 +86,7 @@ async function submit() {
                 name="password"
                 autocomplete="current-password"
                 placeholder="Enter your password"
+                input-class="min-h-12 px-3.5 text-[15px]"
                 required
                 :aria-describedby="describedBy"
                 :aria-invalid="invalid"
