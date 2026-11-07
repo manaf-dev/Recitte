@@ -20,7 +20,7 @@ async function mountAs(role: 'staff' | 'super_admin', names: Names = { first_nam
   await router.push('/')
   const wrapper = mount(App, { global: { plugins: [router] } })
   await flushPromises()
-  return wrapper
+  return Object.assign(wrapper, { router })
 }
 
 async function navLabels(role: 'staff' | 'super_admin') {
@@ -67,6 +67,39 @@ describe('AdminLayout account', () => {
     await wrapper.get('button[aria-haspopup="menu"]').trigger('click')
     const summary = wrapper.get('[data-test="account-summary"]')
     expect(summary.findAll('span').filter((s) => s.text() === 'staff@example.com')).toHaveLength(1)
+  })
+
+  it('links to Your profile above Sign out and opens the profile page', async () => {
+    const wrapper = await mountAs('staff', { first_name: 'Amina', last_name: 'Mensah' })
+    await wrapper.get('button[aria-haspopup="menu"]').trigger('click')
+    const items = wrapper.findAll('[role="menuitem"]').map((i) => i.text())
+    expect(items.indexOf('Your profile')).toBeGreaterThanOrEqual(0)
+    expect(items.indexOf('Your profile')).toBeLessThan(items.indexOf('Sign out'))
+    const link = wrapper.get('[data-test="profile-link"]')
+    expect(link.attributes('href')).toBe('/profile')
+    await link.trigger('click')
+    await vi.waitFor(() => expect(wrapper.router.currentRoute.value.name).toBe('profile'))
+    await flushPromises()
+    await vi.waitFor(() => expect(wrapper.find('#profile-first-name').exists()).toBe(true))
+  })
+
+  it('updates the header name and menu email after saving the profile', async () => {
+    const wrapper = await mountAs('staff', { first_name: 'Amina', last_name: 'Mensah' })
+    await wrapper.router.push({ name: 'profile' })
+    await flushPromises()
+    sb.respond('staff', 'update', { data: [{ user_id: 'user-1' }] })
+    await wrapper.get('#profile-first-name').setValue('Ama')
+    await wrapper.get('#profile-name-form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('[data-test="account-name"]').text()).toBe('Ama Mensah')
+
+    sb.client.functions.invoke.mockResolvedValueOnce({ data: { email: 'new@example.com' }, error: null })
+    await wrapper.get('#profile-new-email').setValue('new@example.com')
+    await wrapper.get('#profile-current-password').setValue('secret')
+    await wrapper.get('#profile-email-form').trigger('submit')
+    await flushPromises()
+    await wrapper.get('button[aria-haspopup="menu"]').trigger('click')
+    expect(wrapper.get('[data-test="account-summary"]').text()).toContain('new@example.com')
   })
 
   it('asks for the name columns with the profile', async () => {

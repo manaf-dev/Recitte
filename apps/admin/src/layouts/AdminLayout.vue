@@ -185,6 +185,14 @@ async function leave() {
           >
             View public site
           </a>
+          <RouterLink
+            :to="{ name: 'profile' }"
+            role="menuitem"
+            class="block px-4 py-2.5 text-[14px] text-ink no-underline hover:bg-ground"
+            data-test="profile-link"
+          >
+            Your profile
+          </RouterLink>
           <button type="button" role="menuitem" class="block w-full px-4 py-2.5 text-left text-[14px] text-danger hover:bg-ground" @click="leave">
             Sign out
           </button>

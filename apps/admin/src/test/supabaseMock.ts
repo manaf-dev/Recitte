@@ -106,6 +106,7 @@ function createMock() {
     updateUser: vi.fn(async () => ({ data: { user: null as unknown }, error: null as unknown })),
     verifyOtp: vi.fn(async () => ({ data: { session: null as unknown }, error: null as unknown })),
     signOut: vi.fn(async () => ({ error: null })),
+    refreshSession: vi.fn(async () => ({ data: { session: null as unknown }, error: null as unknown })),
   }
 
   const client = {

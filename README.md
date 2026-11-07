@@ -47,7 +47,7 @@ Public sign-up is disabled. The first account is made by hand, locally in Studio
    values ('<auth user id>', '<email>', '<first name>', '<last name>', 'super_admin');
    ```
 
-That person signs in to the admin with that email and password and invites everyone else from the Staff screen, entering each person's first and last name and choosing *Staff* or *Super admin*. No email is sent: the Staff screen shows a one-time invite link to copy and send privately (WhatsApp, for example). It opens the admin's *Set your password* page, verifies only when the person clicks Accept (so chat link previews cannot use it up), and expires after 24 hours (`otp_expiry`). After choosing a password they are sent to the sign-in screen. An unused or expired invite is replaced by removing the person on the Staff screen and inviting them again.
+That person signs in to the admin with that email and password and invites everyone else from the Staff screen, entering each person's first and last name and choosing *Staff* or *Super admin*. No email is sent: the Staff screen shows a one-time invite link to copy and send privately (WhatsApp, for example). It opens the admin's *Set your password* page, verifies only when the person clicks Accept (so chat link previews cannot use it up), and expires after 24 hours (`otp_expiry`). After choosing a password they are sent to the sign-in screen. An unused or expired invite is replaced by removing the person on the Staff screen and inviting them again. Everyone can edit their own first and last name and sign-in email on *Your profile* (account menu); roles are not editable in the app.
 
 ### Edge Functions
 
@@ -55,8 +55,9 @@ That person signs in to the admin with that email and password and invites every
 | --- | --- | --- |
 | `invite-staff` | super admin | Creates the auth user with an invite link (no email), adds a `staff` row with the chosen role, and returns the link |
 | `remove-staff` | super admin | Deletes another staff member's auth user (their row goes with it). Cannot remove yourself |
+| `update-email` | any staff | Changes the caller's sign-in email and `staff.email` after checking their current password. No confirmation email is sent |
 
-`invite-staff` and `remove-staff` run with `verify_jwt = false` and verify the caller themselves: `auth.getClaims()` checks the JWT signature, then the live `staff` table decides the role. They talk to the database with the project's default secret key from `SUPABASE_SECRET_KEYS` (injected on hosted projects; the local CLI only injects the legacy key, which is used as a fallback).
+These functions run with `verify_jwt = false` and verify the caller themselves: `auth.getClaims()` checks the JWT signature, then the live `staff` table decides the role. They talk to the database with the project's default secret key from `SUPABASE_SECRET_KEYS` (injected on hosted projects; the local CLI only injects the legacy key, which is used as a fallback).
 
 The handlers in `supabase/functions/*/handler.ts` take their dependencies as arguments, so `pnpm test:functions` runs them under Vitest without Deno. `index.ts` wires them to the service-role client. They need `ADMIN_URL` as a function secret in production (`supabase secrets set ADMIN_URL=https://admin.example.org`).
 
@@ -93,7 +94,7 @@ One Supabase project and two Vercel projects from this repository.
 ```bash
 supabase link --project-ref <ref>
 supabase db push                 # schema, RLS, storage bucket, settings rows
-supabase functions deploy invite-staff remove-staff notify-submission
+supabase functions deploy invite-staff remove-staff notify-submission update-email
 ```
 
 Every table's Data API access is granted explicitly in the migrations (Supabase no longer grants new `public` tables to the API roles automatically), so a fresh project needs nothing extra. `config.toml` sets `auto_expose_new_tables = false` so local runs behave the same.

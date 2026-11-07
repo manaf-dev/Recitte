@@ -22,6 +22,39 @@ function secretKey(): string | undefined {
   return Deno.env.get('SUPABASE_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 }
 
+/**
+ * The project's default publishable key, for acting as an ordinary client
+ * (e.g. checking a password with signInWithPassword). Hosted projects inject
+ * the JSON map SUPABASE_PUBLISHABLE_KEYS; the single-key variables and the
+ * legacy anon key are fallbacks.
+ */
+function publishableKey(): string | undefined {
+  const keys = Deno.env.get('SUPABASE_PUBLISHABLE_KEYS')
+  if (keys) {
+    try {
+      const parsed = JSON.parse(keys) as Record<string, string>
+      if (parsed.default) return parsed.default
+    } catch {
+      // fall through to the single-key variables
+    }
+  }
+  return Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')
+}
+
+/**
+ * A fresh, non-persisting client with the publishable key. Each call returns
+ * its own client, so a session it signs in never touches the admin client or
+ * another request.
+ */
+export function publicClient(): SupabaseClient {
+  const url = Deno.env.get('SUPABASE_URL')
+  const key = publishableKey()
+  if (!url || !key) throw new Error('SUPABASE_URL and a publishable key (SUPABASE_PUBLISHABLE_KEYS) must be set')
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  })
+}
+
 export function serviceClient(): SupabaseClient {
   const url = Deno.env.get('SUPABASE_URL')
   const key = secretKey()

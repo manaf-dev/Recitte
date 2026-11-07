@@ -1,7 +1,9 @@
 import { corsHeaders, json } from '../_shared/cors.ts'
-import { type CallerDeps, readJson, requireSuperAdmin, type StaffRole } from '../_shared/staff-auth.ts'
+import { type CallerDeps, EMAIL_RE, readJson, requireSuperAdmin, type StaffRole } from '../_shared/staff-auth.ts'
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// Shared with update-email; re-exported so existing imports keep working.
+export { escapeLike, isAlreadyRegistered } from '../_shared/staff-auth.ts'
+
 const ROLES: readonly StaffRole[] = ['staff', 'super_admin']
 /** Matches the staff_first_name_check / staff_last_name_check constraints. */
 export const NAME_MAX = 80
@@ -36,19 +38,6 @@ export function resolveAdminUrl(adminUrl: string | undefined, supabaseUrl: strin
     return undefined
   }
   return LOCAL_HOSTS.has(host) ? LOCAL_ADMIN_URL : undefined
-}
-
-/** Supabase Auth's codes for an email that already has an account. */
-export function isAlreadyRegistered(error: { code?: string; message?: string } | null | undefined): boolean {
-  if (!error) return false
-  if (error.code === 'email_exists' || error.code === 'user_already_exists') return true
-  // Older GoTrue releases send no code, only this message.
-  return !error.code && /already been registered/i.test(error.message ?? '')
-}
-
-/** Escapes LIKE wildcards so `ilike` is an exact, case-insensitive match. */
-export function escapeLike(value: string): string {
-  return value.replace(/[\\%_]/g, (c) => `\\${c}`)
 }
 
 export type CreateInviteResult =

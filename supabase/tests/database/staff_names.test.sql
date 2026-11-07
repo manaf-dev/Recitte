@@ -60,7 +60,8 @@ select throws_ok(
   '23514', null, 'an untrimmed last name is refused'
 );
 
--- The table-level select grant covers the new columns; writes stay with Edge Functions.
+-- The table-level select grant covers the new columns. Since the staff_self_edit
+-- migration staff may change their own names, but not their email.
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-0000000000c1","role":"authenticated"}';
 
@@ -69,8 +70,8 @@ select is(
   'Aisha Mensah', 'staff read their own names'
 );
 select throws_ok(
-  $$ update public.staff set first_name = 'Changed' where user_id = '00000000-0000-4000-8000-0000000000c1' $$,
-  '42501', null, 'staff cannot change their names through the API'
+  $$ update public.staff set email = 'changed@example.com' where user_id = '00000000-0000-4000-8000-0000000000c1' $$,
+  '42501', null, 'staff cannot change their email through the API'
 );
 
 reset role;

@@ -189,6 +189,20 @@ export async function updatePassword(password: string): Promise<LinkResult> {
   }
 }
 
+/**
+ * Asks the server for a fresh session, e.g. after the email changed, so the
+ * cached user carries the new address. Failure is not fatal: the next
+ * automatic refresh picks it up.
+ */
+export async function refreshAuthSession(): Promise<void> {
+  try {
+    const { data, error } = await supabase.auth.refreshSession()
+    if (!error && data.session) session.value = data.session
+  } catch {
+    // Keep the current session.
+  }
+}
+
 export async function signOut() {
   clearStaffProfile()
   clearInviteAccepted()

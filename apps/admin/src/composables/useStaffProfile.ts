@@ -42,6 +42,15 @@ export function loadStaffProfile(userId: string): Promise<StaffProfileResult> {
   return promise
 }
 
+/**
+ * Applies a change the signed-in user just saved (their name or email) to the
+ * cached row, so the header and account menu update without a reload.
+ */
+export function updateStaffProfile(patch: Partial<Pick<Staff, 'email' | 'first_name' | 'last_name'>>) {
+  if (!profile.value) return
+  profile.value = { ...profile.value, ...patch }
+}
+
 export function clearStaffProfile() {
   profile.value = null
   loadedFor = null
