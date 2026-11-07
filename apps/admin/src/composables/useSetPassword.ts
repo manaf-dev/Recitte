@@ -27,9 +27,12 @@ export type InviteLink =
   | { kind: 'none' }
 
 /**
- * Invite emails arrive in two shapes: our template sends `?token_hash=&type=`,
- * and Supabase's default one lands with `#access_token=&refresh_token=`.
+ * Invite links arrive in three shapes: the staff invite link the super admin
+ * shares carries `#token_hash=&type=` in the fragment (so the token never
+ * reaches a server log), our email template sends `?token_hash=&type=`, and
+ * Supabase's implicit flow lands with `#access_token=&refresh_token=`.
  * GoTrue puts link errors (expired, already used) in the hash or the query.
+ * Precedence: an error, then a token hash, then hash tokens.
  */
 export function readInviteLink(location: Pick<Location, 'search' | 'hash'>): InviteLink {
   const query = new URLSearchParams(location.search)
@@ -41,13 +44,17 @@ export function readInviteLink(location: Pick<Location, 'search' | 'hash'>): Inv
     return { kind: 'error', message: code === 'otp_expired' ? EXPIRED_INVITE_MESSAGE : INVALID_LINK_MESSAGE }
   }
 
+  // Read the type from the same part of the URL that carried the token hash.
+  const source = hash.get('token_hash') ? hash : query
+  const tokenHash = source.get('token_hash')
+  if (tokenHash) {
+    const type = (source.get('type') ?? 'invite') as EmailOtpType
+    return LINK_TYPES.includes(type) ? { kind: 'token_hash', tokenHash, type } : { kind: 'none' }
+  }
+
   const accessToken = hash.get('access_token')
   const refreshToken = hash.get('refresh_token')
   if (accessToken && refreshToken) return { kind: 'tokens', accessToken, refreshToken }
-
-  const tokenHash = query.get('token_hash')
-  const type = (query.get('type') ?? 'invite') as EmailOtpType
-  if (tokenHash && LINK_TYPES.includes(type)) return { kind: 'token_hash', tokenHash, type }
 
   return { kind: 'none' }
 }

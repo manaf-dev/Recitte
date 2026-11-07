@@ -236,8 +236,10 @@ secure_password_change = false
 max_frequency = "1s"
 # Number of characters used in the email OTP.
 otp_length = 6
-# Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+# Seconds before an email OTP or link expires. 24 hours (the maximum) so an
+# invite link shared over chat still works the next day. Applies to every
+# email OTP type; only invites are used by this project.
+otp_expiry = 86400
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -248,15 +250,6 @@ otp_expiry = 3600
 # pass = "env(SENDGRID_API_KEY)"
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
-
-# The invite link carries a token hash to the admin's /auth/set-password,
-# which calls verifyOtp when the person accepts (invites cannot use PKCE).
-# Custom templates need custom SMTP on hosted free-tier projects; without it
-# the default invite email still works (the page reads the tokens from the
-# URL hash instead).
-[auth.email.template.invite]
-subject = "You've been invited to Recitte Admin"
-content_path = "./supabase/templates/invite.html"
 
 # [auth.email.template.invite]
 # subject = "You have been invited"

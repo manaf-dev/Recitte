@@ -37,6 +37,40 @@ describe('readInviteLink', () => {
     })
   })
 
+  it('reads a token hash from the fragment of a shared invite link', () => {
+    expect(readInviteLink(at('/auth/set-password#token_hash=a%2Bb%2Fc%3Dd%26e%20f&type=invite'))).toEqual({
+      kind: 'token_hash',
+      tokenHash: 'a+b/c=d&e f',
+      type: 'invite',
+    })
+    expect(readInviteLink(at('/auth/set-password#token_hash=abc'))).toEqual({
+      kind: 'token_hash',
+      tokenHash: 'abc',
+      type: 'invite',
+    })
+  })
+
+  it('puts a link error before a token hash, and a token hash before hash tokens', () => {
+    expect(readInviteLink(at('/auth/set-password#token_hash=abc&type=invite&error_code=otp_expired'))).toEqual({
+      kind: 'error',
+      message: EXPIRED,
+    })
+    expect(readInviteLink(at('/auth/set-password?error=access_denied#token_hash=abc&type=invite'))).toEqual({
+      kind: 'error',
+      message: INVALID_LINK_MESSAGE,
+    })
+    expect(readInviteLink(at('/auth/set-password#token_hash=abc&type=invite&access_token=at&refresh_token=rt'))).toEqual({
+      kind: 'token_hash',
+      tokenHash: 'abc',
+      type: 'invite',
+    })
+    expect(readInviteLink(at('/auth/set-password?token_hash=abc&type=invite#access_token=at&refresh_token=rt'))).toEqual({
+      kind: 'token_hash',
+      tokenHash: 'abc',
+      type: 'invite',
+    })
+  })
+
   it('reads the tokens Supabase puts in the hash', () => {
     expect(
       readInviteLink(at('/auth/set-password#access_token=at&expires_in=3600&refresh_token=rt&token_type=bearer&type=invite')),
@@ -64,6 +98,7 @@ describe('readInviteLink', () => {
   it('finds nothing in a bare URL or an unknown link type', () => {
     expect(readInviteLink(at('/auth/set-password'))).toEqual({ kind: 'none' })
     expect(readInviteLink(at('/auth/set-password?token_hash=abc&type=nonsense'))).toEqual({ kind: 'none' })
+    expect(readInviteLink(at('/auth/set-password#token_hash=abc&type=nonsense'))).toEqual({ kind: 'none' })
   })
 })
 
@@ -83,6 +118,22 @@ describe('useSetPassword', () => {
     await flow.start(at('/auth/set-password?token_hash=abc&type=invite'))
     expect(flow.phase.value).toBe('accept')
     expect(sb.auth.verifyOtp).not.toHaveBeenCalled()
+    expect(window.location.search).toBe('')
+
+    sb.auth.verifyOtp.mockResolvedValueOnce({ data: { session: { user: { id: 'u1' } } }, error: null })
+    await flow.accept()
+    expect(sb.auth.verifyOtp).toHaveBeenCalledWith({ token_hash: 'abc', type: 'invite' })
+    expect(flow.phase.value).toBe('form')
+  })
+
+  it('waits for a click before using a token hash from the fragment, then strips it from the URL', async () => {
+    window.history.replaceState(null, '', '/auth/set-password#token_hash=abc&type=invite')
+    const { flow } = await setup()
+    await flow.start(at('/auth/set-password#token_hash=abc&type=invite'))
+    expect(flow.phase.value).toBe('accept')
+    expect(sb.auth.verifyOtp).not.toHaveBeenCalled()
+    expect(sb.auth.setSession).not.toHaveBeenCalled()
+    expect(window.location.hash).toBe('')
     expect(window.location.search).toBe('')
 
     sb.auth.verifyOtp.mockResolvedValueOnce({ data: { session: { user: { id: 'u1' } } }, error: null })

@@ -47,13 +47,13 @@ Public sign-up is disabled. The first account is made by hand, locally in Studio
    values ('<auth user id>', '<email>', 'super_admin');
    ```
 
-That person signs in to the admin with that email and password and invites everyone else from the Staff screen. An invited person gets an email whose link opens the admin's *Set your password* page; after choosing a password they are sent to the sign-in screen. Invited people are always `staff`. Another super admin, if ever needed, is set the same way in SQL.
+That person signs in to the admin with that email and password and invites everyone else from the Staff screen, choosing *Staff* or *Super admin* for each. No email is sent: the Staff screen shows a one-time invite link to copy and send privately (WhatsApp, for example). It opens the admin's *Set your password* page, verifies only when the person clicks Accept (so chat link previews cannot use it up), and expires after 24 hours (`otp_expiry`). After choosing a password they are sent to the sign-in screen. An unused or expired invite is replaced by removing the person on the Staff screen and inviting them again.
 
 ### Edge Functions
 
 | Function | Who may call | What it does |
 | --- | --- | --- |
-| `invite-staff` | super admin | Sends a Supabase Auth invite and adds a `staff` row |
+| `invite-staff` | super admin | Creates the auth user with an invite link (no email), adds a `staff` row with the chosen role, and returns the link |
 | `remove-staff` | super admin | Deletes another staff member's auth user (their row goes with it). Cannot remove yourself |
 
 `invite-staff` and `remove-staff` run with `verify_jwt = false` and verify the caller themselves: `auth.getClaims()` checks the JWT signature, then the live `staff` table decides the role. They talk to the database with the project's default secret key from `SUPABASE_SECRET_KEYS` (injected on hosted projects; the local CLI only injects the legacy key, which is used as a fallback).
@@ -101,9 +101,8 @@ Every table's Data API access is granted explicitly in the migrations (Supabase 
 Then, in the dashboard:
 
 1. **Project Settings → API Keys**: use the publishable (`sb_publishable_…`) and secret (`sb_secret_…`) keys. The legacy `anon`/`service_role` keys are not needed by this repo and can be disabled.
-1. **Authentication → Sign In / Providers**: turn off *Allow new users to sign up*. Keep the Email provider on (password sign-in and invites use it).
-1. **Authentication → Emails** (optional, needs custom SMTP on the free tier): paste `supabase/templates/invite.html` into *Invite user*. Its link carries a `token_hash` to the admin's `/auth/set-password`, where the person clicks Accept and the app calls `verifyOtp`, so email scanners cannot use up the link. The default invite email also works: the page reads the session from the URL hash.
-1. **Authentication → SMTP Settings**: the built-in mailer only delivers to members of the Supabase organisation, a few emails an hour. Add a custom SMTP provider (Resend works) before inviting staff.
+1. **Authentication → Sign In / Providers**: turn off *Allow new users to sign up*. Keep the Email provider on (password sign-in uses it).
+1. **Authentication → SMTP Settings** (optional): invites do not use email, but the built-in mailer is what sends any other auth email and only delivers to members of the Supabase organisation, a few an hour. Add a custom SMTP provider (Resend works) once there is a sending domain.
 2. **Authentication → URL Configuration**: set *Site URL* to the admin origin (`https://admin.example.org`) and add `https://admin.example.org/**` to *Redirect URLs*. Invite links land on `/auth/set-password` there.
 3. Create the first super admin (above).
 4. Set the function secrets and Vault entries (above).

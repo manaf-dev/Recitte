@@ -1,9 +1,19 @@
 import { ref, shallowRef } from 'vue'
-import { isValidEmail, type Staff } from '@recitte/shared'
+import { isValidEmail, STAFF_ROLES, type Staff, type StaffRole } from '@recitte/shared'
 import { supabase } from '@/lib/supabase'
 import { dbErrorMessage, errorText, functionErrorMessage } from '@/lib/errors'
 
 type Outcome = { ok: true } | { ok: false; error: string }
+
+/** What invite-staff answers with. No email goes out: the super admin shares `invite_url`. */
+export interface InviteResult {
+  user_id: string
+  email: string
+  role: StaffRole
+  invite_url: string
+}
+
+type InviteOutcome = { ok: true; invite: InviteResult } | { ok: false; error: string }
 
 /**
  * The super admin's staff screen. Reads go through RLS (only a super admin can
@@ -37,17 +47,33 @@ export function useStaffAdmin() {
     }
   }
 
-  async function invite(email: string): Promise<Outcome> {
+  /**
+   * Creates the invite and returns its one-time link. The link is only handed
+   * back to the caller; nothing here stores it.
+   */
+  async function invite(email: string, role: StaffRole = 'staff'): Promise<InviteOutcome> {
     const address = email.trim().toLowerCase()
     if (!isValidEmail(address)) return { ok: false, error: 'Enter a valid email address.' }
+    if (!STAFF_ROLES.includes(role)) return { ok: false, error: 'Choose a role.' }
+    let result: InviteResult
     try {
-      const { error: err } = await supabase.functions.invoke('invite-staff', { body: { email: address } })
+      const { data, error: err } = await supabase.functions.invoke('invite-staff', { body: { email: address, role } })
       if (err) return { ok: false, error: await functionErrorMessage(err) }
+      const body = data as Partial<InviteResult> | null
+      if (!body || typeof body.invite_url !== 'string' || !body.invite_url) {
+        return { ok: false, error: 'The server did not send back an invite link. Try again.' }
+      }
+      result = {
+        user_id: String(body.user_id ?? ''),
+        email: typeof body.email === 'string' ? body.email : address,
+        role: body.role && STAFF_ROLES.includes(body.role) ? body.role : role,
+        invite_url: body.invite_url,
+      }
     } catch (e) {
       return { ok: false, error: await functionErrorMessage(e) }
     }
     await load()
-    return { ok: true }
+    return { ok: true, invite: result }
   }
 
   /** Removes an invited person. The caller asks for confirmation first. */
