@@ -10,10 +10,15 @@ export const routes: RouteRecordRaw[] = [
     meta: { public: true, title: 'Sign in' },
   },
   {
+    path: '/auth/set-password',
+    name: 'set-password',
+    component: () => import('@/pages/SetPasswordView.vue'),
+    meta: { public: true, title: 'Set your password' },
+  },
+  {
+    // Older invite emails point here; keep their token hash or tokens.
     path: '/auth/callback',
-    name: 'auth-callback',
-    component: () => import('@/pages/AuthCallbackView.vue'),
-    meta: { public: true, title: 'Signing in' },
+    redirect: (to) => ({ name: 'set-password', query: to.query, hash: to.hash }),
   },
   {
     path: '/',

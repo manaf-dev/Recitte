@@ -4,7 +4,7 @@ import { loadStaffProfile } from '@/composables/useStaffProfile'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    /** Reachable while signed out (login and the magic-link landing). */
+    /** Reachable while signed out (login and the invite set-password page). */
     public?: boolean
     /** Only for staff with role `super_admin`. */
     superAdmin?: boolean
@@ -21,7 +21,8 @@ export async function authGuard(to: RouteLocationNormalized): Promise<true | Rou
   const session = await initAuth()
 
   if (to.meta.public) {
-    // A signed-in staff member has no business on the login form.
+    // A signed-in staff member has no business on the login form. The
+    // set-password page stays open to them: invites arrive signed in.
     if (to.name === 'login' && session) {
       const { profile } = await loadStaffProfile(session.user.id)
       if (profile) return safeRedirect(to.query.redirect) ?? { name: 'overview' }

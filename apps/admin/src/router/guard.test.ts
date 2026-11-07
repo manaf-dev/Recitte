@@ -100,6 +100,28 @@ describe('route guard', () => {
     expect(sb.callsFor('staff', 'select')).toHaveLength(1)
   })
 
+  it('lets a signed-out visitor open the set-password page', async () => {
+    const route = await visit('/auth/set-password?token_hash=abc&type=invite')
+    expect(route.name).toBe('set-password')
+  })
+
+  it('keeps a signed-in visitor on the set-password page', async () => {
+    sb.signIn()
+    sb.respond('staff', 'select', staffRow('staff'))
+    const route = await visit('/auth/set-password')
+    expect(route.name).toBe('set-password')
+  })
+
+  it('sends old /auth/callback links to set-password with their query and hash', async () => {
+    const route = await visit('/auth/callback?token_hash=abc&type=invite')
+    expect(route.name).toBe('set-password')
+    expect(route.query).toEqual({ token_hash: 'abc', type: 'invite' })
+
+    const fromHash = await visit('/auth/callback#access_token=at&refresh_token=rt')
+    expect(fromHash.name).toBe('set-password')
+    expect(fromHash.hash).toBe('#access_token=at&refresh_token=rt')
+  })
+
   it('ignores a redirect that points off-site', async () => {
     sb.signIn()
     sb.respond('staff', 'select', staffRow('staff'))

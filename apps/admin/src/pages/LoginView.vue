@@ -1,45 +1,45 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { isValidEmail } from '@recitte/shared'
 import BrandBar from '@/components/BrandBar.vue'
-import { requestMagicLink } from '@/composables/useAuth'
+import FormField from '@/components/FormField.vue'
+import { safeRedirect, signInWithPassword } from '@/composables/useAuth'
 
 const route = useRoute()
+const router = useRouter()
 
-const email = ref('')
-const state = ref<'idle' | 'sending' | 'sent'>('idle')
-const fieldError = ref('')
-const error = ref<{ kind: 'not_invited' | 'other'; message: string } | null>(null)
+const form = reactive({ email: '', password: '' })
+const fieldErrors = ref<{ email?: string; password?: string }>({})
+const signingIn = ref(false)
+const error = ref('')
 
 const reasonNotice = computed(() => {
   if (route.query.reason === 'no-access') {
     return 'That account does not have access to the admin. Ask the super admin to invite you.'
   }
-  if (route.query.reason === 'error') return 'We could not check your access. Request a new sign-in link.'
+  if (route.query.reason === 'error') return 'We could not check your access. Sign in again.'
+  if (route.query.reason === 'password-set') return 'Your password is set. Sign in with your email and new password.'
   return ''
 })
 
 async function submit() {
-  error.value = null
-  fieldError.value = ''
-  if (!isValidEmail(email.value)) {
-    fieldError.value = 'Enter a valid email address.'
-    return
-  }
-  state.value = 'sending'
-  const result = await requestMagicLink(email.value, route.query.redirect)
-  if (result.ok) {
-    state.value = 'sent'
-    return
-  }
-  state.value = 'idle'
-  error.value = { kind: result.reason === 'not_invited' ? 'not_invited' : 'other', message: result.message }
-}
+  error.value = ''
+  fieldErrors.value = {}
+  if (!isValidEmail(form.email)) fieldErrors.value.email = 'Enter a valid email address.'
+  if (!form.password) fieldErrors.value.password = 'Enter your password.'
+  if (fieldErrors.value.email || fieldErrors.value.password) return
 
-function startOver() {
-  state.value = 'idle'
-  error.value = null
+  signingIn.value = true
+  const result = await signInWithPassword(form.email, form.password)
+  if (!result.ok) {
+    signingIn.value = false
+    error.value = result.message
+    return
+  }
+  // The route guard checks for a staff row on the way in.
+  await router.replace(safeRedirect(route.query.redirect) ?? { name: 'overview' })
+  signingIn.value = false
 }
 </script>
 
@@ -56,56 +56,49 @@ function startOver() {
 
       <p v-if="reasonNotice" class="notice notice-info" role="status">{{ reasonNotice }}</p>
 
-      <section v-if="state === 'sent'" class="card flex flex-col gap-4 p-7" aria-live="polite">
-        <h2 class="card-title">Check your email</h2>
-        <p class="m-0 text-[15px]">
-          We sent a sign-in link to <strong class="text-ink">{{ email.trim() }}</strong>. Open it on this device to
-          continue. The link works once and expires after an hour.
-        </p>
-        <p class="m-0 text-[13px] text-muted">Nothing arrived? Check spam, or send another link.</p>
-        <div>
-          <button type="button" class="btn btn-secondary btn-small" @click="startOver">Use a different email</button>
-        </div>
-      </section>
+      <form class="card flex flex-col gap-5 p-7" novalidate @submit.prevent="submit">
+        <FormField id="login-email" label="Email" :error="fieldErrors.email">
+          <template #default="{ id, describedBy, invalid }">
+            <input
+              :id="id"
+              v-model="form.email"
+              class="input"
+              type="email"
+              name="email"
+              autocomplete="email"
+              inputmode="email"
+              required
+              :aria-describedby="describedBy"
+              :aria-invalid="invalid"
+            />
+          </template>
+        </FormField>
 
-      <form v-else class="card flex flex-col gap-5 p-7" novalidate @submit.prevent="submit">
-        <p class="m-0 text-[15px]">
-          Enter your staff email and we will send you a link to sign in. There is no password.
-        </p>
+        <FormField id="login-password" label="Password" :error="fieldErrors.password">
+          <template #default="{ id, describedBy, invalid }">
+            <input
+              :id="id"
+              v-model="form.password"
+              class="input"
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              required
+              :aria-describedby="describedBy"
+              :aria-invalid="invalid"
+            />
+          </template>
+        </FormField>
 
-        <div class="field">
-          <label for="login-email" class="field-label">Email</label>
-          <input
-            id="login-email"
-            v-model="email"
-            class="input"
-            type="email"
-            name="email"
-            autocomplete="email"
-            inputmode="email"
-            required
-            :aria-invalid="fieldError ? 'true' : undefined"
-            :aria-describedby="fieldError ? 'login-email-error' : undefined"
-          />
-          <span v-if="fieldError" id="login-email-error" class="field-error">{{ fieldError }}</span>
-        </div>
-
-        <div
-          v-if="error"
-          class="notice"
-          :class="error.kind === 'not_invited' ? 'notice-info' : 'notice-error'"
-          role="alert"
-        >
-          {{ error.message }}
-        </div>
+        <div v-if="error" class="notice notice-error" role="alert">{{ error }}</div>
 
         <div>
-          <button type="submit" class="btn btn-primary" :disabled="state === 'sending'">
-            {{ state === 'sending' ? 'Sending…' : 'Email me a sign-in link' }}
+          <button type="submit" class="btn btn-primary" :disabled="signingIn">
+            {{ signingIn ? 'Signing in…' : 'Sign in' }}
           </button>
         </div>
         <p class="m-0 text-[13px] text-muted">
-          New to the team? The super admin sends you an invite first.
+          New to the team? The super admin sends you an invite to set your password.
         </p>
       </form>
     </main>

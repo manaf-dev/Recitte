@@ -7,9 +7,10 @@ const env = readEnv()
  * The one browser client. It only ever holds the publishable key; access is
  * decided by Row Level Security and the signed-in user's session.
  *
- * Email links (magic link and invite) carry a token hash that
- * AuthCallbackView exchanges with verifyOtp, so no session is read from the
- * URL. PKCE is the flow for anything else.
+ * Staff sign in with email and password. Invite links are read by
+ * SetPasswordView (a token hash for verifyOtp, or tokens in the hash for
+ * setSession), so no session is read from the URL automatically. PKCE is the
+ * flow for anything else.
  */
 export const supabase = createClient(env.supabaseUrl, env.supabasePublishableKey, {
   auth: {

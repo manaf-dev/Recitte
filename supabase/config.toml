@@ -183,7 +183,7 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+minimum_password_length = 8
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
@@ -220,7 +220,7 @@ web3 = 30
 # provider = "hcaptcha"
 # secret = ""
 
-# Keep the email provider on: magic links need it. Public sign-up is off via
+# Keep the email provider on: password sign-in needs it. Public sign-up is off via
 # [auth] enable_signup above, so only existing (invited) users can sign in.
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -249,13 +249,11 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Links carry a token hash to the admin's /auth/callback, which calls
-# verifyOtp (works for invites, which cannot use PKCE). Use the same bodies in
-# the dashboard: Authentication > Emails.
-[auth.email.template.magic_link]
-subject = "Your Recitte Admin sign-in link"
-content_path = "./supabase/templates/magic_link.html"
-
+# The invite link carries a token hash to the admin's /auth/set-password,
+# which calls verifyOtp when the person accepts (invites cannot use PKCE).
+# Custom templates need custom SMTP on hosted free-tier projects; without it
+# the default invite email still works (the page reads the tokens from the
+# URL hash instead).
 [auth.email.template.invite]
 subject = "You've been invited to Recitte Admin"
 content_path = "./supabase/templates/invite.html"

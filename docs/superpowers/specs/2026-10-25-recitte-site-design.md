@@ -52,7 +52,7 @@ These are failures even if the rest works:
 - Admin: Vite, Vue 3, Vue Router, Composition API, Tailwind. It is not indexed.
 - Backend: Supabase (Postgres, Auth, Storage). Row Level Security is the access boundary. The subdomain is not.
 - Both apps share one description of a program, a testimonial, an application, a registration, a message, and site settings.
-- Admin sign-in is a Supabase email magic link. Public sign-up is disabled. The super admin account is created in the Supabase dashboard. Further staff are invited from the admin.
+- Admin sign-in is Supabase email and password. Invited staff land on a set-password page to choose theirs. Public sign-up is disabled. The super admin account is created in the Supabase dashboard. Further staff are invited from the admin.
 - Dates and "is this over" use the `Africa/Accra` timezone.
 - The interface is English. The timer keeps the prototype's Arabic verse, Al-Muzzammil 73:4, and its translation line.
 - Academy applications promise a human reply within 3 working days. Contact messages promise a human reply within 2 working days. The automated note repeats the promise that was on the form. It does not replace the reply.

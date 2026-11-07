@@ -127,7 +127,7 @@ onMounted(load)
 
   <AppModal :open="inviteOpen" title="Invite someone" size="sm" @close="closeInvite">
     <form id="invite-form" class="flex flex-col gap-3" novalidate @submit.prevent="onInvite">
-      <FormField id="invite-email" label="Email" required :error="inviteError" hint="Supabase emails them a sign-in link. Their role is Staff.">
+      <FormField id="invite-email" label="Email" required :error="inviteError" hint="Supabase emails them an invite to set a password. Their role is Staff.">
         <template #default="{ id, describedBy, invalid }">
           <input
             :id="id"

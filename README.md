@@ -1,6 +1,6 @@
 # Recitte
 
-The Recitte monorepo: a public site, a staff admin, and the Supabase backend behind both. The brief is `docs/superpowers/specs/2026-10-25-recitte-site-design.md`; the implementation plans are in `docs/superpowers/plans/`. Branch `prototype` is the visual and copy reference only. It is never merged here.
+The Recitte monorepo: a public site, a staff admin, and the Supabase backend behind both. The brief is `docs/superpowers/specs/2026-10-25-recitte-site-design.md`; the implementation plans are in `docs/superpowers/plans/`.
 
 ## Workspace
 
@@ -39,7 +39,7 @@ Pages read programs, testimonials, settings and social links with the publishabl
 
 Public sign-up is disabled. The first account is made by hand, locally in Studio (http://127.0.0.1:54323) or in the Supabase dashboard for production:
 
-1. **Authentication → Users → Add user**. Enter the email and tick *Auto confirm*.
+1. **Authentication → Users → Add user**. Enter the email and a password (at least 8 characters), and tick *Auto confirm*.
 2. **SQL editor**, with that user's id:
 
    ```sql
@@ -47,7 +47,7 @@ Public sign-up is disabled. The first account is made by hand, locally in Studio
    values ('<auth user id>', '<email>', 'super_admin');
    ```
 
-That person signs in to the admin with a magic link and invites everyone else from the Staff screen. Invited people are always `staff`. Another super admin, if ever needed, is set the same way in SQL.
+That person signs in to the admin with that email and password and invites everyone else from the Staff screen. An invited person gets an email whose link opens the admin's *Set your password* page; after choosing a password they are sent to the sign-in screen. Invited people are always `staff`. Another super admin, if ever needed, is set the same way in SQL.
 
 ### Edge Functions
 
@@ -101,9 +101,10 @@ Every table's Data API access is granted explicitly in the migrations (Supabase 
 Then, in the dashboard:
 
 1. **Project Settings → API Keys**: use the publishable (`sb_publishable_…`) and secret (`sb_secret_…`) keys. The legacy `anon`/`service_role` keys are not needed by this repo and can be disabled.
-1. **Authentication → Sign In / Providers**: turn off *Allow new users to sign up*. Keep the Email provider on (magic links and invites use it).
-1. **Authentication → Emails**: paste `supabase/templates/magic_link.html` into *Magic Link* and `supabase/templates/invite.html` into *Invite user*. Their links carry a `token_hash` to the admin's `/auth/callback`, where the person clicks Continue and the app calls `verifyOtp`. This works for invites (which cannot use PKCE) and stops email scanners from using up the link.
-2. **Authentication → URL Configuration**: set *Site URL* to the admin origin (`https://admin.example.org`) and add `https://admin.example.org/**` to *Redirect URLs*. Magic links and invites land on `/auth/callback` there.
+1. **Authentication → Sign In / Providers**: turn off *Allow new users to sign up*. Keep the Email provider on (password sign-in and invites use it).
+1. **Authentication → Emails** (optional, needs custom SMTP on the free tier): paste `supabase/templates/invite.html` into *Invite user*. Its link carries a `token_hash` to the admin's `/auth/set-password`, where the person clicks Accept and the app calls `verifyOtp`, so email scanners cannot use up the link. The default invite email also works: the page reads the session from the URL hash.
+1. **Authentication → SMTP Settings**: the built-in mailer only delivers to members of the Supabase organisation, a few emails an hour. Add a custom SMTP provider (Resend works) before inviting staff.
+2. **Authentication → URL Configuration**: set *Site URL* to the admin origin (`https://admin.example.org`) and add `https://admin.example.org/**` to *Redirect URLs*. Invite links land on `/auth/set-password` there.
 3. Create the first super admin (above).
 4. Set the function secrets and Vault entries (above).
 
