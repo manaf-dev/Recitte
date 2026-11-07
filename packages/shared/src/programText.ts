@@ -48,3 +48,12 @@ export function formatProgramFormat(kind: ProgramFormatKind | '' | null, locatio
   const text = [label, place].filter(Boolean).join(' · ')
   return text || null
 }
+
+/** A one-paragraph preview for search results and link cards, cut at a word. */
+export function shortBlurb(text: string, max = 160): string {
+  const flat = text.replace(/\s+/g, ' ').trim()
+  if (flat.length <= max) return flat
+  const cut = flat.slice(0, max - 1)
+  const space = cut.lastIndexOf(' ')
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).replace(/[\s,;:.\-–]+$/, '')}…`
+}

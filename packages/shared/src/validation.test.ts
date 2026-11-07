@@ -150,6 +150,7 @@ const program: ProgramInput = {
   ends_on: '2026-12-11',
   start_time: '19:00',
   end_time: '21:00',
+  duration_custom: '',
   legacy_time: '',
   format_kind: 'online',
   location: 'Zoom',  extra_details: [
@@ -179,6 +180,19 @@ describe('validateProgram', () => {
   it('is open-ended with a start date and no end date', () => {
     const r = validateProgram({ ...program, ends_on: '' })
     expect(r.ok && r.value.duration).toBe('Open-ended')
+  })
+
+  it('keeps a hand-written duration instead of working one out from the dates', () => {
+    const r = validateProgram({ ...program, duration_custom: ' 4 weeks · 2×/week ' })
+    expect(r.ok && r.value.duration).toBe('4 weeks · 2×/week')
+  })
+
+  it('rejects a location too long to fit in the format text', () => {
+    const r = validateProgram({ ...program, format_kind: 'in_person', location: 'x'.repeat(151) })
+    expect(r.ok).toBe(false)
+    expect(validateProgram({ ...program, format_kind: 'in_person', location: 'x'.repeat(150) }).ok).toBe(true)
+    const ok = validateProgram({ ...program, format_kind: 'in_person', location: 'x'.repeat(150) })
+    expect(ok.ok && (ok.value.format ?? '').length).toBeLessThanOrEqual(200)
   })
 
   it('has no duration without a start date', () => {

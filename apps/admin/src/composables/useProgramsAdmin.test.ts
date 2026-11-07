@@ -102,3 +102,29 @@ describe('useProgramsAdmin', () => {
     expect(admin.programs.value[0]?.status).toBe('open')
   })
 })
+
+describe('publish', () => {
+  it('refuses a draft that would fail the publish checks and writes nothing', async () => {
+    const { publish } = useProgramsAdmin()
+    const draft = program({ is_draft: true, description: 'Fine.', format_kind: 'online', location: null })
+    const result = await publish(draft)
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error).toMatch(/platform/i)
+    expect(sb.callsFor('programs', 'update')).toHaveLength(0)
+  })
+
+  it('refuses a draft with no description', async () => {
+    const { publish } = useProgramsAdmin()
+    const result = await publish(program({ is_draft: true, description: '' }))
+    expect(result.ok).toBe(false)
+  })
+
+  it('publishes a complete draft', async () => {
+    sb.respond('programs', 'update', (call) => ({ data: { ...program({}), ...(call.payload as object) } }))
+    const { publish, programs } = useProgramsAdmin()
+    const draft = program({ is_draft: true, description: 'Ready.', format_kind: 'online', location: 'Zoom' })
+    programs.value = [draft]
+    expect((await publish(draft)).ok).toBe(true)
+    expect(sb.callsFor('programs', 'update')[0]?.payload).toEqual({ is_draft: false })
+  })
+})

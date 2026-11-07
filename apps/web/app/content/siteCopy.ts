@@ -103,7 +103,7 @@ const heroPictureByType: Record<string, Picture> = {
 /** Custom types borrow the Workshop (Academy) or Community (Connect) picture. */
 export function heroPictureFor(type: ProgramType, types: readonly ProgramTypeRow[] = []): Picture {
   return (
-    heroPictureByType[type] ??
+    (Object.hasOwn(heroPictureByType, type) ? heroPictureByType[type] : undefined) ??
     (programTypeArea(type, types) === 'connect' ? pictures.communityCircle : pictures.workshopMushaf)
   )
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Program } from '@recitte/shared'
-import { useProgramForm } from './useProgramForm'
+import { nextTick } from 'vue'
+import { programToInput, useProgramForm } from './useProgramForm'
 
 const existing: Program = {
   id: 'p1',
@@ -109,5 +110,63 @@ describe('useProgramForm schedule', () => {
     form.title = 'Work in progress'
     expect(validate()).toBeNull()
     expect(validate({ draft: true })).toMatchObject({ is_draft: true, description: '' })
+  })
+})
+
+describe('useProgramForm keeps what was typed by hand', () => {
+  const workshop: Program = {
+    ...existing,
+    type: 'workshop',
+    starts_on: '2026-11-14',
+    ends_on: '2026-12-11',
+    duration: '4 weeks · 2×/week',
+  }
+
+  it('loads a free-text duration and writes it back unchanged', () => {
+    const { form, validate } = useProgramForm({ ...workshop, description: 'd' })
+    expect(form.duration_custom).toBe('4 weeks · 2×/week')
+    expect(validate()).toMatchObject({ duration: '4 weeks · 2×/week' })
+  })
+
+  it('does not treat the automatic duration as hand-written', () => {
+    expect(programToInput({ ...workshop, duration: '4 weeks' }).duration_custom).toBe('')
+  })
+
+  it('goes back to the automatic duration on request', () => {
+    const { form, validate, useAutomaticDuration } = useProgramForm(workshop)
+    useAutomaticDuration()
+    expect(validate()).toMatchObject({ duration: '4 weeks' })
+    expect(form.duration_custom).toBe('')
+  })
+
+  it('starts a custom duration from the automatic one', () => {
+    const { form, customiseDuration } = useProgramForm({ ...workshop, duration: '4 weeks' })
+    customiseDuration()
+    expect(form.duration_custom).toBe('4 weeks')
+  })
+})
+
+describe('useProgramForm end fields follow their start', () => {
+  it('clears the end date when the start date is cleared or moves past it', async () => {
+    const { form } = useProgramForm()
+    form.starts_on = '2026-11-14'
+    form.ends_on = '2026-11-20'
+    form.starts_on = '2026-11-25'
+    await nextTick()
+    expect(form.ends_on).toBe('')
+    form.starts_on = '2026-11-14'
+    form.ends_on = '2026-11-20'
+    form.starts_on = ''
+    expect(form.ends_on).toBe('')
+  })
+
+  it('clears the end time when the start time is cleared', () => {
+    const { form, validate } = useProgramForm()
+    form.title = 'Talk'
+    form.start_time = '19:00'
+    form.end_time = '21:00'
+    form.start_time = ''
+    expect(form.end_time).toBe('')
+    expect(validate({ draft: true })).not.toBeNull()
   })
 })

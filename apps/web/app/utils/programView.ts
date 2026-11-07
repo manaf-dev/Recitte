@@ -54,7 +54,7 @@ export function cardMeta(p: Program): string {
 
 /** Built-in look for a type; custom types borrow the Workshop (Academy) or Community (Connect) look. */
 function lookSlug(type: ProgramType, types: readonly ProgramTypeRow[]): ProgramType {
-  if (type in TYPE_ACCENT) return type
+  if (Object.hasOwn(TYPE_ACCENT, type)) return type
   return isConnectProgram(type, types) ? 'community' : 'workshop'
 }
 

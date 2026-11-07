@@ -75,7 +75,7 @@ const CUSTOM_FIELDS: ProgramFieldConfig = {
 }
 
 export function fieldsFor(type: ProgramType): ProgramFieldConfig {
-  return BUILTIN_FIELDS[type] ?? CUSTOM_FIELDS
+  return Object.hasOwn(BUILTIN_FIELDS, type) ? BUILTIN_FIELDS[type]! : CUSTOM_FIELDS
 }
 
 /**
@@ -89,6 +89,7 @@ export function clearUnusedFields(form: ProgramInput): void {
     form.ends_on = ''
   }
   if (cfg.dates === 'single') form.ends_on = ''
+  if (!cfg.duration) form.duration_custom = ''
   if (!cfg.time) {
     form.start_time = ''
     form.end_time = ''

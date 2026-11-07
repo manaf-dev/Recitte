@@ -257,6 +257,8 @@ export interface ProgramInput {
   ends_on: string
   start_time: string
   end_time: string
+  /** Duration text that replaces the one worked out from the dates. Empty means automatic. */
+  duration_custom: string
   /** A time typed before times were structured; kept until the staff clear it. */
   legacy_time: string
   /** Empty for programs saved before formats were structured. */

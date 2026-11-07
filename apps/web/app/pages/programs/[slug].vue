@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { programStatusLabel, programTypeLabel } from '@recitte/shared'
+import { programStatusLabel, programTypeLabel, shortBlurb } from '@recitte/shared'
 import { heroPictureFor } from '~/content/siteCopy'
 import { relatedPrograms } from '~/utils/programQueries'
 
@@ -31,13 +31,13 @@ const canonical = computed(() => `${origin}/programs/${p.value.slug}`)
 useHead({ link: [{ rel: 'canonical', href: canonical }] })
 useSeoMeta({
   title: () => `${p.value.title} | Recitte`,
-  description: () => p.value.description,
+  description: () => shortBlurb(p.value.description),
   ogType: 'website',
   ogSiteName: 'Recitte',
   ogTitle: () => p.value.title,
   ogDescription: () => {
     const date = details.value.find((d) => d.label === 'Date')
-    return date ? `${date.value} · ${p.value.description}` : p.value.description
+    return date ? `${date.value} · ${shortBlurb(p.value.description, 160 - date.value.length - 3)}` : shortBlurb(p.value.description)
   },
   ogUrl: canonical,
   ogImage: () => `${origin}${hero.value.src}`,

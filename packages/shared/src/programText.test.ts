@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { describeDuration, formatClock, formatProgramFormat, formatTimeRange } from './programText'
+import { describeDuration, formatClock, formatProgramFormat, formatTimeRange, shortBlurb } from './programText'
 
 describe('formatClock', () => {
   it.each([
@@ -39,5 +39,20 @@ describe('formatProgramFormat', () => {
     expect(formatProgramFormat('online', '')).toBe('Online')
     expect(formatProgramFormat('', 'Legacy text')).toBe('Legacy text')
     expect(formatProgramFormat('', null)).toBeNull()
+  })
+})
+
+describe('shortBlurb', () => {
+  it('leaves short text alone and flattens whitespace', () => {
+    expect(shortBlurb('  A   short\n text. ')).toBe('A short text.')
+  })
+  it('cuts long text at a word under the limit, with an ellipsis', () => {
+    const long = 'word '.repeat(2000)
+    const out = shortBlurb(long, 160)
+    expect(out.length).toBeLessThanOrEqual(160)
+    expect(out.endsWith('word…')).toBe(true)
+  })
+  it('cuts a single huge word without failing', () => {
+    expect(shortBlurb('x'.repeat(5000), 100)).toHaveLength(100)
   })
 })

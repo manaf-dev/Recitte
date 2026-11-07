@@ -171,4 +171,49 @@ describe('ProgramForm', () => {
     expect(sb.callsFor('program_types', 'insert')[0]?.payload).toEqual({ slug: 'fireside-chat', label: 'Fireside chat', area: 'academy' })
     expect(wrapper.get<HTMLSelectElement>('#pf-type').element.value).toBe('fireside-chat')
   })
+
+  it('keeps a hand-written duration when an existing program is saved', async () => {
+    sb.respond('programs', 'update', (call) => ({ data: { ...existing, ...(call.payload as object) } }))
+    const program = { ...existing, type: 'workshop', starts_on: '2026-11-14', ends_on: '2026-12-11', duration: '4 weeks · 2×/week' }
+    const wrapper = mount(ProgramForm, { props: { program } })
+    expect(wrapper.get<HTMLInputElement>('#pf-duration').element.value).toBe('4 weeks · 2×/week')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(sb.callsFor('programs', 'update')[0]?.payload).toMatchObject({ duration: '4 weeks · 2×/week' })
+  })
+
+  it('clears the end date and time when their start is cleared, so a draft can still be saved', async () => {
+    sb.respond('programs', 'insert', (call) => ({ data: { ...existing, ...(call.payload as object), id: 'd' } }))
+    const wrapper = mount(ProgramForm)
+    await wrapper.get('#pf-title').setValue('Talk')
+    await wrapper.get('#pf-starts').setValue('2026-11-14')
+    await wrapper.get('#pf-ends').setValue('2026-11-20')
+    await wrapper.get('#pf-start-time').setValue('19:00')
+    await wrapper.get('#pf-end-time').setValue('21:00')
+    await wrapper.get('#pf-starts').setValue('')
+    await wrapper.get('#pf-start-time').setValue('')
+    expect(wrapper.get<HTMLInputElement>('#pf-ends').element.value).toBe('')
+    expect(wrapper.get<HTMLInputElement>('#pf-end-time').element.value).toBe('')
+    await wrapper.findAll('button').find((b) => b.text() === 'Save as draft')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.emitted('saved')).toHaveLength(1)
+  })
+
+  it('announces a failed type add and shows the program type even when the list lacks it', async () => {
+    const wrapper = mount(ProgramForm, { props: { program: { ...existing, type: 'fireside' } } })
+    await flushPromises()
+    expect(wrapper.get<HTMLSelectElement>('#pf-type').element.value).toBe('fireside')
+    await wrapper.get('#pf-type').setValue('__new__')
+    await wrapper.get('#pf-new-type').setValue('Workshop')
+    await wrapper.findAll('button').find((b) => b.text() === 'Add type')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.get('#pf-new-type-error').attributes('role')).toBe('alert')
+  })
+
+  it('tells staff when the custom types could not be loaded', async () => {
+    sb.respond('program_types', 'select', { error: { message: 'boom' } })
+    const wrapper = mount(ProgramForm)
+    await flushPromises()
+    expect(wrapper.text()).toMatch(/could not load your custom types/i)
+  })
 })

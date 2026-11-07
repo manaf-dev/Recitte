@@ -34,6 +34,8 @@ export const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 export const MESSAGE_MIN = 10
 export const MESSAGE_MAX = 1000
 export const QUOTE_MIN = 10
+/** The database caps `format` at 200 characters and it gets a prefix such as "In person · ". */
+export const LOCATION_MAX = 150
 
 export function isValidEmail(email: string): boolean {
   return EMAIL_RE.test(email.trim())
@@ -160,6 +162,9 @@ export function validateProgram(input: ProgramInput, opts: { draft?: boolean } =
   else if (endsOn && !startsOn) errors.ends_on = 'Set a start date before an end date.'
   else if (endsOn && startsOn && endsOn < startsOn) errors.ends_on = 'End date must be on or after the start date.'
 
+  const durationCustom = orNull(input.duration_custom)
+  if (durationCustom && durationCustom.length > 200) errors.duration_custom = 'Keep the duration under 200 characters.'
+
   const startTime = orNull(input.start_time)
   const endTime = orNull(input.end_time)
   if (startTime && !TIME_RE.test(startTime)) errors.start_time = 'Use a valid time.'
@@ -169,7 +174,8 @@ export function validateProgram(input: ProgramInput, opts: { draft?: boolean } =
 
   if (input.format_kind && !includes(PROGRAM_FORMAT_KINDS, input.format_kind)) errors.format_kind = 'Choose a format.'
   const location = orNull(input.location)
-  if (!draft && !location) {
+  if (location && location.length > LOCATION_MAX) errors.location = `Keep the location under ${LOCATION_MAX + 1} characters.`
+  else if (!draft && !location) {
     if (input.format_kind === 'in_person') errors.location = 'Add where it takes place.'
     if (input.format_kind === 'online') errors.location = 'Choose the online platform.'
   }
@@ -190,7 +196,7 @@ export function validateProgram(input: ProgramInput, opts: { draft?: boolean } =
     start_time: startTime,
     end_time: endTime,
     time: startTime ? formatTimeRange(startTime, endTime) : orNull(input.legacy_time),
-    duration: describeDuration(startsOn, endsOn),
+    duration: durationCustom ?? describeDuration(startsOn, endsOn),
     format: formatProgramFormat(input.format_kind, location),
     format_kind: input.format_kind || null,
     location,

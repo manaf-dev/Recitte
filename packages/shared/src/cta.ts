@@ -34,7 +34,7 @@ export function programCta(program: ProgramLike, today?: string): ProgramCta {
   if (program.type === 'community') return JOIN_CTA
   if (program.status === 'soon') return { action: 'notify', label: 'Notify me' }
   // Types staff add themselves take registrations.
-  return OPEN_CTA[program.type] ?? REGISTER_CTA
+  return (Object.hasOwn(OPEN_CTA, program.type) ? OPEN_CTA[program.type] : undefined) ?? REGISTER_CTA
 }
 
 /** Whether a program can still take an application, registration or interest. */

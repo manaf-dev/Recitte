@@ -52,4 +52,10 @@ describe('programStatusLabel', () => {
     expect(programStatusLabel({ ...base, status: 'soon' }, TODAY)).toBe('Coming soon')
     expect(programStatusLabel({ ...base, status: 'closed' }, TODAY)).toBe('Closed')
   })
+
+  it('treats types staff add as registrations, even ones named like object properties', () => {
+    expect(cta({ type: 'fireside' })).toEqual({ action: 'register', label: 'Register to attend' })
+    expect(cta({ type: 'constructor' })).toEqual({ action: 'register', label: 'Register to attend' })
+    expect(cta({ type: 'toString' })).toEqual({ action: 'register', label: 'Register to attend' })
+  })
 })

@@ -36,10 +36,6 @@ async function onStatus(p: Program) {
 }
 
 async function onPublish(p: Program) {
-  if (!p.description.trim()) {
-    notice.value = { kind: 'error', text: `“${p.title}” needs a description before it can be published. Open it to add one.` }
-    return
-  }
   show(await publish(p), `“${p.title}” is published.`)
 }
 

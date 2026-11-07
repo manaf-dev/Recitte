@@ -37,7 +37,8 @@ describe('clearUnusedFields', () => {
     expect(f).toMatchObject({ starts_on: '2026-11-14', ends_on: '', start_time: '19:00', speaker: 'Ustadh Yusuf' })
   })
 
-  it('gives types staff added the general layout', () => {
+  it('gives types staff added the general layout, even if named like an object property', () => {
+    expect(fieldsFor('constructor')).toMatchObject({ dates: 'range', person: 'Speaker' })
     expect(fieldsFor('fireside')).toMatchObject({ dates: 'range', time: true, person: 'Speaker' })
   })
 

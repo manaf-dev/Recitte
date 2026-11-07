@@ -1,7 +1,15 @@
 import { ref, shallowRef } from 'vue'
-import { isProgramPast, todayInAccra, type Program, type ProgramStatus, type ProgramWrite } from '@recitte/shared'
+import {
+  isProgramPast,
+  todayInAccra,
+  validateProgram,
+  type Program,
+  type ProgramStatus,
+  type ProgramWrite,
+} from '@recitte/shared'
 import { supabase } from '@/lib/supabase'
 import { dbErrorMessage, errorText, type DbError } from '@/lib/errors'
+import { programToInput } from './useProgramForm'
 import { removeSpeakerPhoto, uploadSpeakerPhoto } from './useSpeakerUpload'
 
 export const NEXT_STATUS: Record<ProgramStatus, ProgramStatus> = {
@@ -120,7 +128,13 @@ export function useProgramsAdmin() {
     return patch(program, { status: NEXT_STATUS[program.status] })
   }
 
-  function publish(program: Program) {
+  /** Publishing runs the same checks as the form, so a half-finished draft cannot go live. */
+  async function publish(program: Program): Promise<Outcome> {
+    const checked = validateProgram(programToInput(program))
+    if (!checked.ok) {
+      const first = Object.values(checked.errors)[0] ?? 'It is not complete.'
+      return { ok: false, error: `“${program.title}” cannot be published yet. ${first} Open it to finish.` }
+    }
     return patch(program, { is_draft: false })
   }
 

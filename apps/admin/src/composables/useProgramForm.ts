@@ -14,6 +14,7 @@ export function emptyProgramInput(): ProgramInput {
     ends_on: '',
     start_time: '',
     end_time: '',
+    duration_custom: '',
     legacy_time: '',
     format_kind: '',
     location: '',
@@ -38,6 +39,8 @@ export function programToInput(p: Program): ProgramInput {
     ends_on: p.ends_on ?? '',
     start_time: (p.start_time ?? '').slice(0, 5),
     end_time: (p.end_time ?? '').slice(0, 5),
+    // A duration that is not what the dates give (such as "4 weeks · 2×/week") was typed by hand: keep it.
+    duration_custom: p.duration && p.duration !== describeDuration(p.starts_on, p.ends_on) ? p.duration : '',
     legacy_time: p.start_time ? '' : (p.time ?? ''),
     format_kind: p.format_kind ?? '',
     location: p.location ?? '',
@@ -79,6 +82,32 @@ export function useProgramForm(existing?: Program | null) {
   /** Worked out from the dates: nothing to type. */
   const duration = computed(() => describeDuration(form.starts_on || null, form.ends_on || null))
 
+  /** Hand-written duration text replaces the automatic one until staff go back. */
+  function customiseDuration() {
+    form.duration_custom = duration.value ?? ''
+  }
+
+  function useAutomaticDuration() {
+    form.duration_custom = ''
+  }
+
+  // An end date or time means nothing without its start, so clearing the
+  // start clears the end instead of leaving a disabled, invalid field behind.
+  watch(
+    () => form.starts_on,
+    (start) => {
+      if (!start || (form.ends_on && form.ends_on < start)) form.ends_on = ''
+    },
+    { flush: 'sync' },
+  )
+  watch(
+    () => form.start_time,
+    (start) => {
+      if (!start) form.end_time = ''
+    },
+    { flush: 'sync' },
+  )
+
   function addHighlight() {
     form.highlights.push('')
   }
@@ -112,5 +141,5 @@ export function useProgramForm(existing?: Program | null) {
     return result.value
   }
 
-  return { form, slugEdited, errors, duration, editSlug, addHighlight, removeHighlight, addDetail, removeDetail, validate }
+  return { form, slugEdited, errors, duration, customiseDuration, useAutomaticDuration, editSlug, addHighlight, removeHighlight, addDetail, removeDetail, validate }
 }
