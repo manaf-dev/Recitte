@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PROGRAM_TYPE_LABELS, programStatusLabel } from '@recitte/shared'
-import { academyPitch, connectPitch, heroPictureByType, pictures, secondPictureByType } from '~/content/siteCopy'
+import { academyPitch, connectPitch, heroPictureByType } from '~/content/siteCopy'
 import { relatedPrograms } from '~/utils/programQueries'
 
 const route = useRoute()
@@ -20,7 +20,6 @@ const p = computed(() => program.value!)
 
 const connect = computed(() => isConnectProgram(p.value.type))
 const hero = computed(() => heroPictureByType[p.value.type])
-const second = computed(() => secondPictureByType[p.value.type])
 const details = computed(() => programDetails(p.value))
 const related = computed(() => relatedPrograms(p.value, programs.value, today))
 const part = computed(() =>
@@ -31,8 +30,6 @@ const part = computed(() =>
         to: '/connect',
         cta: 'Explore Connect',
         back: '← Back to Connect',
-        a: pictures.communityCircle,
-        b: pictures.connectMosque,
       }
     : {
         title: 'Part of Recitte Academy',
@@ -40,8 +37,6 @@ const part = computed(() =>
         to: '/academy',
         cta: 'Explore Academy',
         back: '← Back to Academy',
-        a: pictures.kufic,
-        b: pictures.manuscript1697,
       },
 )
 
@@ -98,19 +93,9 @@ async function share() {
     <section class="bg-ground">
       <div class="wrap flex flex-wrap items-start gap-12 pt-24 pb-[120px]">
         <div class="flex min-w-0 flex-[1_1_560px] flex-col gap-14">
-          <div class="flex flex-wrap items-center gap-x-10 gap-y-8">
-            <div class="flex flex-[1_1_320px] flex-col gap-4">
-              <h2 class="h2 h2-sm">About this program</h2>
-              <p class="m-0 leading-[1.75] whitespace-pre-line text-pretty">{{ p.about || p.description }}</p>
-            </div>
-            <img
-              :src="second.src"
-              :alt="second.alt"
-              width="400"
-              height="400"
-              loading="lazy"
-              class="block aspect-square w-[min(100%,240px)] flex-none rounded-full object-cover"
-            />
+          <div class="flex max-w-[720px] flex-col gap-4">
+            <h2 class="h2 h2-sm">About this program</h2>
+            <p class="m-0 leading-[1.75] whitespace-pre-line text-pretty">{{ p.about || p.description }}</p>
           </div>
 
           <div v-if="p.highlights.length" class="flex flex-col gap-5">
@@ -157,16 +142,10 @@ async function share() {
     </section>
 
     <section class="bg-white">
-      <div class="wrap flex flex-wrap items-center gap-x-14 gap-y-10 py-24">
-        <div class="flex flex-none pr-14">
-          <img :src="part.a.src" :alt="part.a.alt" width="400" height="400" loading="lazy" class="block size-[200px] rounded-full object-cover" />
-          <img :src="part.b.src" :alt="part.b.alt" width="400" height="400" loading="lazy" class="-mx-14 block size-[200px] rounded-full object-cover" />
-        </div>
-        <div class="flex flex-[1_1_320px] flex-col items-start gap-4">
-          <h2 class="h2 h2-sm">{{ part.title }}</h2>
-          <p class="m-0 max-w-[520px]">{{ part.text }}</p>
-          <NuxtLink :to="part.to" class="btn btn-ink">{{ part.cta }}</NuxtLink>
-        </div>
+      <div class="wrap flex flex-col items-start gap-4 py-24">
+        <h2 class="h2 h2-sm">{{ part.title }}</h2>
+        <p class="m-0 max-w-[640px]">{{ part.text }}</p>
+        <NuxtLink :to="part.to" class="btn btn-ink mt-2">{{ part.cta }}</NuxtLink>
       </div>
     </section>
 

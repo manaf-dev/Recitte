@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { photoCredits } from '~/content/credits'
-
 const { canJoin, activeSocials } = useSiteSettings()
 const { openApply, openJoin } = useDialogs()
 const year = new Date().getFullYear()
@@ -38,21 +36,9 @@ const linkClass =
           <SocialLinks />
         </div>
       </div>
-      <div class="flex flex-col gap-4 text-sm">
-        <div class="flex flex-wrap justify-between gap-4">
-          <span>© {{ year }} Recitte. All rights reserved.</span>
-          <span>Guided by the Qur'an and the Sunnah.</span>
-        </div>
-        <p class="credits">
-          Photo credits:
-          <template v-for="(c, i) in photoCredits" :key="c.file">
-            <a :href="c.page" target="_blank" rel="noopener">“{{ c.title }}”</a> by
-            <a :href="c.creatorUrl" target="_blank" rel="noopener">{{ c.creator }}</a>,
-            <a :href="c.licenseUrl" target="_blank" rel="noopener">{{ c.license }}</a>, via {{ c.via }}<span
-              v-if="i < photoCredits.length - 1"
-            >; </span>
-          </template>.
-        </p>
+      <div class="flex flex-wrap justify-between gap-4 text-sm">
+        <span>© {{ year }} Recitte. All rights reserved.</span>
+        <span>Guided by the Qur'an and the Sunnah.</span>
       </div>
     </div>
   </footer>

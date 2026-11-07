@@ -99,13 +99,3 @@ export const heroPictureByType: Record<ProgramType, Picture> = {
   challenge: pictures.heroMushaf,
   event: pictures.connectMosque,
 }
-
-/** Second, round image beside "About this program". */
-export const secondPictureByType: Record<ProgramType, Picture> = {
-  workshop: pictures.kufic,
-  seminar: pictures.connectMosque,
-  community: pictures.heroMushaf,
-  course: pictures.manuscript1697,
-  challenge: pictures.communityCircle,
-  event: pictures.ghanaMosque,
-}

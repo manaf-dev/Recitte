@@ -320,15 +320,6 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
-  .credits {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--color-mist);
-  }
-  .credits a {
-    color: #fff;
-  }
   .clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
